@@ -31,7 +31,3 @@ Major features include:
 * Warnings when buffs expire (see "Skill Warning" in config file)
 
 The hotkeys for all features can be changed in the config file.
-
-Github no longer offers binary downloads, so to get the latest release
-(currently v0.1.5) or any older release go to
-http://bitly.com/bundles/underbent/1.
