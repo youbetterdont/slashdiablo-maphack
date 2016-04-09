@@ -200,7 +200,7 @@ void ItemMover::OnRightClick(bool up, int x, int y, bool* block) {
 	int inventoryBottom = INVENTORY_TOP + (CELL_SIZE * INVENTORY_HEIGHT);
 	int stashRight = STASH_LEFT + (CELL_SIZE * STASH_WIDTH);
 	int stashTop = xpac ? LOD_STASH_TOP : CLASSIC_STASH_TOP;
-	int stashHeight = xpac ? 8 : 4;
+	int stashHeight = xpac ? LOD_STASH_HEIGHT : CLASSIC_STASH_HEIGHT;
 	int stashBottom = stashTop + (CELL_SIZE * stashHeight);
 	int cubeRight = CUBE_LEFT + (CELL_SIZE * CUBE_WIDTH);
 	int cubeBottom = CUBE_TOP + (CELL_SIZE * CUBE_HEIGHT);
