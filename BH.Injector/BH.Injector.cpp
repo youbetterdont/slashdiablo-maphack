@@ -82,7 +82,7 @@ int main(int argc, const char* argv[]) {
 	}
 
 	//Print intro and the beginning of the menu.
-	printf("BH v0.1.5s By McGod\n");
+	printf("BH v0.1.5s2 [1.13d] By McGod\n");
 	printf("SlashDiablo Branch: Edited By Deadlock, underbent\n");
 	printf("Visit http://www.reddit.com/r/slashdiablo for updates!\n");
 	printf("\n");
