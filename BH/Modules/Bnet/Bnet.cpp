@@ -5,9 +5,9 @@
 unsigned int Bnet::failToJoin;
 std::string Bnet::lastName;
 
-Patch* nextGame1 = new Patch(Call, D2MULTI, 0x14D29, (int)Bnet::NextGamePatch, 5);
-Patch* nextGame2 = new Patch(Call, D2MULTI, 0x14A0B, (int)Bnet::NextGamePatch, 5);
-Patch* ftjPatch = new Patch(Call, D2CLIENT, 0x4363E, (int)FailToJoin_Interception, 6);
+Patch* nextGame1 = new Patch(Call, D2MULTI, 0xADAB, (int)Bnet::NextGamePatch, 5);
+Patch* nextGame2 = new Patch(Call, D2MULTI, 0xB5E9, (int)Bnet::NextGamePatch, 5);
+Patch* ftjPatch = new Patch(Call, D2CLIENT, 0x443FE, (int)FailToJoin_Interception, 6);
 
 void Bnet::OnLoad() {
 	showLastGame = BH::config->ReadBoolean("Show Last Game", true);
