@@ -195,32 +195,40 @@ void ItemMover::OnRightClick(bool up, int x, int y, bool* block) {
 	}
 
 	int xpac = pData->nCharFlags & PLAYER_TYPE_EXPANSION;
+	bool resHackEnabled = (*BH::MiscToggles)["Toggle Resolution"].state;
 
-	int inventoryRight = INVENTORY_LEFT + (CELL_SIZE * INVENTORY_WIDTH);
-	int inventoryBottom = INVENTORY_TOP + (CELL_SIZE * INVENTORY_HEIGHT);
-	int stashRight = STASH_LEFT + (CELL_SIZE * STASH_WIDTH);
-	int stashTop = xpac ? LOD_STASH_TOP : CLASSIC_STASH_TOP;
+	int inventoryLeft = resHackEnabled ? INVENTORY_LEFT_1300 : INVENTORY_LEFT_800;
+	int inventoryRight = inventoryLeft + (CELL_SIZE * INVENTORY_WIDTH);
+	int inventoryTop = resHackEnabled ? INVENTORY_TOP_1300 : INVENTORY_TOP_800;
+	int inventoryBottom = inventoryTop + (CELL_SIZE * INVENTORY_HEIGHT);
+	int stashLeft = resHackEnabled ? STASH_LEFT_1300 : STASH_LEFT_800;
+	int stashRight = stashLeft + (CELL_SIZE * STASH_WIDTH);
+	int stashTop = xpac ? 
+		(resHackEnabled ? LOD_STASH_TOP_1300 : LOD_STASH_TOP_800) : 
+		(resHackEnabled ? CLASSIC_STASH_TOP_1300 : CLASSIC_STASH_TOP_800);
 	int stashHeight = xpac ? LOD_STASH_HEIGHT : CLASSIC_STASH_HEIGHT;
-	int stashBottom = stashTop + (CELL_SIZE * stashHeight);
-	int cubeRight = CUBE_LEFT + (CELL_SIZE * CUBE_WIDTH);
-	int cubeBottom = CUBE_TOP + (CELL_SIZE * CUBE_HEIGHT);
+ 	int stashBottom = stashTop + (CELL_SIZE * stashHeight);
+	int cubeLeft = resHackEnabled ? CUBE_LEFT_1300 : CUBE_LEFT_800;
+	int cubeRight = cubeLeft + (CELL_SIZE * CUBE_WIDTH);
+	int cubeTop = resHackEnabled ? CUBE_TOP_1300 : CUBE_TOP_800;
+	int cubeBottom = cubeTop + (CELL_SIZE * CUBE_HEIGHT);
 
 	int source, sourceX, sourceY;
 	int invUI = D2CLIENT_GetUIState(UI_INVENTORY);
 	int stashUI = D2CLIENT_GetUIState(UI_STASH);
 	int cubeUI = D2CLIENT_GetUIState(UI_CUBE);
-	if ((invUI || stashUI || cubeUI) && x >= INVENTORY_LEFT && x <= inventoryRight && y >= INVENTORY_TOP && y <= inventoryBottom) {
+	if ((invUI || stashUI || cubeUI) && x >= inventoryLeft && x <= inventoryRight && y >= inventoryTop && y <= inventoryBottom) {
 		source = STORAGE_INVENTORY;
-		sourceX = (x - INVENTORY_LEFT) / CELL_SIZE;
-		sourceY = (y - INVENTORY_TOP) / CELL_SIZE;
-	} else if (stashUI && x >= STASH_LEFT && x <= stashRight && y >= stashTop && y <= stashBottom) {
+		sourceX = (x - inventoryLeft) / CELL_SIZE;
+		sourceY = (y - inventoryTop) / CELL_SIZE;
+	} else if (stashUI && x >= stashLeft && x <= stashRight && y >= stashTop && y <= stashBottom) {
 		source = STORAGE_STASH;
-		sourceX = (x - STASH_LEFT) / CELL_SIZE;
+		sourceX = (x - stashLeft) / CELL_SIZE;
 		sourceY = (y - stashTop) / CELL_SIZE;
-	} else if (cubeUI && x >= CUBE_LEFT && x <= cubeRight && y >= CUBE_TOP && y <= cubeBottom) {
+	} else if (cubeUI && x >= cubeLeft && x <= cubeRight && y >= cubeTop && y <= cubeBottom) {
 		source = STORAGE_CUBE;
-		sourceX = (x - CUBE_LEFT) / CELL_SIZE;
-		sourceY = (y - CUBE_TOP) / CELL_SIZE;
+		sourceX = (x - cubeLeft) / CELL_SIZE;
+		sourceY = (y - cubeTop) / CELL_SIZE;
 	} else {
 		return;
 	}

@@ -85,6 +85,7 @@ int main(int argc, const char* argv[]) {
 	printf("BH v0.1.5s2 [1.13d] By McGod\n");
 	printf("SlashDiablo Branch: Edited By Deadlock, underbent\n");
 	printf("Visit http://www.reddit.com/r/slashdiablo for updates!\n");
+	printf("HD 1344x700 resolution -- by TravHatesMe\n");
 	printf("\n");
 	printf("Command-line parameters:\n");
 	printf("\t-o <option number>: set injection option (0 for inject all, etc)\n");

@@ -115,6 +115,9 @@
     <Filter Include="BH\Modules\ItemMover">
       <UniqueIdentifier>{f0228985-25bf-47bc-8e7e-2d5bec1a7586}</UniqueIdentifier>
     </Filter>
+    <Filter Include="BH\Modules\Resolution">
+      <UniqueIdentifier>{b8ea2161-4225-43ea-806c-0004ba51d6d4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DllMain.cpp">
@@ -227,6 +230,12 @@
     </ClCompile>
     <ClCompile Include="BitReader.cpp">
       <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\Resolution\Resolution.cpp">
+      <Filter>BH\Modules\Resolution</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\Resolution\ScreenRefresh.cpp">
+      <Filter>BH\Modules\Resolution</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -373,6 +382,12 @@
     </ClInclude>
     <ClInclude Include="BitReader.h">
       <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\Resolution\Resolution.h">
+      <Filter>BH\Modules\Resolution</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\Resolution\ScreenRefresh.h">
+      <Filter>BH\Modules\Resolution</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

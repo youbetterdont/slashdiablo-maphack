@@ -50,7 +50,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <TargetExt>.bin</TargetExt>
+    <TargetExt>.dll</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Packaging|Win32'">
     <TargetExt>.dll</TargetExt>
@@ -128,6 +128,8 @@
     <ClCompile Include="Modules\Module.cpp" />
     <ClCompile Include="Modules\ModuleManager.cpp" />
     <ClCompile Include="Modules\Party\Party.cpp" />
+    <ClCompile Include="Modules\Resolution\Resolution.cpp" />
+    <ClCompile Include="Modules\Resolution\ScreenRefresh.cpp" />
     <ClCompile Include="Modules\ScreenInfo\ScreenInfo.cpp" />
     <ClCompile Include="Modules\SpamFilter\Bayes.cpp" />
     <ClCompile Include="Modules\SpamFilter\SpamFilter.cpp" />
@@ -178,6 +180,8 @@
     <ClInclude Include="Modules\Module.h" />
     <ClInclude Include="Modules\ModuleManager.h" />
     <ClInclude Include="Modules\Party\Party.h" />
+    <ClInclude Include="Modules\Resolution\Resolution.h" />
+    <ClInclude Include="Modules\Resolution\ScreenRefresh.h" />
     <ClInclude Include="Modules\ScreenInfo\ScreenInfo.h" />
     <ClInclude Include="Modules\SpamFilter\Bayes.h" />
     <ClInclude Include="Modules\SpamFilter\SpamFilter.h" />
