@@ -224,3 +224,20 @@ SkipChat:
 		ret 8
 	}
 }
+
+void PositionMenuTab_Interception(void) {
+	__asm
+	{
+		cmp eax, 03
+		jne Mode640
+		mov dword ptr ds:[0x6FAB0000+0x11B9A0], 352
+		mov dword ptr ds:[0x6FAB0000+0x11B9A4], -110
+		jmp RepositionEnd
+
+Mode640:
+		mov dword ptr ds:[0x6FAB0000+0x11B9A0], 0
+		mov dword ptr ds:[0x6FAB0000+0x11B9A4], 0
+
+RepositionEnd:
+	}
+}

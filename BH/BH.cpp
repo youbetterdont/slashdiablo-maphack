@@ -32,6 +32,7 @@ Patch* patches[] = {
 	new Patch(Jump, D2MULTI, 0x108A0, (int)ChannelChat_Interception, 6),
 	new Patch(Jump, D2MULTI, 0x107A0, (int)ChannelEmote_Interception, 6),
 	new Patch(NOP, D2CLIENT, 0x3CB7C, 0, 9),
+	new Patch(Call, D2CLIENT, 0xC3A11, (int)PositionMenuTab_Interception, 12),
 };
 
 Patch* BH::oogDraw = new Patch(Call, D2WIN, 0x18911, (int)OOGDraw_Interception, 5);
@@ -76,6 +77,7 @@ bool BH::Startup(HINSTANCE instance, VOID* reserved) {
 	new AutoTele();
 	new Party();
 	new ItemMover();
+	new Resolution();
 
 	moduleManager->LoadModules();
 
