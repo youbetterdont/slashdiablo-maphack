@@ -37,6 +37,7 @@ void Resolution::SetResolution(int x, int y) {
 	*p_D2CLIENT_ScreenSizeY = *p_D2CLIENT_SizeY1 = y;
 
 	*p_D2CLIENT_MapPosY = y - 40; // subtract 40 to correct offsets
+	*p_D2CLIENT_InventoryArrangeMode = 0;
 	ScreenRefresh::RefreshDisplay();
 	//raise resolution changed event so that other modules can readjust positions
 	__raise BH::moduleManager->OnResolutionChanged(x, y);
