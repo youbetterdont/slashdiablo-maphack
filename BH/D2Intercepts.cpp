@@ -229,15 +229,146 @@ void PositionMenuTab_Interception(void) {
 	__asm
 	{
 		cmp eax, 03
-		jne Mode640
+		jne PositionMenuTab_Mode640
 		mov dword ptr ds:[0x6FAB0000+0x11B9A0], 352
 		mov dword ptr ds:[0x6FAB0000+0x11B9A4], -110
-		jmp RepositionEnd
+		jmp PositionMenuTab_RepositionEnd
 
-Mode640:
+PositionMenuTab_Mode640:
 		mov dword ptr ds:[0x6FAB0000+0x11B9A0], 0
 		mov dword ptr ds:[0x6FAB0000+0x11B9A4], 0
 
-RepositionEnd:
+PositionMenuTab_RepositionEnd:
+	}
+}
+
+void DisplayExpansionUI_Interception(void) {
+	__asm
+	{
+		cmp eax, 01
+		je DisplayExpansionUI_Mode640
+
+		mov eax, 0x6FAD926C
+		jmp DisplayExpansionUI_DisplayExpansionUIInterceptEnd
+
+DisplayExpansionUI_Mode640:
+		mov eax, 0x6FAD9294
+
+DisplayExpansionUI_DisplayExpansionUIInterceptEnd:
+		pop ebp
+		jmp eax
+	}
+}
+
+void DisplayExpansionUILeftTabTopRight_Interception(void) {
+	__asm
+	{
+		mov eax, ds:[0x6FA80000+0x11260]
+		cmp eax, 03
+		pop ebp
+		jne DisplayExpansionUILeftTabTopRight_OriginalValues
+
+		; New Values
+
+		; Amount of blackness to add from Y offset
+		push 5
+
+		; Amount of blackness to add from X offset
+		push 255
+
+		; Shift position Y, height is 40
+		push 113	; The height difference is 100, so add 50 to original
+
+		; Shift position X, width is 144
+		push 528	; Subtract 144 from the width
+
+		jmp DisplayExpansionUILeftTabTopRight_End
+		
+DisplayExpansionUILeftTabTopRight_OriginalValues:
+		push 05		; 05
+		push -01	; 255
+		push 63		; 3F
+		push 256	; 0x00000100
+
+DisplayExpansionUILeftTabTopRight_End:
+		mov eax, 0x6FAD721A
+		jmp eax
+	}
+}
+
+void DisplayExpansionUILeftTabMiddleTop_Interception(void) {
+	__asm
+	{
+		mov eax, ds:[0x6FA80000+0x11260]
+		cmp eax, 03
+		pop ebp
+		jne DisplayExpansionUILeftTabMiddleTop_OriginalValues
+
+		; New Values
+		push 0x05
+		push -01
+		push 0x000001E4
+		jmp DisplayExpansionUILeftTabMiddleTop_End
+		
+DisplayExpansionUILeftTabMiddleTop_OriginalValues:
+		push 0x05
+		push -01
+		push 0x000001E4
+
+DisplayExpansionUILeftTabMiddleTop_End:
+		mov eax, 0x6FAB0000+0x27236
+		jmp eax
+	}
+}
+
+void DisplayExpansionUILeftTabBottomLeft_Interception(void) {
+	__asm
+	{
+		mov eax, ds:[0x6FA80000+0x11260]
+		cmp eax, 03
+		pop ebp
+		jne DisplayExpansionUILeftTabBottomLeft_OriginalValues
+
+		; New Values
+		push 5
+		push -01
+		push 553
+		jmp DisplayExpansionUILeftTabBottomLeft_End
+		
+DisplayExpansionUILeftTabBottomLeft_OriginalValues:
+		push 0x05
+		push -01
+		push 553
+
+DisplayExpansionUILeftTabBottomLeft_End:
+		mov eax, 0x6FAB0000+0x27253
+		jmp eax
+	}
+}
+
+void DisplayExpansionUILeftTabBottomRight_Interception(void) {
+	__asm
+	{
+		mov eax, ds:[0x6FA80000+0x11260]
+		cmp eax, 03
+		pop ebp
+		jne DisplayExpansionUILeftTabBottomRight_OriginalValues
+
+		; New Values
+		push 0x05
+		push -01
+		push 0x00000229
+		push 0x00000100
+		jmp DisplayExpansionUILeftTabBottomRight_End
+		
+DisplayExpansionUILeftTabBottomRight_OriginalValues:
+		push 0x05
+		push -01
+		push 0x00000229
+		push 0x00000100
+
+DisplayExpansionUILeftTabBottomRight_End:
+		mov eax, 0x6FAB0000+0x27275
+		jmp eax
 	}
 }
