@@ -270,10 +270,10 @@ void DisplayExpansionUILeftTabTopRight_Interception(void) {
 
 		; New Values
 
-		; Amount of blackness to add from Y offset
+		; Unknown
 		push 5
 
-		; Amount of blackness to add from X offset
+		; Darkness color filter (0 - 255) higher=less dark, lower=darker
 		push 255
 
 		; Shift position Y, height is 40
