@@ -225,13 +225,23 @@ SkipChat:
 	}
 }
 
-void PositionMenuTab_Interception(void) {
+void __declspec(naked) PositionMenuTab_Interception(void) {
 	__asm
 	{
+		; Check that the mode is set to HD, otherwise run 640 mode code
 		cmp eax, 03
 		jne PositionMenuTab_Mode640
-		mov dword ptr ds:[0x6FAB0000+0x11B9A0], 352
-		mov dword ptr ds:[0x6FAB0000+0x11B9A4], -110
+
+		; HD positions
+		pushad
+		mov eax, p_D2CLIENT_TabXOffset
+
+		; Position X offset
+		mov dword ptr ds:[eax], 352
+		; Position Y offset
+		mov dword ptr ds:[eax+4], -110
+
+		popad
 		jmp PositionMenuTab_RepositionEnd
 
 PositionMenuTab_Mode640:
@@ -239,12 +249,14 @@ PositionMenuTab_Mode640:
 		mov dword ptr ds:[0x6FAB0000+0x11B9A4], 0
 
 PositionMenuTab_RepositionEnd:
+		ret
 	}
 }
 
 void DisplayExpansionUI_Interception(void) {
 	__asm
 	{
+		; Check that we are in HD mode,
 		cmp eax, 01
 		je DisplayExpansionUI_Mode640
 
@@ -280,7 +292,7 @@ void DisplayExpansionUILeftTabTopRight_Interception(void) {
 		push 113	; The height difference is 100, so add 50 to original
 
 		; Shift position X, width is 144
-		push 528	; Subtract 144 from the width
+		push 528	; Subtract 144 from half the width
 
 		jmp DisplayExpansionUILeftTabTopRight_End
 		
@@ -307,13 +319,15 @@ void DisplayExpansionUILeftTabMiddleTop_Interception(void) {
 		; New Values
 		push 0x05
 		push -01
+
+		; Shift position X, width is 144
 		push 0x000001E4
 		jmp DisplayExpansionUILeftTabMiddleTop_End
 		
 DisplayExpansionUILeftTabMiddleTop_OriginalValues:
-		push 0x05
-		push -01
-		push 0x000001E4
+		push 0x05	; 05
+		push -01	; 255
+		push 484	; 0x000001E4
 
 DisplayExpansionUILeftTabMiddleTop_End:
 		mov eax, 0x6FAB0000+0x27236

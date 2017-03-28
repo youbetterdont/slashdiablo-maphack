@@ -35,11 +35,11 @@ Patch* patches[] = {
 	new Patch(Call, D2CLIENT, 0xC3A11, (int)PositionMenuTab_Interception, 12),
 
 	// Nice looking UI patches
-	new Patch(Jump, D2CLIENT, 0x29267, (int)DisplayExpansionUI_Interception, 5),
-	new Patch(Jump, D2CLIENT, 0x2720F, (int)DisplayExpansionUILeftTabTopRight_Interception, 11),
-	new Patch(Jump, D2CLIENT, 0x2722D, (int)DisplayExpansionUILeftTabMiddleTop_Interception, 9),
-	new Patch(Jump, D2CLIENT, 0x2724A, (int)DisplayExpansionUILeftTabBottomLeft_Interception, 9),
-	new Patch(Jump, D2CLIENT, 0x27267, (int)DisplayExpansionUILeftTabBottomRight_Interception, 14),
+	// new Patch(Jump, D2CLIENT, 0x29267, (int)DisplayExpansionUI_Interception, 5),
+	//new Patch(Jump, D2CLIENT, 0x2720F, (int)DisplayExpansionUILeftTabTopRight_Interception, 11),
+	//new Patch(Jump, D2CLIENT, 0x2722D, (int)DisplayExpansionUILeftTabMiddleTop_Interception, 9),
+	//new Patch(Jump, D2CLIENT, 0x2724A, (int)DisplayExpansionUILeftTabBottomLeft_Interception, 9),
+	//new Patch(Jump, D2CLIENT, 0x27267, (int)DisplayExpansionUILeftTabBottomRight_Interception, 14),
 };
 
 Patch* BH::oogDraw = new Patch(Call, D2WIN, 0x18911, (int)OOGDraw_Interception, 5);
