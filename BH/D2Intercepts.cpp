@@ -230,25 +230,25 @@ void __declspec(naked) PositionMenuTab_Interception(void) {
 	{
 		; Check that the mode is set to HD, otherwise run 640 mode code
 		cmp eax, 03
+
+		pushad
+		mov eax, p_D2CLIENT_TabXOffset
 		jne PositionMenuTab_Mode640
 
 		; HD positions
-		pushad
-		mov eax, p_D2CLIENT_TabXOffset
-
 		; Position X offset
 		mov dword ptr ds:[eax], 352
 		; Position Y offset
 		mov dword ptr ds:[eax+4], -110
 
-		popad
 		jmp PositionMenuTab_RepositionEnd
 
 PositionMenuTab_Mode640:
-		mov dword ptr ds:[0x6FAB0000+0x11B9A0], 0
-		mov dword ptr ds:[0x6FAB0000+0x11B9A4], 0
+		mov dword ptr ds:[eax], 0
+		mov dword ptr ds:[eax+4], 0
 
 PositionMenuTab_RepositionEnd:
+		popad
 		ret
 	}
 }
