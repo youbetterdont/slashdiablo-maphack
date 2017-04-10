@@ -6,8 +6,108 @@
 // This module was inspired by the RedVex plugin "Item Mover", written by kaiks.
 // Thanks to kaiks for sharing his code.
 
+int INVENTORY_WIDTH = 10;
+int INVENTORY_HEIGHT = 4;
+int STASH_WIDTH = 6;
+int LOD_STASH_HEIGHT = 8;
+int CLASSIC_STASH_HEIGHT = 4;
+int CUBE_WIDTH = 3;
+int CUBE_HEIGHT = 4;
+
+// These are pixel positions
+int INVENTORY_LEFT_800 = 417;
+int INVENTORY_LEFT_1300 = 691;
+int INVENTORY_TOP_800 = 315;
+int INVENTORY_TOP_1300 = 365;
+int STASH_LEFT_800 = 153;
+int STASH_LEFT_1300 = 426;
+int LOD_STASH_TOP_800 = 143;
+int LOD_STASH_TOP_1300 = 192;
+int CLASSIC_STASH_TOP_800 = 334;
+int CLASSIC_STASH_TOP_1300 = 383;
+int CUBE_LEFT_800 = 198;
+int CUBE_LEFT_1300 = 470;
+int CUBE_TOP_800 = 199;
+int CUBE_TOP_1300 = 249;
+int CELL_SIZE = 29;
+
+
+void ItemMover::Init() {
+	// We should be able to get the layout from *p_D2CLIENT_StashLayout and friends,
+	// but doesn't seem to be working at the moment so use the mpq data.
+
+	InventoryLayout *classicStashLayout;
+	InventoryLayout *lodStashLayout;
+	InventoryLayout *inventoryLayout;
+	InventoryLayout *cubeLayout;
+
+	// Pull screen sizing info from the mpq data
+	int screenWidth = *p_D2CLIENT_ScreenSizeX;
+	int screenHeight = *p_D2CLIENT_ScreenSizeY;
+	//PrintText(1, "Got screensize %d, %d", screenWidth, screenHeight);
+
+	if (screenWidth == 1344 && screenHeight == 700) {
+		classicStashLayout = InventoryLayoutMap["Bank Page 1"];
+		lodStashLayout = InventoryLayoutMap["Big Bank Page 1"];
+		inventoryLayout = InventoryLayoutMap["Amazon"];  // all character types have the same layout
+		cubeLayout = InventoryLayoutMap["Transmogrify Box Page 1"];
+	} else {
+		// Currently we don't support non-standard screen sizes; default to 800x600
+		classicStashLayout = InventoryLayoutMap["Bank Page2"];
+		lodStashLayout = InventoryLayoutMap["Big Bank Page2"];
+		inventoryLayout = InventoryLayoutMap["Amazon2"];  // all character types have the same layout
+		cubeLayout = InventoryLayoutMap["Transmogrify Box2"];
+	}
+
+	INVENTORY_WIDTH = inventoryLayout->SlotWidth;
+	INVENTORY_HEIGHT = inventoryLayout->SlotHeight;
+	STASH_WIDTH = lodStashLayout->SlotWidth;
+	LOD_STASH_HEIGHT = lodStashLayout->SlotHeight;
+	CLASSIC_STASH_HEIGHT = classicStashLayout->SlotHeight;
+	CUBE_WIDTH = cubeLayout->SlotWidth;
+	CUBE_HEIGHT = cubeLayout->SlotHeight;
+
+	INVENTORY_LEFT_800 = inventoryLayout->Left;
+	INVENTORY_TOP_800 = inventoryLayout->Top;
+	STASH_LEFT_800 = lodStashLayout->Left;
+	LOD_STASH_TOP_800 = lodStashLayout->Top;
+	CLASSIC_STASH_TOP_800 = classicStashLayout->Top;
+	CUBE_LEFT_800 = cubeLayout->Left;
+	CUBE_TOP_800 = cubeLayout->Top;
+	CELL_SIZE = inventoryLayout->SlotPixelHeight;
+
+	if (!InventoryItemIds) {
+		InventoryItemIds = new int[INVENTORY_WIDTH * INVENTORY_HEIGHT];
+	}
+	if (!StashItemIds) {
+		StashItemIds = new int[STASH_WIDTH * LOD_STASH_HEIGHT];
+	}
+	if (!CubeItemIds) {
+		CubeItemIds = new int[CUBE_WIDTH * CUBE_HEIGHT];
+	}
+
+	//PrintText(1, "Got positions: %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d",
+	//	INVENTORY_WIDTH,
+	//	INVENTORY_HEIGHT,
+	//	STASH_WIDTH,
+	//	LOD_STASH_HEIGHT,
+	//	CLASSIC_STASH_HEIGHT,
+	//	CUBE_WIDTH,
+	//	CUBE_HEIGHT,
+	//	INVENTORY_LEFT,
+	//	INVENTORY_TOP,
+	//	STASH_LEFT,
+	//	LOD_STASH_TOP,
+	//	CLASSIC_STASH_TOP,
+	//	CUBE_LEFT,
+	//	CUBE_TOP,
+	//	CELL_SIZE
+	//);
+}
+
 bool ItemMover::LoadInventory(UnitAny *unit, int xpac, int source, int sourceX, int sourceY, bool shiftState, bool ctrlState, int stashUI, int invUI) {
 	bool returnValue = false;
+
 	memset(InventoryItemIds, 0, INVENTORY_WIDTH * INVENTORY_HEIGHT * sizeof(int));
 	memset(StashItemIds, 0, STASH_WIDTH * LOD_STASH_HEIGHT * sizeof(int));
 	memset(CubeItemIds, 0, CUBE_WIDTH * CUBE_HEIGHT * sizeof(int));
@@ -194,6 +294,8 @@ void ItemMover::OnRightClick(bool up, int x, int y, bool* block) {
 		return;
 	}
 
+	Init();
+
 	int xpac = pData->nCharFlags & PLAYER_TYPE_EXPANSION;
 	bool resHackEnabled = (*BH::MiscToggles)["Toggle Resolution"].state;
 
@@ -254,12 +356,15 @@ void ItemMover::OnKey(bool up, BYTE key, LPARAM lParam, bool* block)  {
 		char firstChar = key == HealKey ? 'h' : 'm';
 		char minPotion = 127;
 		DWORD minItemId = 0;
+		bool isBelt = false;
 		for (UnitAny *pItem = unit->pInventory->pFirstItem; pItem; pItem = pItem->pItemData->pNextInvItem) {
-			if (pItem->pItemData->ItemLocation == STORAGE_INVENTORY) {
+			if (pItem->pItemData->ItemLocation == STORAGE_INVENTORY ||
+				pItem->pItemData->ItemLocation == STORAGE_NULL && pItem->pItemData->NodePage == NODEPAGE_BELTSLOTS) {
 				char* code = D2COMMON_GetItemText(pItem->dwTxtFileNo)->szCode;
 				if (code[0] == firstChar && code[1] == 'p' && code[2] < minPotion) {
 					minPotion = code[2];
 					minItemId = pItem->dwUnitId;
+					isBelt = pItem->pItemData->NodePage == NODEPAGE_BELTSLOTS;
 				}
 			}
 			//char *code = D2COMMON_GetItemText(pItem->dwTxtFileNo)->szCode;
@@ -272,12 +377,19 @@ void ItemMover::OnKey(bool up, BYTE key, LPARAM lParam, bool* block)  {
 			//}
 		}
 		if (minItemId > 0) {
-			//PrintText(1, "Sending packet %d, %d, %d", minItemId, unit->pPath->xPos, unit->pPath->yPos);
-			BYTE PacketData[13] = {0x20,0,0,0,0,0,0,0,0,0,0,0,0};
-			*reinterpret_cast<int*>(PacketData + 1) = minItemId;
-			*reinterpret_cast<WORD*>(PacketData + 5) = (WORD)unit->pPath->xPos;
-			*reinterpret_cast<WORD*>(PacketData + 9) = (WORD)unit->pPath->yPos;
-			D2NET_SendPacket(13, 0, PacketData);
+			if (isBelt){
+				BYTE PacketData[13] = { 0x26, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+				*reinterpret_cast<int*>(PacketData + 1) = minItemId;
+				D2NET_SendPacket(13, 0, PacketData);
+			}
+			else{
+				//PrintText(1, "Sending packet %d, %d, %d", minItemId, unit->pPath->xPos, unit->pPath->yPos);
+				BYTE PacketData[13] = { 0x20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+				*reinterpret_cast<int*>(PacketData + 1) = minItemId;
+				*reinterpret_cast<WORD*>(PacketData + 5) = (WORD)unit->pPath->xPos;
+				*reinterpret_cast<WORD*>(PacketData + 9) = (WORD)unit->pPath->yPos;
+				D2NET_SendPacket(13, 0, PacketData);
+			}
 			*block = true;
 		}
 	}
@@ -473,7 +585,7 @@ void ParseItem(const unsigned char *data, ItemInfo *item, bool *success) {
 		item->code[3] = 0;
 
 		if (ItemAttributeMap.find(item->code) == ItemAttributeMap.end()) {
-			PrintText(1, "Unknown item code from packet: %c%c%c\n", item->code[0], item->code[1], item->code[2]);
+			HandleUnknownItemCode(item->code, "from packet");
 			*success = false;
 			return;
 		}
@@ -632,8 +744,12 @@ void ParseItem(const unsigned char *data, ItemInfo *item, bool *success) {
 			}
 			item->properties.push_back(prop);
 		}
+	} catch (int e) {
+		PrintText(1, "Int exception parsing item: %c%c%c, %d", item->code[0], item->code[1], item->code[2], e);
+	} catch (std::exception const & ex) {
+		PrintText(1, "Exception parsing item: %c%c%c, %s", item->code[0], item->code[1], item->code[2], ex.what());
 	} catch(...) {
-		PrintText(1, "Exception parsing item: %c%c%c", item->code[0], item->code[1], item->code[2]);
+		PrintText(1, "Miscellaneous exception parsing item: %c%c%c", item->code[0], item->code[1], item->code[2]);
 		*success = false;
 	}
 	return;
@@ -644,16 +760,24 @@ bool ProcessStat(unsigned int stat, BitReader &reader, ItemProperty &itemProp) {
 		return false;
 	}
 
-	unsigned int saveBits = ItemPropertyBitsList[stat].saveBits;
-	unsigned int saveParamBits = ItemPropertyBitsList[stat].saveParamBits;
-	unsigned int saveAdd = ItemPropertyBitsList[stat].saveAdd;
+	StatProperties *bits = GetStatProperties(stat);
+	unsigned int saveBits = bits->saveBits;
+	unsigned int saveParamBits = bits->saveParamBits;
+	unsigned int saveAdd = bits->saveAdd;
 	itemProp.stat = stat;
 
 	if (saveParamBits > 0) {
 		switch (stat) {
-			case STAT_REANIMATE:
+			case STAT_CLASSSKILLS:
 			{
-				itemProp.monster = reader.read(saveParamBits);
+				itemProp.characterClass = reader.read(saveParamBits);
+				itemProp.value = reader.read(saveBits);
+				return true;
+			}
+			case STAT_NONCLASSSKILL:
+			case STAT_SINGLESKILL:
+			{
+				itemProp.skill = reader.read(saveParamBits);
 				itemProp.value = reader.read(saveBits);
 				return true;
 			}
@@ -663,31 +787,24 @@ bool ProcessStat(unsigned int stat, BitReader &reader, ItemProperty &itemProp) {
 				itemProp.value = reader.read(saveBits);
 				return true;
 			}
-			case STAT_CLASSSKILLS:
-			{
-				itemProp.characterClass = reader.read(saveParamBits);
-				itemProp.value = reader.read(saveBits);
-				return true;
-			}
 			case STAT_AURA:
 			{
 				itemProp.skill = reader.read(saveParamBits);
 				itemProp.value = reader.read(saveBits);
 				return true;
 			}
-			case STAT_SINGLESKILL:
-			case STAT_NONCLASSSKILL:
+			case STAT_REANIMATE:
 			{
-				itemProp.skill = reader.read(saveParamBits);
+				itemProp.monster = reader.read(saveParamBits);
 				itemProp.value = reader.read(saveBits);
 				return true;
 			}
-			case STAT_CHARGED:
+			case STAT_SKILLTAB:
 			{
-				itemProp.level = reader.read(6);
-				itemProp.skill = reader.read(10);
-				itemProp.charges = reader.read(8);
-				itemProp.maximumCharges = reader.read(8);
+				itemProp.tab = reader.read(3);
+				itemProp.characterClass = reader.read(3);
+				ulong unknown = reader.read(10);
+				itemProp.value = reader.read(saveBits);
 				return true;
 			}
 			case STAT_SKILLONDEATH:
@@ -702,20 +819,31 @@ bool ProcessStat(unsigned int stat, BitReader &reader, ItemProperty &itemProp) {
 				itemProp.skillChance = reader.read(saveBits);
 				return true;
 			}
-			case STAT_SKILLTAB:
+			case STAT_CHARGED:
 			{
-				itemProp.tab = reader.read(3);
-				itemProp.characterClass = reader.read(3);
-				ulong unknown = reader.read(10);
-				itemProp.value = reader.read(saveBits);
+				itemProp.level = reader.read(6);
+				itemProp.skill = reader.read(10);
+				itemProp.charges = reader.read(8);
+				itemProp.maximumCharges = reader.read(8);
+				return true;
+			}
+			case STAT_STATE:
+			case STAT_ATTCKRTNGVSMONSTERTYPE:
+			case STAT_DAMAGETOMONSTERTYPE:
+			{
+				// For some reason heroin_glands doesn't read these, even though
+				// they have saveParamBits; maybe they don't occur in practice?
+				itemProp.value = reader.read(saveBits) - saveAdd;
 				return true;
 			}
 			default:
+				reader.read(saveParamBits);
+				reader.read(saveBits);
 				return true;
 		}
 	}
 
-	if (stat >= STAT_DEFENSEPERLEVEL && stat <= STAT_FINDGEMSPERLEVEL) {
+	if (bits->op >= 2 && bits->op <= 5) {
 		itemProp.perLevel = reader.read(saveBits);
 		return true;
 	}
@@ -731,33 +859,33 @@ bool ProcessStat(unsigned int stat, BitReader &reader, ItemProperty &itemProp) {
 		case STAT_MINIMUMFIREDAMAGE:
 		{
 			itemProp.minimum = reader.read(saveBits);
-			itemProp.maximum = reader.read(ItemPropertyBitsList[STAT_MAXIMUMFIREDAMAGE].saveBits);
+			itemProp.maximum = reader.read(GetStatProperties(STAT_MAXIMUMFIREDAMAGE)->saveBits);
 			return true;
 		}
 		case STAT_MINIMUMLIGHTNINGDAMAGE:
 		{
 			itemProp.minimum = reader.read(saveBits);
-			itemProp.maximum = reader.read(ItemPropertyBitsList[STAT_MAXIMUMLIGHTNINGDAMAGE].saveBits);
+			itemProp.maximum = reader.read(GetStatProperties(STAT_MAXIMUMLIGHTNINGDAMAGE)->saveBits);
 			return true;
 		}
 		case STAT_MINIMUMMAGICALDAMAGE:
 		{
 			itemProp.minimum = reader.read(saveBits);
-			itemProp.maximum = reader.read(ItemPropertyBitsList[STAT_MAXIMUMMAGICALDAMAGE].saveBits);
+			itemProp.maximum = reader.read(GetStatProperties(STAT_MAXIMUMMAGICALDAMAGE)->saveBits);
 			return true;
 		}
 		case STAT_MINIMUMCOLDDAMAGE:
 		{
 			itemProp.minimum = reader.read(saveBits);
-			itemProp.maximum = reader.read(ItemPropertyBitsList[STAT_MAXIMUMCOLDDAMAGE].saveBits);
-			itemProp.length = reader.read(ItemPropertyBitsList[STAT_COLDDAMAGELENGTH].saveBits);
+			itemProp.maximum = reader.read(GetStatProperties(STAT_MAXIMUMCOLDDAMAGE)->saveBits);
+			itemProp.length = reader.read(GetStatProperties(STAT_COLDDAMAGELENGTH)->saveBits);
 			return true;
 		}
 		case STAT_MINIMUMPOISONDAMAGE:
 		{
 			itemProp.minimum = reader.read(saveBits);
-			itemProp.maximum = reader.read(ItemPropertyBitsList[STAT_MAXIMUMPOISONDAMAGE].saveBits);
-			itemProp.length = reader.read(ItemPropertyBitsList[STAT_POISONDAMAGELENGTH].saveBits);
+			itemProp.maximum = reader.read(GetStatProperties(STAT_MAXIMUMPOISONDAMAGE)->saveBits);
+			itemProp.length = reader.read(GetStatProperties(STAT_POISONDAMAGELENGTH)->saveBits);
 			return true;
 		}
 		case STAT_REPAIRSDURABILITY:

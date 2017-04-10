@@ -116,7 +116,10 @@
       <UniqueIdentifier>{f0228985-25bf-47bc-8e7e-2d5bec1a7586}</UniqueIdentifier>
     </Filter>
     <Filter Include="BH\Modules\Resolution">
-      <UniqueIdentifier>{b8ea2161-4225-43ea-806c-0004ba51d6d4}</UniqueIdentifier>
+      <UniqueIdentifier>{8b2569cb-6992-4649-86d3-f8f4e2a2c450}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="BH\Modules\StashExport">
+      <UniqueIdentifier>{f61bd38d-3389-48ea-a3e2-74cd416ce3f7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -143,9 +146,6 @@
     </ClCompile>
     <ClCompile Include="Config.cpp">
       <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="BH.cpp">
-      <Filter>BH</Filter>
     </ClCompile>
     <ClCompile Include="Modules\Maphack\Maphack.cpp">
       <Filter>BH\Modules\Maphack</Filter>
@@ -236,6 +236,33 @@
     </ClCompile>
     <ClCompile Include="Modules\Resolution\ScreenRefresh.cpp">
       <Filter>BH\Modules\Resolution</Filter>
+    </ClCompile>
+    <ClCompile Include="BH.cpp">
+      <Filter>BH</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\StashExport\StashExport.cpp">
+      <Filter>BH\Modules\StashExport</Filter>
+    </ClCompile>
+    <ClCompile Include="MPQInit.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="JSONObject.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="TableReader.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Mustache.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="MPQReader.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Task.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="AsyncDrawBuffer.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -388,6 +415,30 @@
     </ClInclude>
     <ClInclude Include="Modules\Resolution\ScreenRefresh.h">
       <Filter>BH\Modules\Resolution</Filter>
+    </ClInclude>
+    <ClInclude Include="MPQInit.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\StashExport\StashExport.h">
+      <Filter>BH\Modules\StashExport</Filter>
+    </ClInclude>
+    <ClInclude Include="JSONObject.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="TableReader.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Mustache.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="MPQReader.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Task.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="AsyncDrawBuffer.h">
+      <Filter>Diablo II</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
