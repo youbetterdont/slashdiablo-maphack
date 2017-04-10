@@ -3,6 +3,7 @@
 #include "../../BH.h"
 #include "../../D2Stubs.h"
 #include "ItemDisplay.h"
+#include "../../MPQInit.h"
 
 map<std::string, Toggle> Item::Toggles;
 UnitAny* Item::viewingUnit;
@@ -23,11 +24,9 @@ void Item::OnLoad() {
 	Toggles["Color Mod"] = BH::config->ReadToggle("Color Mod", "None", false);
 	Toggles["Shorten Item Names"] = BH::config->ReadToggle("Shorten Item Names", "None", false);
 	Toggles["Advanced Item Display"] = BH::config->ReadToggle("Advanced Item Display", "None", false);
+	Toggles["Allow Unknown Items"] = BH::config->ReadToggle("Allow Unknown Items", "None", false);
 
-	CreateItemTable();
-	if (Toggles["Advanced Item Display"].state) {
-		InitializeItemRules();
-	}
+	//InitializeMPQData();
 
 	showPlayer = BH::config->ReadKey("Show Players Gear", "VK_0");
 
@@ -78,6 +77,10 @@ void Item::OnUnload() {
 void Item::OnLoop() {
 	if (!D2CLIENT_GetUIState(0x01))
 		viewingUnit = NULL;
+	
+	if (Toggles["Advanced Item Display"].state) {
+		ItemDisplay::InitializeItemRules();
+	}
 
 	if (viewingUnit && viewingUnit->dwUnitId) {
 		if (!viewingUnit->pInventory){
@@ -135,7 +138,7 @@ void __fastcall Item::ItemNamePatch(wchar_t *name, UnitAny *item)
 			uInfo.attrs = ItemAttributeMap[uInfo.itemCode];
 			GetItemName(&uInfo, itemName);
 		} else {
-			PrintText(1, "Unknown item code name: %c%c%c\n", uInfo.itemCode[0], uInfo.itemCode[1], uInfo.itemCode[2]);
+			HandleUnknownItemCode(uInfo.itemCode, "name");
 		}
 	} else {
 		OrigGetItemName(item, itemName, code);
