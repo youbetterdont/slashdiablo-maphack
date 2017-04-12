@@ -7,3 +7,6 @@
 bool IsValidMonster(UnitAny *pUnit);
 int GetRelation(UnitAny* unit);
 RosterUnit* FindPlayerRoster(DWORD unitId);
+unsigned int GetScreenHeight();
+unsigned int GetScreenWidth();
+bool IsUsingMultiRes();

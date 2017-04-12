@@ -68,3 +68,8 @@ void Module::Unload() {
 	active = false;
 	OnUnload();
 }
+
+void Module::ReloadConfig()
+{
+	LoadConfig();
+}

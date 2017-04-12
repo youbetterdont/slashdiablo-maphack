@@ -3,8 +3,11 @@
 #include "../../D2Ptrs.h"
 #include "../../D2Stubs.h"
 
+#define VALIDPTR(x) ( (x) && (!IsBadReadPtr(x,sizeof(x))) )
+
 // This module was inspired by the RedVex plugin "Item Mover", written by kaiks.
 // Thanks to kaiks for sharing his code.
+using namespace Drawing;
 
 bool ItemMover::LoadInventory(UnitAny *unit, int xpac, int source, int sourceX, int sourceY, bool shiftState, bool ctrlState, int stashUI, int invUI) {
 	bool returnValue = false;
@@ -196,31 +199,47 @@ void ItemMover::OnRightClick(bool up, int x, int y, bool* block) {
 
 	int xpac = pData->nCharFlags & PLAYER_TYPE_EXPANSION;
 
-	int inventoryRight = INVENTORY_LEFT + (CELL_SIZE * INVENTORY_WIDTH);
-	int inventoryBottom = INVENTORY_TOP + (CELL_SIZE * INVENTORY_HEIGHT);
-	int stashRight = STASH_LEFT + (CELL_SIZE * STASH_WIDTH);
-	int stashTop = xpac ? LOD_STASH_TOP : CLASSIC_STASH_TOP;
-	int stashHeight = xpac ? LOD_STASH_HEIGHT : CLASSIC_STASH_HEIGHT;
+
+	unsigned int centerX = BH::GetGameWidth() / 2;
+	unsigned int centerY = BH::GetGameHeight() / 2;
+
+
+	int inventoryLeft = INVENTORY_LEFT_FROM_CENTER + centerX;
+	int inventoryTop = INVENTORY_TOP_FROM_CENTER + centerY;
+	int inventoryRight = inventoryLeft + (CELL_SIZE * INVENTORY_WIDTH);
+	int inventoryBottom = inventoryTop + (CELL_SIZE * INVENTORY_HEIGHT);
+
+
+
+	int stashLeft = STASH_LEFT_FROM_CENTER + centerX;
+	int stashTop = (xpac ? LOD_STASH_TOP_FROM_CENTER : CLASSIC_STASH_TOP_FROM_CENTER) + centerY;
+	int stashRight = stashLeft + (CELL_SIZE * STASH_WIDTH);
+	int stashHeight = xpac ? 8 : 4;
 	int stashBottom = stashTop + (CELL_SIZE * stashHeight);
-	int cubeRight = CUBE_LEFT + (CELL_SIZE * CUBE_WIDTH);
-	int cubeBottom = CUBE_TOP + (CELL_SIZE * CUBE_HEIGHT);
+
+
+	int cubeLeft = CUBE_LEFT_FROM_CENTER + centerX;
+	int cubeTop = CUBE_TOP_FROM_CENTER + centerY;
+	int cubeRight = cubeLeft + (CELL_SIZE * CUBE_WIDTH);
+	int cubeBottom = cubeTop + (CELL_SIZE * CUBE_HEIGHT);
+
 
 	int source, sourceX, sourceY;
 	int invUI = D2CLIENT_GetUIState(UI_INVENTORY);
 	int stashUI = D2CLIENT_GetUIState(UI_STASH);
 	int cubeUI = D2CLIENT_GetUIState(UI_CUBE);
-	if ((invUI || stashUI || cubeUI) && x >= INVENTORY_LEFT && x <= inventoryRight && y >= INVENTORY_TOP && y <= inventoryBottom) {
+	if ((invUI || stashUI || cubeUI) && x >= inventoryLeft && x <= inventoryRight && y >= inventoryTop && y <= inventoryBottom) {
 		source = STORAGE_INVENTORY;
-		sourceX = (x - INVENTORY_LEFT) / CELL_SIZE;
-		sourceY = (y - INVENTORY_TOP) / CELL_SIZE;
-	} else if (stashUI && x >= STASH_LEFT && x <= stashRight && y >= stashTop && y <= stashBottom) {
+		sourceX = (x - inventoryLeft) / CELL_SIZE;
+		sourceY = (y - inventoryTop) / CELL_SIZE;
+	} else if (stashUI && x >= stashLeft && x <= stashRight && y >= stashTop && y <= stashBottom) {
 		source = STORAGE_STASH;
-		sourceX = (x - STASH_LEFT) / CELL_SIZE;
+		sourceX = (x - stashLeft) / CELL_SIZE;
 		sourceY = (y - stashTop) / CELL_SIZE;
-	} else if (cubeUI && x >= CUBE_LEFT && x <= cubeRight && y >= CUBE_TOP && y <= cubeBottom) {
+	} else if (cubeUI && x >= cubeLeft && x <= cubeRight && y >= cubeTop && y <= cubeBottom) {
 		source = STORAGE_CUBE;
-		sourceX = (x - CUBE_LEFT) / CELL_SIZE;
-		sourceY = (y - CUBE_TOP) / CELL_SIZE;
+		sourceX = (x - cubeLeft) / CELL_SIZE;
+		sourceY = (y - cubeTop) / CELL_SIZE;
 	} else {
 		return;
 	}
@@ -235,6 +254,19 @@ void ItemMover::OnRightClick(bool up, int x, int y, bool* block) {
 void ItemMover::OnLoad() {
 	HealKey = BH::config->ReadKey("Use Healing Potion", "VK_NUMPADMULTIPLY");
 	ManaKey = BH::config->ReadKey("Use Mana Potion", "VK_NUMPADSUBTRACT");
+
+	TextColorMap["ÿc0"] = 0;  // white
+	TextColorMap["ÿc1"] = 1;  // red
+	TextColorMap["ÿc2"] = 2;  // green
+	TextColorMap["ÿc3"] = 3;  // blue
+	TextColorMap["ÿc4"] = 4;  // gold
+	TextColorMap["ÿc5"] = 5;  // gray
+	TextColorMap["ÿc6"] = 6;  // black
+	TextColorMap["ÿc7"] = 7;  // tan
+	TextColorMap["ÿc8"] = 8;  // orange
+	TextColorMap["ÿc9"] = 9;  // yellow
+	TextColorMap["ÿc:"] = 10;  // dark green
+	TextColorMap["ÿc;"] = 11; // purple
 }
 
 void ItemMover::OnKey(bool up, BYTE key, LPARAM lParam, bool* block)  {
@@ -275,6 +307,28 @@ void ItemMover::OnKey(bool up, BYTE key, LPARAM lParam, bool* block)  {
 	}
 }
 
+int ItemMover::GetPlayerArea() {
+	if (VALIDPTR(D2CLIENT_GetPlayerUnit())) {
+		if (VALIDPTR(D2CLIENT_GetPlayerUnit()->pPath))
+			if (VALIDPTR(D2CLIENT_GetPlayerUnit()->pPath->pRoom1))
+				if (VALIDPTR(D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2))
+					if (VALIDPTR(D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2->pLevel))
+						return D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2->pLevel->dwLevelNo;
+	}
+	return 0;
+}
+
+bool ItemMover::IsTownLevel(int nLevel)
+{
+	if (nLevel == MAP_A1_ROGUE_ENCAMPMENT ||
+		nLevel == MAP_A2_LUT_GHOLEIN ||
+		nLevel == MAP_A3_KURAST_DOCKS ||
+		nLevel == MAP_A4_THE_PANDEMONIUM_FORTRESS ||
+		nLevel == MAP_A5_HARROGATH)
+		return TRUE;
+	return FALSE;
+}
+
 void ItemMover::OnGamePacketRecv(BYTE* packet, bool* block) {
 	switch (packet[0])
 	{
@@ -296,20 +350,33 @@ void ItemMover::OnGamePacketRecv(BYTE* packet, bool* block) {
 				Unlock();
 			}
 
-			if ((*BH::MiscToggles2)["Advanced Item Display"].state) {
+			if ((*BH::ItemToggles)["Advanced Item Display"].state) {
 				bool success = true;
 				ItemInfo item = {};
 				ParseItem((unsigned char*)packet, &item, &success);
+
 				//PrintText(1, "Item packet: %s, %s, %X, %d, %d", item.name.c_str(), item.code, item.attrs->flags, item.sockets, GetDefense(&item));
 				if ((item.action == ITEM_ACTION_NEW_GROUND || item.action == ITEM_ACTION_OLD_GROUND) && success) {
-					//PrintText(1, "Item on ground: %s, %s, %s, %X", item.name.c_str(), item.code, item.attrs->category.c_str(), item.attrs->flags);
-					for (vector<Rule*>::iterator it = IgnoreRuleList.begin(); it != IgnoreRuleList.end(); it++) {
+					bool showOnMap = false;
+
+					for (vector<Rule*>::iterator it = MapRuleList.begin(); it != MapRuleList.end(); it++) {
 						if ((*it)->Evaluate(NULL, &item)) {
-							*block = true;
-							//PrintText(1, "Blocking item: %s, %s, %d", item.name.c_str(), item.code, item.amount);
+							if ((*BH::ItemToggles)["Item Drop Notifications"].state && item.action == ITEM_ACTION_NEW_GROUND && !IsTownLevel(GetPlayerArea()))
+								PrintText(0, "Item dropped: %s%s", (*it)->action.colorOnMap.c_str(), item.name.c_str());
+							showOnMap = true;
 							break;
 						}
 					}
+
+					//PrintText(1, "Item on ground: %s, %s, %s, %X", item.name.c_str(), item.code, item.attrs->category.c_str(), item.attrs->flags);
+					if(!showOnMap)
+						for (vector<Rule*>::iterator it = IgnoreRuleList.begin(); it != IgnoreRuleList.end(); it++) {
+							if ((*it)->Evaluate(NULL, &item)) {
+								*block = true;
+								//PrintText(1, "Blocking item: %s, %s, %d", item.name.c_str(), item.code, item.amount);
+								break;
+							}
+						}
 				}
 			}
 			break;

@@ -10,6 +10,11 @@ Patch* nextGame2 = new Patch(Call, D2MULTI, 0x14A0B, (int)Bnet::NextGamePatch, 5
 Patch* ftjPatch = new Patch(Call, D2CLIENT, 0x4363E, (int)FailToJoin_Interception, 6);
 
 void Bnet::OnLoad() {
+	LoadConfig();
+}
+
+void Bnet::LoadConfig()
+{
 	showLastGame = BH::config->ReadBoolean("Show Last Game", true);
 	failToJoin = BH::config->ReadInt("Fail To Join", 4000);
 
@@ -19,7 +24,7 @@ void Bnet::OnLoad() {
 	}
 
 	if (failToJoin > 0 && !D2CLIENT_GetPlayerUnit())
-		ftjPatch->Install();		
+		ftjPatch->Install();
 }
 
 void Bnet::OnUnload() {

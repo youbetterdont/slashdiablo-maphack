@@ -209,7 +209,11 @@ bool IntegerCompare(unsigned int Lvalue, BYTE operation, unsigned int Rvalue) {
 }
 
 void InitializeItemRules() {
-	vector<pair<string, string>> rules = BH::config->ReadMapList("ItemDisplay");
+	RuleList.clear();
+	MapRuleList.clear();
+	IgnoreRuleList.clear();
+
+	vector<pair<string, string>> rules = BH::itemFilter->ReadMapList("ItemDisplay");
 	for (unsigned int i = 0; i < rules.size(); i++) {
 		string buf;
 		stringstream ss(rules[i].first);

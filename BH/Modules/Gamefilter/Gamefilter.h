@@ -24,6 +24,7 @@ class Gamefilter : public Module {
 
 		void OnLoad();
 		void OnUnload();
+		void LoadConfig();
 
 		void OnGameJoin(const string& name, const string& pass, int diff);
 		void OnGameExit();

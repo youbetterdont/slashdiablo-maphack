@@ -64,7 +64,6 @@ bool Patch::Install() {
 	if (type != NOP) {
 		//Set the JMP or CALL opcode
 		code[0] = (type == Call) ? 0xE8 : 0xE9;
-
 		//Set the address to redirect to
 		*(DWORD*)&code[1] = function - (address + 5);
 	}

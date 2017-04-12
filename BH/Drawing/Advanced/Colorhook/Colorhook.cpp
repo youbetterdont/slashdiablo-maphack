@@ -5,7 +5,7 @@
 #include "../../Basic/Framehook/Framehook.h"
 #include "../../Basic/Texthook/Texthook.h"
 #include "../../Basic/Crosshook/Crosshook.h"
-
+#include "../../../BH.h"
 using namespace Drawing;
 
 Colorhook* Colorhook::current;
@@ -104,7 +104,7 @@ void Colorhook::OnDraw() {
 	Lock();
 	if (Colorhook::current == this) {
 		//Draw the shaded background
-		Boxhook::Draw(0, 0, Hook::GetScreenWidth(), Hook::GetScreenHeight(), 0, BTOneHalf);
+		Boxhook::Draw(0, 0, BH::GetGameWidth(), BH::GetGameHeight(), 0, BTOneHalf);
 		//Draw the actual choose color box
 		Framehook::Draw(300, 200, 200, 200, 0, BTNormal);
 		//Draw title

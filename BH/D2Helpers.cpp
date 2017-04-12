@@ -103,3 +103,107 @@ bool IsValidMonster(UnitAny *pUnit)
 
 	return true;
 }
+
+bool GotMultiResValue = false;
+bool UsingMultiRes = false;
+
+bool IsUsingMultiRes()
+{
+	/*
+	HMODULE hMods[1024];
+	HANDLE hProcess;
+	DWORD cbNeeded;
+	unsigned int i;
+
+	// Get a handle to the process.
+	hProcess = OpenProcess(PROCESS_QUERY_INFORMATION |
+	PROCESS_VM_READ,
+	FALSE, GetCurrentProcessId());
+	if (NULL == hProcess)
+	return 0;
+
+	// Get a list of all the modules in this process.
+
+	if (EnumProcessModules(hProcess, hMods, sizeof(hMods), &cbNeeded))
+	{
+	for (i = 0; i < (cbNeeded / sizeof(HMODULE)); i++)
+	{
+	TCHAR szModName[MAX_PATH];
+
+	// Get the full path to the module's file.
+
+	if (GetModuleFileNameEx(hProcess, hMods[i], szModName,
+	sizeof(szModName) / sizeof(TCHAR)))
+	{
+	string modName = szModName;
+	std:size_t found = modName.find("D2MultiRes");
+	if (found != std::string::npos)
+	{
+	CloseHandle(hProcess);
+	return true;
+	}
+	}
+	}
+	}
+
+	// Release the handle to the process.
+
+	CloseHandle(hProcess);
+	return 0;
+	*/
+	if (GotMultiResValue)
+		return UsingMultiRes;
+
+
+	GotMultiResValue = true;
+	try
+	{
+		if (GetModuleHandle("D2MultiRes_113c"))
+		{
+			UsingMultiRes = true;
+			return true;
+		}
+	}
+	catch (const std::exception&)
+	{
+
+	}
+	return false;
+}
+
+unsigned int GetScreenHeight()
+{
+	RECT rect;
+	int height;
+	if (IsUsingMultiRes())
+	{
+		if (GetClientRect(D2GFX_GetHwnd(), &rect))
+		{
+			height = rect.bottom - rect.top;
+		}
+	}
+	else
+	{
+		height = ((D2GFX_GetScreenSize() == 0) ? 480 : 600);
+	}
+	return height;
+}
+
+unsigned int GetScreenWidth()
+{
+	RECT rect;
+	int width;
+
+	if (IsUsingMultiRes())
+	{
+		if (GetClientRect(D2GFX_GetHwnd(), &rect))
+		{
+			width = rect.right - rect.left;
+		}
+	}
+	else
+	{
+		width = ((D2GFX_GetScreenSize() == 0) ? 640 : 800);
+	}
+	return width;
+}

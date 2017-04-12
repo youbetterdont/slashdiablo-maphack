@@ -29,7 +29,7 @@ void UITab::OnDraw() {
 	bool isHovering = IsHovering((*p_D2CLIENT_MouseX), (*p_D2CLIENT_MouseY));
 
 	if (IsActive())
-		for(std::list<Hook*>::iterator it = Hooks.begin(); it != Hooks.end(); it++)
+		for (std::list<Hook*>::iterator it = Hooks.begin(); it != Hooks.end(); it++)
 			(*it)->OnDraw();
 	else
 		Framehook::Draw(GetTabX(), GetTabY(), GetTabSize(), TAB_HEIGHT, 0, (ui->IsActive()?BTNormal:BTHighlight));

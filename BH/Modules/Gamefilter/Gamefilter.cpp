@@ -16,6 +16,11 @@ Patch* destoryGameList = new Patch(Call, D2MULTI, 0x11DC3, (int)Gamefilter::Dest
 Patch* listRefresh = new Patch(Call, D2MULTI, 0xDF4E, (int)D2MULTI_GameListRefresh_Interception, 5);
 
 void Gamefilter::OnLoad() {
+	LoadConfig();
+}
+
+void Gamefilter::LoadConfig()
+{
 	if (!D2CLIENT_GetPlayerUnit()) {
 		createGameBox->Install();
 		destoryGameList->Install();

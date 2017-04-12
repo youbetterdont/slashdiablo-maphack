@@ -39,7 +39,7 @@ StatsDisplay::~StatsDisplay() {
 }
 
 void StatsDisplay::SetX(unsigned int newX) {
-	if (newX >= 0 && newX <= Hook::GetScreenWidth()) {
+	if (newX >= 0 && newX <= BH::GetGameWidth()) {
 		Lock();
 		x = newX;
 		Unlock();
@@ -47,7 +47,7 @@ void StatsDisplay::SetX(unsigned int newX) {
 }
 
 void StatsDisplay::SetY(unsigned int newY) {
-	if (newY >= 0 && newY <= Hook::GetScreenHeight()) {
+	if (newY >= 0 && newY <= BH::GetGameHeight()) {
 		Lock();
 		y = newY;
 		Unlock();
@@ -55,19 +55,19 @@ void StatsDisplay::SetY(unsigned int newY) {
 }
 
 void StatsDisplay::SetXSize(unsigned int newXSize) {
-	if (newXSize >= 0 && newXSize <= (Hook::GetScreenHeight() - GetX())) {
+	//if (newXSize >= 0 && newXSize <= (BH::GetGameHeight() - GetX())) {
 		Lock();
 		xSize = newXSize;
 		Unlock();
-	}
+	//}
 }
 
 void StatsDisplay::SetYSize(unsigned int newYSize) {
-	if (newYSize >= 0 && newYSize <= (Hook::GetScreenHeight() - GetX())) {
+	//if (newYSize >= 0 && newYSize <= (BH::GetGameHeight() - GetX())) {
 		Lock();
 		ySize = newYSize;
 		Unlock();
-	}
+	//}
 }
 
 bool StatsDisplay::InRange(unsigned int x, unsigned int y) {
@@ -91,7 +91,14 @@ void StatsDisplay::OnDraw() {
 		for(std::list<Hook*>::iterator it = Hooks.begin(); it != Hooks.end(); it++)
 			(*it)->OnDraw();
 
+		if (y != 10)
+			SetY(10);
+
+		if (x != 10)
+			SetX(10);
+
 		int y = GetY();
+
 		RECT pRect;
 		pRect.left = GetX();
 		pRect.top = y;

@@ -15,29 +15,14 @@ Patch* viewInvPatch3 = new Patch(Call, D2CLIENT, 0x93A6F, (int)ViewInventoryPatc
 using namespace Drawing;
 
 void Item::OnLoad() {
-	Toggles["Show Ethereal"] = BH::config->ReadToggle("Show Ethereal", "None", true);
-	Toggles["Show Sockets"] = BH::config->ReadToggle("Show Sockets", "None", true);
-	Toggles["Show iLvl"] = BH::config->ReadToggle("Show iLvl", "None", true);
-	Toggles["Show Rune Numbers"] = BH::config->ReadToggle("Show Rune Numbers", "None", true);
-	Toggles["Alt Item Style"] = BH::config->ReadToggle("Alt Item Style", "None", true);
-	Toggles["Color Mod"] = BH::config->ReadToggle("Color Mod", "None", false);
-	Toggles["Shorten Item Names"] = BH::config->ReadToggle("Shorten Item Names", "None", false);
-	Toggles["Advanced Item Display"] = BH::config->ReadToggle("Advanced Item Display", "None", false);
-
+	
 	CreateItemTable();
-	if (Toggles["Advanced Item Display"].state) {
-		InitializeItemRules();
-	}
-
-	showPlayer = BH::config->ReadKey("Show Players Gear", "VK_0");
+	LoadConfig();
 
 	viewInvPatch1->Install();
 	viewInvPatch2->Install();
 	viewInvPatch3->Install();
-
-	if (Toggles["Show Ethereal"].state || Toggles["Show Sockets"].state || Toggles["Show iLvl"].state || Toggles["Color Mod"].state ||
-		Toggles["Show Rune Numbers"].state || Toggles["Alt Item Style"].state || Toggles["Shorten Item Names"].state || Toggles["Advanced Item Display"].state)
-		itemNamePatch->Install();
+	itemNamePatch->Install();
 
 	settingsTab = new UITab("Item", BH::settingsUI);
 
@@ -65,7 +50,13 @@ void Item::OnLoad() {
 	new Checkhook(settingsTab, 4, 120, &Toggles["Advanced Item Display"].state, "Advanced Item Display");
 	new Keyhook(settingsTab, 200, 122, &Toggles["Advanced Item Display"].toggle, "");
 
-	new Keyhook(settingsTab, 4, 137, &showPlayer, "Show Players Gear");
+	new Checkhook(settingsTab, 4, 135, &Toggles["Item Drop Notifications"].state, "Item Drop Notifications");
+	new Keyhook(settingsTab, 200, 137, &Toggles["Item Drop Notifications"].toggle, "");
+
+	coverBox1 = new Boxhook(settingsTab, 4, 10, 340, 110);
+	coverBox1->SetTransparency(BoxTrans::BTOneHalf);
+	coverBox2 = new Boxhook(settingsTab, 4, 135, 340, 14);
+	coverBox2->SetTransparency(BoxTrans::BTOneHalf);
 }
 
 void Item::OnUnload() {
@@ -75,7 +66,38 @@ void Item::OnUnload() {
 	viewInvPatch3->Remove();
 }
 
+void Item::LoadConfig() {
+	Toggles["Show Ethereal"] = BH::config->ReadToggle("Show Ethereal", "None", true);
+	Toggles["Show Sockets"] = BH::config->ReadToggle("Show Sockets", "None", true);
+	Toggles["Show iLvl"] = BH::config->ReadToggle("Show iLvl", "None", true);
+	Toggles["Show Rune Numbers"] = BH::config->ReadToggle("Show Rune Numbers", "None", true);
+	Toggles["Alt Item Style"] = BH::config->ReadToggle("Alt Item Style", "None", true);
+	Toggles["Color Mod"] = BH::config->ReadToggle("Color Mod", "None", false);
+	Toggles["Shorten Item Names"] = BH::config->ReadToggle("Shorten Item Names", "None", false);
+
+
+	Toggles["Advanced Item Display"] = BH::config->ReadToggle("Advanced Item Display", "None", false);
+	Toggles["Item Drop Notifications"] = BH::config->ReadToggle("Item Drop Notifications", "None", false);
+
+
+	InitializeItemRules();
+
+	showPlayer = BH::config->ReadKey("Show Players Gear", "VK_0");
+}
+
 void Item::OnLoop() {
+
+	if (Toggles["Advanced Item Display"].state)
+	{
+		coverBox1->SetXSize(340);
+		coverBox2->SetXSize(0);
+	}
+	else if (!Toggles["Advanced Item Display"].state)
+	{
+		coverBox1->SetXSize(0);
+		coverBox2->SetXSize(340);
+	}
+
 	if (!D2CLIENT_GetUIState(0x01))
 		viewingUnit = NULL;
 
@@ -446,7 +468,7 @@ UnitAny* Item::GetViewUnit ()
 	if (view->dwUnitId == D2CLIENT_GetPlayerUnit()->dwUnitId)
 		return D2CLIENT_GetPlayerUnit();
 
-	Drawing::Texthook::Draw(560, 300, Drawing::Center, 0, White, "%s", viewingUnit->pPlayerData->szName);
+	Drawing::Texthook::Draw(BH::GetGameWidth() / 2 + 160, BH::GetGameHeight() / 2, Drawing::Center, 0, White, "%s", viewingUnit->pPlayerData->szName);
 	return viewingUnit;
 }
 

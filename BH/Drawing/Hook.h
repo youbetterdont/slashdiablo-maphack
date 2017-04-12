@@ -39,6 +39,7 @@ namespace Drawing {
 			void* leftVoid;//Holds data to give back to the callback for things like knowing your proper class.
 			OnClick right;//Click callback handler for right clicking
 			void* rightVoid;//Holds data to give back to the callback for things like knowing your proper class.
+
 		public:
 			//Two Hook Initializations; one for basic hooks, one for grouped hooks.
 			Hook(HookVisibility visibility, unsigned int x, unsigned int y);
@@ -149,6 +150,8 @@ namespace Drawing {
 			static bool LeftClick(bool up, unsigned int x, unsigned int y);
 			static bool RightClick(bool up, unsigned int x, unsigned int y);
 			static bool KeyClick(bool bUp, BYTE bKey, LPARAM lParam);
+
+			static bool IsUsingMultiRes();
 
 			//Misc Hook Functions needed
 			static unsigned int GetScreenHeight();

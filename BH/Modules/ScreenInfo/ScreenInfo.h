@@ -28,6 +28,7 @@ class ScreenInfo : public Module {
 		std::map<DWORD, string> SkillWarningMap;
 		std::deque<StateWarning*> CurrentWarnings;
 		Drawing::Texthook* bhText;
+		Drawing::Texthook* multiResText;
 		DWORD gameTimer;
 
 		int packetRequests;
@@ -37,15 +38,20 @@ class ScreenInfo : public Module {
 		bool DiabloBlocked;
 		bool BaalBlocked;
 		bool ReceivedQuestPacket;
+		DWORD startExperience;
+		int startLevel;
+		void drawExperienceInfo();
+		std::map<string, Toggle> Toggles;
 	public:
 		ScreenInfo() :
 			Module("Screen Info"), warningTicks(BHGetTickCount()), packetRequests(0),
 			MephistoBlocked(false), DiabloBlocked(false), BaalBlocked(false), ReceivedQuestPacket(false) {};
 
 		void OnLoad();
+		void LoadConfig();
 		void OnGameJoin(const string& name, const string& pass, int diff);
 		void OnGameExit();
-
+		void OnOOGDraw();
 		void OnRightClick(bool up, int x, int y, bool* block);
 		void OnDraw();
 		void OnAutomapDraw();
@@ -54,3 +60,4 @@ class ScreenInfo : public Module {
 
 StateCode GetStateCode(unsigned int nKey);
 StateCode GetStateCode(const char* name);
+long long ExpByLevel[];

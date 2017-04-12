@@ -10,8 +10,7 @@ Drawing::Hook* PartyHook;
 Drawing::Hook* LootHook;
 
 void Party::OnLoad() {
-	Toggles["Enabled"] = BH::config->ReadToggle("Party Enabled", "None", true);
-	Toggles["LootEnabled"] = BH::config->ReadToggle("Looting Enabled", "None", true);
+	LoadConfig();
 	c = 0;
 
 	PartyHook = new Drawing::Checkhook(Drawing::InGame, 100, 100, &Toggles["Enabled"].state, "Autoparty Enabled");
@@ -20,14 +19,27 @@ void Party::OnLoad() {
 	LootHook->SetActive(0);
 }
 
+void Party::LoadConfig() {
+	Toggles["Enabled"] = BH::config->ReadToggle("Party Enabled", "None", true);
+	Toggles["LootEnabled"] = BH::config->ReadToggle("Looting Enabled", "None", true);
+}
+
 void Party::OnUnload() {
 	
 }
 
 void Party::OnLoop() {
+
+	int screenHeight = BH::GetGameHeight();
+	int screenWidth = BH::GetGameWidth();
+	PartyHook->SetBaseX(screenWidth / 2 - 300);
+	PartyHook->SetBaseY(screenHeight / 2 - 200);
+	LootHook->SetBaseX(screenWidth / 2 - 160);
+	LootHook->SetBaseY(screenHeight / 2 - 200);
+
 	if(Toggles["Enabled"].state || Toggles["LootEnabled"].state)
 		CheckParty();
-	if(D2CLIENT_GetUIState(0x16) && PartyHook->IsActive() == 0)
+	if (D2CLIENT_GetUIState(0x16) && PartyHook->IsActive() == 0)
 		PartyHook->SetActive(1);
 	else if(D2CLIENT_GetUIState(0x16) == 0 && PartyHook->IsActive())
 		PartyHook->SetActive(0);
@@ -39,6 +51,8 @@ void Party::OnLoop() {
 		LootHook->SetActive(1);
 	else if(D2CLIENT_GetUIState(0x16) == 0 && LootHook->IsActive())
 		LootHook->SetActive(0);
+
+
 }
 
 void Party::CheckParty() {

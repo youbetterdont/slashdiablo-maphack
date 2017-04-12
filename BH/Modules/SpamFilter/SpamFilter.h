@@ -18,6 +18,7 @@ class SpamFilter : public Module {
 		SpamFilter() : Module("Spam Filter") {};
 
 		void OnLoad();
+		void LoadConfig();
 		void OnUnload();
 
 		void OnChatMsg(const char*, const char*, bool, bool*);

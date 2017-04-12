@@ -1,8 +1,11 @@
 #include "D2Ptrs.h"
 #include "BH.h"
 #include "D2Stubs.h"
+#include "D2Helpers.h"
 
 #include <iterator>
+
+using namespace Drawing;
 
 void GameDraw() {
 	__raise BH::moduleManager->OnDraw();
@@ -29,10 +32,15 @@ DWORD WINAPI GameThread(VOID* lpvoid) {
 	while(true) {
 		if ((*p_D2WIN_FirstControl) && inGame) {
 			inGame = false;
+			BH::gameHeight = 600;
+			BH::gameWidth = 800;
 			__raise BH::moduleManager->OnGameExit();
+			
 			BH::oogDraw->Install();
 		} else if (D2CLIENT_GetPlayerUnit() && !inGame) {
 			inGame = true;
+			BH::gameHeight = GetScreenHeight();
+			BH::gameWidth = GetScreenWidth();
 			__raise BH::moduleManager->OnGameJoin((*p_D2LAUNCH_BnData)->szGameName, (*p_D2LAUNCH_BnData)->szGamePass, D2CLIENT_GetDifficulty());
 			BH::oogDraw->Remove();
 		}

@@ -12,13 +12,15 @@ class Item : public Module {
 		unsigned int showPlayer;
 		static UnitAny* viewingUnit;
 		Drawing::UITab* settingsTab;
+		Drawing::Boxhook* coverBox1;
+		Drawing::Boxhook* coverBox2;
 	public:
 
 		Item() : Module("Item") {};
 
 		void OnLoad();
 		void OnUnload();
-
+		void LoadConfig();
 		void OnLoop();
 		void OnKey(bool up, BYTE key, LPARAM lParam, bool* block);
 		void OnLeftClick(bool up, int x, int y, bool* block);

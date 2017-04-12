@@ -13,6 +13,12 @@
 
 void SpamFilter::OnLoad()
 {
+	LoadConfig();
+}
+
+void SpamFilter::LoadConfig()
+{
+
 	// load the token database and settings, maybe check for updates?
 	//Config spamfilter(BH::config->ReadAssoc("Spam Filter"));
 	log = BH::config->ReadString("Log File", "chatlog.txt");
