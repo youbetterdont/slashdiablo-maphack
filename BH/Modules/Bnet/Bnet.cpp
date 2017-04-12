@@ -49,10 +49,29 @@ void Bnet::OnGameExit() {
 }
 
 VOID __fastcall Bnet::NextGamePatch(Control* box, BOOL (__stdcall *FunCallBack)(Control*,DWORD,DWORD)) {
-	if (Bnet::lastName.size() == 0)
+	unsigned int numberStartPosition, numberEndPosition;
+	if ((numberEndPosition = Bnet::lastName.size()) == 0)
 		return;
 
-	wchar_t *wszLastGameName = AnsiToUnicode(Bnet::lastName.c_str());
+	// Incrememnt game number, if the last substring of the game name is a number.
+	// Credits to Loli BH for inspiration and PhyRaX for requesting.
+	std::string newGameName = Bnet::lastName.c_str();
+
+	// Find the start and end of the game number.
+	numberStartPosition = numberEndPosition;
+	while (numberStartPosition > 0 && Bnet::lastName.at(numberStartPosition - 1) >= '0' && Bnet::lastName.at(numberStartPosition - 1) <= '9') {
+		numberStartPosition--;
+	}
+
+	// If game number exists, then increment game number by one and replace
+	// the string.
+	if (numberStartPosition != numberEndPosition) {
+		unsigned long long gameNumber = std::stoull(Bnet::lastName.substr(numberStartPosition, numberEndPosition - numberStartPosition));
+		gameNumber++;
+		newGameName = Bnet::lastName.substr(0, numberStartPosition) + std::to_string(gameNumber);
+	}
+
+	wchar_t *wszLastGameName = AnsiToUnicode(newGameName.c_str());
 
 	D2WIN_SetControlText(box, wszLastGameName);
 	D2WIN_SelectEditBoxText(box);
