@@ -1,10 +1,10 @@
 /* Maphack Module
  *
  */
-#include "../../D2Ptrs.h"
-#include "../../D2Helpers.h"
-#include "../../D2Stubs.h"
-#include "../../D2Intercepts.h"
+#include "../../D2/D2Ptrs.h"
+#include "../../D2/D2Helpers.h"
+#include "../../D2/D2Stubs.h"
+#include "../../D2/D2Intercepts.h"
 #include "Maphack.h"
 #include "../../BH.h"
 #include "../../Drawing.h"
@@ -48,7 +48,7 @@ void Maphack::ResetPatches() {
 		infraPatch->Install();
 	else
 		infraPatch->Remove();
-		//GameShake Patch
+	//GameShake Patch
 	if (Toggles["Remove Shake"].state)
 		shakePatch->Install();
 	else
@@ -122,17 +122,19 @@ void Maphack::LoadConfig() {
 	automapColors["Partied Missile"] = automap.ReadInt("Partied", 0x84);
 	automapColors["Hostile Missile"] = automap.ReadInt("Hostile", 0x5B);
 
-	TextColorMap["ÿc0"] = 0x20;  // white
-	TextColorMap["ÿc1"] = 0x0A;  // red
-	TextColorMap["ÿc2"] = 0x84;  // green
-	TextColorMap["ÿc3"] = 0x97;  // blue
-	TextColorMap["ÿc4"] = 0x0D;  // gold
-	TextColorMap["ÿc5"] = 0xD0;  // gray
-	TextColorMap["ÿc6"] = 0x00;  // black
-	TextColorMap["ÿc7"] = 0x5A;  // tan
-	TextColorMap["ÿc8"] = 0x60;  // orange
-	TextColorMap["ÿc9"] = 0x0C;  // yellow
-	TextColorMap["ÿc;"] = 0x9B;  // purple
+	TextColorMap["\xFF\x63\x30"] = 0x20;  // white
+	TextColorMap["\xFF\x63\x31"] = 0x0A;  // red
+	TextColorMap["\xFF\x63\x32"] = 0x84;  // green
+	TextColorMap["\xFF\x63\x33"] = 0x97;  // blue
+	TextColorMap["\xFF\x63\x34"] = 0x0D;  // gold
+	TextColorMap["\xFF\x63\x35"] = 0xD0;  // gray
+	TextColorMap["\xFF\x63\x36"] = 0x00;  // black
+	TextColorMap["\xFF\x63\x37"] = 0x5A;  // tan
+	TextColorMap["\xFF\x63\x38"] = 0x60;  // orange
+	TextColorMap["\xFF\x63\x39"] = 0x0C;  // yellow
+	TextColorMap["\xFF\x63\x3A"] = 0x75;  // dark green
+	TextColorMap["\xFF\x63\x3B"] = 0x9B;  // purple
+	TextColorMap["\xFF\x63\x2F"] = 0x1F;  // silver
 
 	map<string, string> MonsterColors = BH::config->ReadAssoc("Monster Color");
 	for (auto it = MonsterColors.cbegin(); it != MonsterColors.cend(); ) {
@@ -249,6 +251,9 @@ void Maphack::OnAutomapDraw() {
 					color = automapColors["Champion Monster"];
 				if (unit->pMonsterData->fMinion)
 					color = automapColors["Minion Monster"];
+				//Cow king pack
+				if (unit->dwTxtFileNo == 391 && unit->pMonsterData->anEnchants[0] == 8 && unit->pMonsterData->anEnchants[1] == 17 && unit->pMonsterData->anEnchants[3] != 0)
+					color = 0xE1;
 
 				// User can override colors of non-boss monsters
 				if (automapMonsterColors.find(unit->dwTxtFileNo) != automapMonsterColors.end() && !unit->pMonsterData->fBoss) {
@@ -256,7 +261,7 @@ void Maphack::OnAutomapDraw() {
 				}
 
 				//Determine immunities
-				string szImmunities[] = {"ÿc7i", "ÿc8i", "ÿc1i", "ÿc9i", "ÿc3i", "ÿc2i"};
+				string szImmunities[] = { "ÿc7i", "ÿc8i", "ÿc1i", "ÿc9i", "ÿc3i", "ÿc2i" };
 				DWORD dwImmunities[] = {36,37,39,41,43,45};
 				string immunityText;
 				for (int n = 0; n < 6; n++) {
@@ -290,22 +295,7 @@ void Maphack::OnAutomapDraw() {
 				}
 				Drawing::Hook::ScreenToAutomap(&automapLoc, unit->pPath->xPos, unit->pPath->yPos);
 				Drawing::Boxhook::Draw(automapLoc.x - 1, automapLoc.y - 1, 2, 2, color, Drawing::BTHighlight);
-			} else if (unit->dwType == UNIT_OBJECT) {
-				string shrineText = "";
-				switch(unit->pObjectData->Type){
-				case 0x0F:
-					shrineText = "Experience";
-					break;
-				case 0x12:
-					shrineText = "Gem";
-					break;
-				}
-				if(shrineText != "")
-				{
-					Drawing::Hook::ScreenToAutomap(&automapLoc, unit->pObjectPath->dwPosX, unit->pObjectPath->dwPosY);
-					Drawing::Texthook::Draw(automapLoc.x, automapLoc.y - 19, Drawing::Center, 6, Gold, shrineText);
-				}
-				
+
 			} else if (unit->dwType == UNIT_ITEM) {
 				UnitItemInfo uInfo;
 				uInfo.item = unit;

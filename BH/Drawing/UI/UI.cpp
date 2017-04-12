@@ -1,5 +1,5 @@
 #include "../Hook.h"
-#include "../../D2Ptrs.h"
+#include "../../D2/D2Ptrs.h"
 #include "UITab.h"
 #include "../../BH.h"
 #include "../Basic/Texthook/Texthook.h"

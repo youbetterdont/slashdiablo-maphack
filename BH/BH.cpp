@@ -1,10 +1,10 @@
 #define _DEFINE_PTRS
 #include "BH.h"
 #include <Shlwapi.h>
-#include "D2Ptrs.h"
-#include "D2Intercepts.h"
-#include "D2Handlers.h"
-#include "D2Helpers.h"
+#include "D2/D2Ptrs.h"
+#include "D2/D2Intercepts.h"
+#include "D2/D2Handlers.h"
+#include "D2/D2Helpers.h"
 #include "Modules.h"
 
 string BH::path;
@@ -37,7 +37,6 @@ Patch* patches[] = {
 	new Patch(Jump, D2MULTI, 0x108A0, (int)ChannelChat_Interception, 6),
 	new Patch(Jump, D2MULTI, 0x107A0, (int)ChannelEmote_Interception, 6),
 	//new Patch(NOP, D2CLIENT, 0x3CB7C, 0, 9),
-	
 };
 
 Patch* BH::oogDraw = new Patch(Call, D2WIN, 0x18911, (int)OOGDraw_Interception, 5);
@@ -46,13 +45,15 @@ unsigned int index = 0;
 bool BH::Startup(HINSTANCE instance, VOID* reserved) {
 	
 	BH::instance = instance;
+
 	if (reserved != NULL) {
 		cGuardModule* pModule = (cGuardModule*)reserved;
-		if(!pModule)
+		if (!pModule)
 			return FALSE;
 		path.assign(pModule->szPath);
 		cGuardLoaded = true;
-	} else {
+	}
+	else {
 		char szPath[MAX_PATH];
 		GetModuleFileName(BH::instance, szPath, MAX_PATH);
 		PathRemoveFileSpec(szPath);
@@ -60,12 +61,13 @@ bool BH::Startup(HINSTANCE instance, VOID* reserved) {
 		path += "\\";
 		cGuardLoaded = false;
 	}
+	
 
 	moduleManager = new ModuleManager();
 	config = new Config("BH.cfg");
 	config->Parse();
 
-	itemFilter = new Config("ItemFilter.cfg");
+	itemFilter = new Config("ItemDisplay.cfg");
 	itemFilter->Parse();
 
 	if(D2GFX_GetHwnd()) {
@@ -79,14 +81,11 @@ bool BH::Startup(HINSTANCE instance, VOID* reserved) {
 	
 	new Maphack();
 	new ScreenInfo();
-	//new Gamefilter();
 	new Bnet();
 	new Item();
-	new SpamFilter();
 	new Pathing();
 	new Party();
 	new ItemMover();
-	//new PallyTele();
 	
 	moduleManager->LoadModules();
 	
@@ -127,7 +126,7 @@ void BH::ReloadConfig() {
 	config = new Config("BH.cfg");
 	config->Parse();
 
-	itemFilter = new Config("ItemFilter.cfg");
+	itemFilter = new Config("ItemDisplay.cfg");
 	itemFilter->Parse();
 
 	moduleManager->ReloadConfig();

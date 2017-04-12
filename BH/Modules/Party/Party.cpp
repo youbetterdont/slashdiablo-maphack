@@ -1,8 +1,8 @@
 #include "Party.h"
-#include "../../D2Ptrs.h"
+#include "../../D2/D2Ptrs.h"
 #include "../../BH.h"
-#include "../../D2Stubs.h"
-#include "../../D2Helpers.h"
+#include "../../D2/D2Stubs.h"
+#include "../../D2/D2Helpers.h"
 
 using namespace std;
 using namespace Drawing;

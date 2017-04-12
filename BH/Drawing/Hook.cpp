@@ -1,6 +1,6 @@
 #include "Hook.h"
 #include "Advanced/Colorhook/Colorhook.h"
-#include "../D2Ptrs.h"
+#include "../D2/D2Ptrs.h"
 #include <tlhelp32.h>
 #include <windows.h>
 #include <tchar.h>
@@ -339,6 +339,10 @@ unsigned int Hook::GetScreenHeight() {
 		{
 			height = rect.bottom - rect.top;
 		}
+		else
+		{
+			height = ((D2GFX_GetScreenSize() == 0) ? 480 : 600);
+		}
 	}
 	else
 	{
@@ -359,6 +363,10 @@ unsigned int Hook::GetScreenWidth() {
 		if (GetClientRect(D2GFX_GetHwnd(), &rect))
 		{
 			width = rect.right - rect.left;
+		}
+		else
+		{
+			width = ((D2GFX_GetScreenSize() == 0) ? 640 : 800);
 		}
 	}
 	else

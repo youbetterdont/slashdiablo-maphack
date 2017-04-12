@@ -105,10 +105,10 @@
     <ClCompile Include="BitReader.cpp" />
     <ClCompile Include="Common.cpp" />
     <ClCompile Include="Config.cpp" />
-    <ClCompile Include="D2Handlers.cpp" />
-    <ClCompile Include="D2Helpers.cpp" />
-    <ClCompile Include="D2Intercepts.cpp" />
-    <ClCompile Include="D2Stubs.cpp" />
+    <ClCompile Include="D2\D2Handlers.cpp" />
+    <ClCompile Include="D2\D2Helpers.cpp" />
+    <ClCompile Include="D2\D2Intercepts.cpp" />
+    <ClCompile Include="D2\D2Stubs.cpp" />
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="Drawing\Advanced\Checkhook\Checkhook.cpp" />
     <ClCompile Include="Drawing\Advanced\Colorhook\Colorhook.cpp" />
@@ -126,18 +126,14 @@
     <ClCompile Include="Drawing\UI\UITab.cpp" />
     <ClCompile Include="Modules\Pathing\Pathing.cpp" />
     <ClCompile Include="Modules\Bnet\Bnet.cpp" />
-    <ClCompile Include="Modules\Gamefilter\Gamefilter.cpp" />
     <ClCompile Include="Modules\Item\Item.cpp" />
     <ClCompile Include="Modules\Item\ItemDisplay.cpp" />
     <ClCompile Include="Modules\ItemMover\ItemMover.cpp" />
     <ClCompile Include="Modules\Maphack\Maphack.cpp" />
     <ClCompile Include="Modules\Module.cpp" />
     <ClCompile Include="Modules\ModuleManager.cpp" />
-    <ClCompile Include="Modules\PallyTele\PallyTele.cpp" />
     <ClCompile Include="Modules\Party\Party.cpp" />
     <ClCompile Include="Modules\ScreenInfo\ScreenInfo.cpp" />
-    <ClCompile Include="Modules\SpamFilter\Bayes.cpp" />
-    <ClCompile Include="Modules\SpamFilter\SpamFilter.cpp" />
     <ClCompile Include="Patch.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -146,12 +142,12 @@
     <ClInclude Include="Common.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="Constants.h" />
-    <ClInclude Include="D2Handlers.h" />
-    <ClInclude Include="D2Helpers.h" />
-    <ClInclude Include="D2Intercepts.h" />
-    <ClInclude Include="D2Ptrs.h" />
-    <ClInclude Include="D2Structs.h" />
-    <ClInclude Include="D2Stubs.h" />
+    <ClInclude Include="D2\D2Handlers.h" />
+    <ClInclude Include="D2\D2Helpers.h" />
+    <ClInclude Include="D2\D2Intercepts.h" />
+    <ClInclude Include="D2\D2Ptrs.h" />
+    <ClInclude Include="D2\D2Structs.h" />
+    <ClInclude Include="D2\D2Stubs.h" />
     <ClInclude Include="Drawing.h" />
     <ClInclude Include="Drawing\Advanced\Checkhook\Checkhook.h" />
     <ClInclude Include="Drawing\Advanced\Colorhook\Colorhook.h" />
@@ -177,18 +173,14 @@
     <ClInclude Include="Modules\Pathing\ATIncludes\Vectors.h" />
     <ClInclude Include="Modules\Pathing\Pathing.h" />
     <ClInclude Include="Modules\Bnet\Bnet.h" />
-    <ClInclude Include="Modules\Gamefilter\Gamefilter.h" />
     <ClInclude Include="Modules\Item\Item.h" />
     <ClInclude Include="Modules\Item\ItemDisplay.h" />
     <ClInclude Include="Modules\ItemMover\ItemMover.h" />
     <ClInclude Include="Modules\Maphack\Maphack.h" />
     <ClInclude Include="Modules\Module.h" />
     <ClInclude Include="Modules\ModuleManager.h" />
-    <ClInclude Include="Modules\PallyTele\PallyTele.h" />
     <ClInclude Include="Modules\Party\Party.h" />
     <ClInclude Include="Modules\ScreenInfo\ScreenInfo.h" />
-    <ClInclude Include="Modules\SpamFilter\Bayes.h" />
-    <ClInclude Include="Modules\SpamFilter\SpamFilter.h" />
     <ClInclude Include="Patch.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,7 +1,7 @@
 #include "ItemMover.h"
 #include "../../BH.h"
-#include "../../D2Ptrs.h"
-#include "../../D2Stubs.h"
+#include "../../D2/D2Ptrs.h"
+#include "../../D2/D2Stubs.h"
 
 #define VALIDPTR(x) ( (x) && (!IsBadReadPtr(x,sizeof(x))) )
 
@@ -255,18 +255,19 @@ void ItemMover::OnLoad() {
 	HealKey = BH::config->ReadKey("Use Healing Potion", "VK_NUMPADMULTIPLY");
 	ManaKey = BH::config->ReadKey("Use Mana Potion", "VK_NUMPADSUBTRACT");
 
-	TextColorMap["ÿc0"] = 0;  // white
-	TextColorMap["ÿc1"] = 1;  // red
-	TextColorMap["ÿc2"] = 2;  // green
-	TextColorMap["ÿc3"] = 3;  // blue
-	TextColorMap["ÿc4"] = 4;  // gold
-	TextColorMap["ÿc5"] = 5;  // gray
-	TextColorMap["ÿc6"] = 6;  // black
-	TextColorMap["ÿc7"] = 7;  // tan
-	TextColorMap["ÿc8"] = 8;  // orange
-	TextColorMap["ÿc9"] = 9;  // yellow
-	TextColorMap["ÿc:"] = 10;  // dark green
-	TextColorMap["ÿc;"] = 11; // purple
+	TextColorMap["\xFF\x63\x30"] = 0;  // white
+	TextColorMap["\xFF\x63\x31"] = 1;  // red
+	TextColorMap["\xFF\x63\x32"] = 2;  // green
+	TextColorMap["\xFF\x63\x33"] = 3;  // blue
+	TextColorMap["\xFF\x63\x34"] = 4;  // gold
+	TextColorMap["\xFF\x63\x35"] = 5;  // gray
+	TextColorMap["\xFF\x63\x36"] = 6;  // black
+	TextColorMap["\xFF\x63\x37"] = 7;  // tan
+	TextColorMap["\xFF\x63\x38"] = 8;  // orange
+	TextColorMap["\xFF\x63\x39"] = 9;  // yellow
+	TextColorMap["\xFF\x63\x3A"] = 10;  // dark green
+	TextColorMap["\xFF\x63\x3B"] = 11;  // purple
+	TextColorMap["\xFF\x63\x2F"] = 12;  // silver
 }
 
 void ItemMover::OnKey(bool up, BYTE key, LPARAM lParam, bool* block)  {
@@ -369,7 +370,7 @@ void ItemMover::OnGamePacketRecv(BYTE* packet, bool* block) {
 					}
 
 					//PrintText(1, "Item on ground: %s, %s, %s, %X", item.name.c_str(), item.code, item.attrs->category.c_str(), item.attrs->flags);
-					if(!showOnMap)
+					if(!showOnMap) {
 						for (vector<Rule*>::iterator it = IgnoreRuleList.begin(); it != IgnoreRuleList.end(); it++) {
 							if ((*it)->Evaluate(NULL, &item)) {
 								*block = true;
@@ -377,6 +378,7 @@ void ItemMover::OnGamePacketRecv(BYTE* packet, bool* block) {
 								break;
 							}
 						}
+					}
 				}
 			}
 			break;
@@ -774,7 +776,7 @@ bool ProcessStat(unsigned int stat, BitReader &reader, ItemProperty &itemProp) {
 		}
 	}
 
-	if (stat >= STAT_DEFENSEPERLEVEL && stat <= STAT_FINDGEMSPERLEVEL) {
+	if (stat >= STAT_DEFENSEPERLEVEL && stat <= STAT_DEADLYSTRIKEPERLEVEL) {
 		itemProp.perLevel = reader.read(saveBits);
 		return true;
 	}

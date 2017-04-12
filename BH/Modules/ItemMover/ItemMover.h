@@ -1,5 +1,5 @@
 #pragma once
-#include "../../D2Structs.h"
+#include "../../D2/D2Structs.h"
 #include "../Module.h"
 #include "../../Config.h"
 #include "../../Common.h"

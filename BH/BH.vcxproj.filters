@@ -120,18 +120,6 @@
     <ClCompile Include="DllMain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D2Handlers.cpp">
-      <Filter>Diablo II\Handlers</Filter>
-    </ClCompile>
-    <ClCompile Include="D2Helpers.cpp">
-      <Filter>Diablo II\Helpers</Filter>
-    </ClCompile>
-    <ClCompile Include="D2Intercepts.cpp">
-      <Filter>Diablo II\Intercepts</Filter>
-    </ClCompile>
-    <ClCompile Include="D2Stubs.cpp">
-      <Filter>Diablo II\Stubs</Filter>
-    </ClCompile>
     <ClCompile Include="Patch.cpp">
       <Filter>Diablo II\Patch</Filter>
     </ClCompile>
@@ -198,9 +186,6 @@
     <ClCompile Include="Drawing\Advanced\Keyhook\Keyhook.cpp">
       <Filter>Diablo II\Drawing\Advanced\Keyhook</Filter>
     </ClCompile>
-    <ClCompile Include="Modules\Gamefilter\Gamefilter.cpp">
-      <Filter>BH\Modules\Gamefilter</Filter>
-    </ClCompile>
     <ClCompile Include="Modules\Bnet\Bnet.cpp">
       <Filter>BH\Modules\Bnet</Filter>
     </ClCompile>
@@ -209,12 +194,6 @@
     </ClCompile>
     <ClCompile Include="Modules\Item\ItemDisplay.cpp">
       <Filter>BH\Modules\Item</Filter>
-    </ClCompile>
-    <ClCompile Include="Modules\SpamFilter\SpamFilter.cpp">
-      <Filter>BH\Modules\SpamFilter</Filter>
-    </ClCompile>
-    <ClCompile Include="Modules\SpamFilter\Bayes.cpp">
-      <Filter>BH\Modules\SpamFilter</Filter>
     </ClCompile>
     <ClCompile Include="Modules\Party\Party.cpp">
       <Filter>BH\Modules\Party</Filter>
@@ -225,29 +204,23 @@
     <ClCompile Include="BitReader.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="Modules\PallyTele\PallyTele.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Modules\Pathing\Pathing.cpp">
       <Filter>BH\Modules\AutoTele</Filter>
     </ClCompile>
+    <ClCompile Include="D2\D2Handlers.cpp">
+      <Filter>Diablo II\Handlers</Filter>
+    </ClCompile>
+    <ClCompile Include="D2\D2Helpers.cpp">
+      <Filter>Diablo II\Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="D2\D2Intercepts.cpp">
+      <Filter>Diablo II\Intercepts</Filter>
+    </ClCompile>
+    <ClCompile Include="D2\D2Stubs.cpp">
+      <Filter>Diablo II\Stubs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="D2Structs.h">
-      <Filter>Diablo II</Filter>
-    </ClInclude>
-    <ClInclude Include="D2Handlers.h">
-      <Filter>Diablo II\Handlers</Filter>
-    </ClInclude>
-    <ClInclude Include="D2Helpers.h">
-      <Filter>Diablo II\Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="D2Intercepts.h">
-      <Filter>Diablo II\Intercepts</Filter>
-    </ClInclude>
-    <ClInclude Include="D2Stubs.h">
-      <Filter>Diablo II\Stubs</Filter>
-    </ClInclude>
     <ClInclude Include="Patch.h">
       <Filter>Diablo II\Patch</Filter>
     </ClInclude>
@@ -320,9 +293,6 @@
     <ClInclude Include="Drawing\Advanced\Keyhook\Keyhook.h">
       <Filter>Diablo II\Drawing\Advanced\Keyhook</Filter>
     </ClInclude>
-    <ClInclude Include="Modules\Gamefilter\Gamefilter.h">
-      <Filter>BH\Modules\Gamefilter</Filter>
-    </ClInclude>
     <ClInclude Include="Modules\Bnet\Bnet.h">
       <Filter>BH\Modules\Bnet</Filter>
     </ClInclude>
@@ -332,17 +302,8 @@
     <ClInclude Include="Modules\Item\ItemDisplay.h">
       <Filter>BH\Modules\Item</Filter>
     </ClInclude>
-    <ClInclude Include="Modules\SpamFilter\Bayes.h">
-      <Filter>BH\Modules\SpamFilter</Filter>
-    </ClInclude>
-    <ClInclude Include="Modules\SpamFilter\SpamFilter.h">
-      <Filter>BH\Modules\SpamFilter</Filter>
-    </ClInclude>
     <ClInclude Include="Modules\Party\Party.h">
       <Filter>BH\Modules\Party</Filter>
-    </ClInclude>
-    <ClInclude Include="D2Ptrs.h">
-      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Constants.h">
       <Filter>BH</Filter>
@@ -352,9 +313,6 @@
     </ClInclude>
     <ClInclude Include="BitReader.h">
       <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="Modules\PallyTele\PallyTele.h">
-      <Filter>Diablo II</Filter>
     </ClInclude>
     <ClInclude Include="Modules\Pathing\ATIncludes\ArrayEx.h">
       <Filter>BH\Modules\AutoTele\ATIncludes</Filter>
@@ -379,6 +337,24 @@
     </ClInclude>
     <ClInclude Include="Modules\Pathing\Pathing.h">
       <Filter>BH\Modules\AutoTele</Filter>
+    </ClInclude>
+    <ClInclude Include="D2\D2Handlers.h">
+      <Filter>Diablo II\Handlers</Filter>
+    </ClInclude>
+    <ClInclude Include="D2\D2Helpers.h">
+      <Filter>Diablo II\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="D2\D2Intercepts.h">
+      <Filter>Diablo II\Intercepts</Filter>
+    </ClInclude>
+    <ClInclude Include="D2\D2Ptrs.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D2\D2Structs.h">
+      <Filter>Diablo II</Filter>
+    </ClInclude>
+    <ClInclude Include="D2\D2Stubs.h">
+      <Filter>Diablo II\Stubs</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

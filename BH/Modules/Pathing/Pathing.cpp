@@ -15,7 +15,7 @@ using namespace Drawing;
 void Pathing::OnLoad() {
 	LoadConfig();
 
-	settingsTab = new UITab("Miscellaneous", BH::settingsUI);
+	settingsTab = new UITab("Pathing", BH::settingsUI);
 
 	new Texthook(settingsTab, 60, 12, "Toggles");
 
@@ -24,15 +24,16 @@ void Pathing::OnLoad() {
 	//this doesn't change the path.  I can't figure out how to make it work either.
 	//new Checkhook(settingsTab, 40, 42, &Toggles["CP to cave"].state, "CP to cave");
 
-	new Texthook(settingsTab, 250, 12, "Map Colors");
+	new Texthook(settingsTab, 250, 12, "Path Colors");
 
-	new Colorhook(settingsTab, 250, 27, &Colors[1], "Next");
+	//Blank space to make it easier to click them
+	new Colorhook(settingsTab, 250, 27, &Colors[1], "Next   ");
 
-	new Colorhook(settingsTab, 250, 42, &Colors[2], "Other");
+	new Colorhook(settingsTab, 250, 42, &Colors[2], "Other  ");
 
-	new Colorhook(settingsTab, 250, 57, &Colors[3], "WP");
+	new Colorhook(settingsTab, 250, 57, &Colors[3], "WP     ");
 
-	new Colorhook(settingsTab, 250, 72, &Colors[4], "Prev");
+	new Colorhook(settingsTab, 250, 72, &Colors[4], "Prev   ");
 }
 
 void Pathing::LoadConfig() {

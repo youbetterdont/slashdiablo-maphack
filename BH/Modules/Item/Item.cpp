@@ -1,7 +1,7 @@
 #include "Item.h"
-#include "../../D2Ptrs.h"
+#include "../../D2/D2Ptrs.h"
 #include "../../BH.h"
-#include "../../D2Stubs.h"
+#include "../../D2/D2Stubs.h"
 #include "ItemDisplay.h"
 
 map<std::string, Toggle> Item::Toggles;
@@ -118,7 +118,8 @@ void Item::OnKey(bool up, BYTE key, LPARAM lParam, bool* block) {
 		if (up)
 			return;
 		UnitAny* selectedUnit = D2CLIENT_GetSelectedUnit();
-		if (selectedUnit && selectedUnit->dwMode != 0 && selectedUnit->dwMode != 17 && selectedUnit->dwType == 0) {
+		//TxtFileNo 291 = Iron Golem, 357 = Valkerie, 418 = Shadow Master
+		if (selectedUnit && selectedUnit->dwMode != 0 && selectedUnit->dwMode != 17 && (selectedUnit->dwType == 0 || selectedUnit->dwTxtFileNo == 291 || selectedUnit->dwTxtFileNo == 357 || selectedUnit->dwTxtFileNo == 418)) {
 			viewingUnit = selectedUnit;
 			if (!D2CLIENT_GetUIState(0x01))
 				D2CLIENT_SetUIVar(0x01, 0, 0);
@@ -468,7 +469,16 @@ UnitAny* Item::GetViewUnit ()
 	if (view->dwUnitId == D2CLIENT_GetPlayerUnit()->dwUnitId)
 		return D2CLIENT_GetPlayerUnit();
 
-	Drawing::Texthook::Draw(BH::GetGameWidth() / 2 + 160, BH::GetGameHeight() / 2, Drawing::Center, 0, White, "%s", viewingUnit->pPlayerData->szName);
+	if (view->dwTxtFileNo == 291) {
+		Drawing::Texthook::Draw(BH::GetGameWidth() / 2 + 160, BH::GetGameHeight() / 2, Drawing::Center, 0, White, "Iron Golem");
+	} else if (view->dwTxtFileNo == 357) {
+		Drawing::Texthook::Draw(BH::GetGameWidth() / 2 + 160, BH::GetGameHeight() / 2, Drawing::Center, 0, White, "Valkyrie");
+	} else if (view->dwTxtFileNo == 418) {
+		Drawing::Texthook::Draw(BH::GetGameWidth() / 2 + 160, BH::GetGameHeight() / 2, Drawing::Center, 0, White, "Shadow Master");
+	} else {
+		Drawing::Texthook::Draw(BH::GetGameWidth() / 2 + 160, BH::GetGameHeight() / 2, Drawing::Center, 0, White, "%s", viewingUnit->pPlayerData->szName);
+	}
+	
 	return viewingUnit;
 }
 

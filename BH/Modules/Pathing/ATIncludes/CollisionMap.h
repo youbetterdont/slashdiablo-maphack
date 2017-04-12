@@ -8,7 +8,7 @@
 
 #include "ArrayEx.h"
 #include "Matrix.h"
-#include "../../../D2Ptrs.h"
+#include "../../../D2/D2Ptrs.h"
 
 #ifndef __COLLISIONMAP_H__
 #define __COLLISIONMAP_H__

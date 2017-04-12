@@ -1,18 +1,20 @@
 #include "ItemDisplay.h"
 
 // All colors here must also be defined in TextColorMap
-#define COLOR_REPLACEMENTS	\
-	{"WHITE", "ÿc0"},		\
-	{"RED", "ÿc1"},			\
-	{"GREEN", "ÿc2"},		\
-	{"BLUE", "ÿc3"},		\
-	{"GOLD", "ÿc4"},		\
-	{"GRAY", "ÿc5"},		\
-	{"BLACK", "ÿc6"},		\
-	{"TAN", "ÿc7"},			\
-	{"ORANGE", "ÿc8"},		\
-	{"YELLOW", "ÿc9"},		\
-	{"PURPLE", "ÿc;"}
+#define COLOR_REPLACEMENTS			\
+	{"WHITE", "\xFF\x63\x30"},		\
+	{"RED", "\xFF\x63\x31"},		\
+	{"GREEN", "\xFF\x63\x32"},		\
+	{"BLUE", "\xFF\x63\x33"},		\
+	{"GOLD", "\xFF\x63\x34"},		\
+	{"GRAY", "\xFF\x63\x35"},		\
+	{"BLACK", "\xFF\x63\x36"},		\
+	{"TAN", "\xFF\x63\x37"},		\
+	{"ORANGE", "\xFF\x63\x38"},		\
+	{"YELLOW", "\xFF\x63\x39"},		\
+	{"DGREEN", "\xFF\x63\x3A"},		\
+	{"PURPLE", "\xFF\x63\x3B"},		\
+	{"SILVER", "\xFF\x63\x2F"} 
 
 enum Operation {
 	EQUAL,
@@ -96,9 +98,9 @@ void GetItemName(UnitItemInfo *uInfo, string &name) {
 		}
 	}
 }
-
+// LoliSquad: Added lvlreq, wpnspd and rangeadder
 void SubstituteNameVariables(UnitItemInfo *uInfo, string &name, Action *action) {
-	char origName[128], sockets[4], code[4], ilvl[4], alvl[4], runename[16] = "", runenum[4] = "0";
+	char origName[128], sockets[4], code[4], ilvl[4], alvl[4], lvlreq[4], wpnspd[4], rangeadder[4], runename[16] = "", runenum[4] = "0";
 	char gemtype[16] = "", gemlevel[16] = "", sellValue[16] = "";
 
 	UnitAny *item = uInfo->item;
@@ -111,13 +113,15 @@ void SubstituteNameVariables(UnitItemInfo *uInfo, string &name, Action *action) 
 	sprintf_s(sockets, "%d", D2COMMON_GetUnitStat(item, STAT_SOCKETS, 0));
 	sprintf_s(ilvl, "%d", item->pItemData->dwItemLevel);
 	sprintf_s(alvl, "%d", GetAffixLevel((BYTE)item->pItemData->dwItemLevel, (BYTE)uInfo->attrs->qualityLevel, uInfo->attrs->flags, code));
+	sprintf_s(lvlreq, "%d", GetRequiredLevel(uInfo->item));
 	sprintf_s(origName, "%s", name.c_str());
+	sprintf_s(wpnspd, "%d", txt->speed); //Add these as matchable stats too, maybe?
+	sprintf_s(rangeadder, "%d", txt->rangeadder);
 
 	UnitAny* pUnit = D2CLIENT_GetPlayerUnit();
 	if (pUnit && txt->fQuest == 0) {
 		sprintf_s(sellValue, "%d", D2COMMON_GetItemPrice(pUnit, item, D2CLIENT_GetDifficulty(), (DWORD)D2CLIENT_GetQuestInfo(), 0x201, 1));
 	}
-
 	BYTE nType = D2COMMON_GetItemText(item->dwTxtFileNo)->nType;
 	if (IsRune(nType)) {
 		sprintf_s(runenum, "%d", item->dwTxtFileNo - 609);
@@ -135,6 +139,9 @@ void SubstituteNameVariables(UnitItemInfo *uInfo, string &name, Action *action) 
 		{"GEMTYPE", gemtype},
 		{"ILVL", ilvl},
 		{"ALVL", alvl},
+		{"LVLREQ", lvlreq},
+		{"WPNSPD", wpnspd},
+		{"RANGE", rangeadder},
 		{"CODE", code},
 		{"PRICE", sellValue},
 		COLOR_REPLACEMENTS
@@ -154,14 +161,17 @@ BYTE GetAffixLevel(BYTE ilvl, BYTE qlvl, unsigned int flags, char *code) {
 		(code[0] == 'j' && code[1] == 'e' && code[2] == 'w') ||
 		(code[0] == 'c' && code[1] == 'm' && code[2] >= '1' && code[2] <= '3')) {
 		qlvl = ilvl;
-	} else if (code[0] == 'c' && code[1] == 'i' && code[2] == '0') {
-		mlvl = 3;
-	} else if (code[0] == 'c' && code[1] == 'i' && code[2] == '1') {
-		mlvl = 8;
-	} else if (code[0] == 'c' && code[1] == 'i' && code[2] == '2') {
-		mlvl = 13;
-	} else if (code[0] == 'c' && code[1] == 'i' && code[2] == '3') {
-		mlvl = 18;
+		// Circlets
+	} else if (code[0] == 'c' && code[1] == 'i') {
+		if (code[2] == '0') {
+			mlvl = 3;
+		} else if (code[2] == '1') {
+			mlvl = 8;
+		} else if (code[2] == '2') {
+			mlvl = 13;
+		} else {
+			mlvl = 18;
+		}
 	} else if (flags & ITEM_GROUP_WAND || flags & ITEM_GROUP_STAFF || flags & ITEM_GROUP_SORCERESS_ORB) {
 		mlvl = 1;
 	}
@@ -175,6 +185,41 @@ BYTE GetAffixLevel(BYTE ilvl, BYTE qlvl, unsigned int flags, char *code) {
 		return ilvl + mlvl > 99 ? 99 : ilvl + mlvl;
 	}
 	return ((ilvl) < (99 - ((qlvl)/2)) ? (ilvl) - ((qlvl)/2) : (ilvl) * 2 - 99);
+}
+// Returns the (lowest) level requirement (for any class) of an item
+BYTE GetRequiredLevel(UnitAny* item) {
+	// Some crafted items can supposedly go above 100, but it's practically the same as 100
+	BYTE rlvl = 100;
+
+	// The unit for which the required level is calculated
+	UnitAny* character = D2CLIENT_GetPlayerUnit();
+
+	// Extra checks for these as they can have charges
+	if (item->pItemData->dwQuality == ITEM_QUALITY_RARE || item->pItemData->dwQuality == ITEM_QUALITY_MAGIC) {
+
+		// Save the original class of the character (0-6)
+		DWORD temp = character->dwTxtFileNo;
+
+		// Pretend to be every class once, use the lowest req lvl (for charged items)
+		for (DWORD i = 0; i < 7; i++) {
+
+			character->dwTxtFileNo = i;
+			BYTE temprlvl = (BYTE)D2COMMON_GetItemLevelRequirement(item, character);
+
+			if (temprlvl < rlvl) {
+
+				rlvl = temprlvl;
+				//Only one class will have a lower req than the others, so if a lower one is found we can stop
+				if (i > 0) { break; }
+			}
+		}
+		// Go back to being original class
+		character->dwTxtFileNo = temp;
+	} else {
+		rlvl = (BYTE)D2COMMON_GetItemLevelRequirement(item, character);
+	}
+
+	return rlvl;
 }
 
 BYTE GetOperation(string *op) {
@@ -204,7 +249,7 @@ bool IntegerCompare(unsigned int Lvalue, BYTE operation, unsigned int Rvalue) {
 	case LESS_THAN:
 		return Lvalue < Rvalue;
 	default:
-		throw EXCEPTION_INVALID_OPERATION;
+		return false;
 	}
 }
 
@@ -451,6 +496,34 @@ void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 	} else if (key.compare(0, 4, "MANA") == 0) {
 		// For unknown reasons, the game's internal MANA stat is 256 for every 1 displayed on item
 		Condition::AddOperand(conditions, new ItemStatCondition(STAT_MAXMANA, 0, operation, value * 256));
+		//LoliSquad's additions
+	} else if (key.compare(0, 6, "LVLREQ") == 0) {
+		Condition::AddOperand(conditions, new RequiredLevelCondition(operation, value));
+	} else if (key.compare(0, 5, "ARPER") == 0) {
+		Condition::AddOperand(conditions, new ItemStatCondition(STAT_TOHITPERCENT, 0, operation, value));
+	} else if (key.compare(0, 5, "MFIND") == 0) {
+		Condition::AddOperand(conditions, new ItemStatCondition(STAT_MAGICFIND, 0, operation, value));
+	} else if (key.compare(0, 5, "GFIND") == 0) {
+		Condition::AddOperand(conditions, new ItemStatCondition(STAT_GOLDFIND, 0, operation, value));
+	} else if (key.compare(0, 3, "STR") == 0) {
+		Condition::AddOperand(conditions, new ItemStatCondition(STAT_STRENGTH, 0, operation, value));
+	} else if (key.compare(0, 3, "DEX") == 0) {
+		Condition::AddOperand(conditions, new ItemStatCondition(STAT_DEXTERITY, 0, operation, value));
+	} else if (key.compare(0, 3, "FRW") == 0) {
+		Condition::AddOperand(conditions, new ItemStatCondition(STAT_FASTERRUNWALK, 0, operation, value));
+	} else if (key.compare(0, 6, "MAXDMG") == 0) {
+		Condition::AddOperand(conditions, new ItemStatCondition(STAT_MAXIMUMDAMAGE, 0, operation, value));
+	} else if (key.compare(0, 2, "AR") == 0) {
+		Condition::AddOperand(conditions, new ItemStatCondition(STAT_ATTACKRATING, 0, operation, value));
+	} else if (key.compare(0, 3, "DTM") == 0) {
+		Condition::AddOperand(conditions, new ItemStatCondition(STAT_DAMAGETOMANA, 0, operation, value));
+	} else if (key.compare(0, 7, "REPLIFE") == 0) {
+		Condition::AddOperand(conditions, new ItemStatCondition(STAT_REPLENISHLIFE, 0, operation, value));
+	} else if (key.compare(0, 8, "REPQUANT") == 0) {
+		Condition::AddOperand(conditions, new ItemStatCondition(STAT_REPLENISHESQUANTITY, 0, operation, value));
+	} else if (key.compare(0, 6, "REPAIR") == 0) {
+		Condition::AddOperand(conditions, new ItemStatCondition(STAT_REPAIRSDURABILITY, 0, operation, value));
+		//LoliSquad out
 	} else if (key.compare(0, 5, "ARMOR") == 0) {
 		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_ALLARMOR));
 	} else if (key.compare(0, 2, "EQ") == 0 && keylen == 3) {
@@ -607,17 +680,17 @@ bool NegationOperator::EvaluateInternalFromPacket(ItemInfo *info, Condition *arg
 }
 
 bool LeftParen::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
-	throw EXCEPTION_INVALID_OPERATOR;
+	return false;
 }
 bool LeftParen::EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2) {
-	throw EXCEPTION_INVALID_OPERATOR;
+	return false;
 }
 
 bool RightParen::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
-	throw EXCEPTION_INVALID_OPERATOR;
+	return false;
 }
 bool RightParen::EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2) {
-	throw EXCEPTION_INVALID_OPERATOR;
+	return false;
 }
 
 bool AndOperator::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
@@ -653,7 +726,7 @@ bool FlagsCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1,
 	case ITEM_RUNEWORD:
 		return info->runeword;
 	}
-	throw EXCEPTION_INVALID_FLAG;
+	return false;
 }
 
 bool QualityCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
@@ -679,13 +752,13 @@ bool GemLevelCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, C
 	if (IsGem(nType)) {
 		return IntegerCompare(GetGemLevel(uInfo->itemCode), operation, gemLevel);
 	}
-	throw EXCEPTION_INVALID_ITEM_TYPE;
+	return false;
 }
 bool GemLevelCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2) {
 	if (info->attrs->category.compare(0, 3, "Gem") == 0) {
 		return IntegerCompare(GetGemLevel(info->code), operation, gemLevel);
 	}
-	throw EXCEPTION_INVALID_ITEM_TYPE;
+	return false;
 }
 
 bool GemTypeCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
@@ -693,7 +766,7 @@ bool GemTypeCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Co
 	if (IsGem(nType)) {
 		return IntegerCompare(GetGemType(nType), operation, gemType);
 	}
-	throw EXCEPTION_INVALID_ITEM_TYPE;
+	return false;
 }
 bool GemTypeCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2) {
 	if (info->attrs->category.compare(0, 3, "Gem") == 0) {
@@ -703,14 +776,14 @@ bool GemTypeCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *arg
 			}
 		}
 	}
-	throw EXCEPTION_INVALID_ITEM_TYPE;
+	return false;
 }
 
 bool RuneCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
 	if (IsRune(D2COMMON_GetItemText(uInfo->item->dwTxtFileNo)->nType)) {
 		return IntegerCompare(uInfo->item->dwTxtFileNo - 609, operation, runeNumber);
 	}
-	throw EXCEPTION_INVALID_ITEM_TYPE;
+	return false;
 }
 bool RuneCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2) {
 	if (info->code[0] == 'r' &&
@@ -718,17 +791,17 @@ bool RuneCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, 
 		info->code[2] >= '0' && info->code[2] <= '9') {
 		return IntegerCompare(((info->code[1] - '0') * 10) + info->code[2] - '0', operation, runeNumber);
 	}
-	throw EXCEPTION_INVALID_ITEM_TYPE;
+	return false;
 }
 
 bool GoldCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
-	throw EXCEPTION_INVALID_GOLD_TYPE; // can only evaluate this from packet data
+	return false; // can only evaluate this from packet data
 }
 bool GoldCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2) {
 	if (info->code[0] == 'g' && info->code[1] == 'l' && info->code[2] == 'd') {
 		return IntegerCompare(info->amount, operation, goldAmount);
 	}
-	throw EXCEPTION_INVALID_GOLD_TYPE;
+	return false;
 }
 
 bool ItemLevelCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
@@ -747,6 +820,19 @@ bool AffixLevelCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *
 	int qlvl = info->attrs->qualityLevel;
 	BYTE alvl = GetAffixLevel(info->level, info->attrs->qualityLevel, info->attrs->flags, info->code);
 	return IntegerCompare(alvl, operation, affixLevel);
+}
+
+bool RequiredLevelCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
+
+	unsigned int rlvl = GetRequiredLevel(uInfo->item);
+
+	return IntegerCompare(rlvl, operation, requiredLevel);
+}
+bool RequiredLevelCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2) {
+
+	//Not Done Yet (is it necessary? I think this might have something to do with the exact moment something drops?)
+
+	return true;
 }
 
 bool ItemGroupCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
@@ -838,7 +924,7 @@ bool ItemStatCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *ar
 		}
 		return IntegerCompare(num, operation, targetStat);
 	}
-	throw EXCEPTION_INVALID_STAT;
+	return false;
 }
 
 bool ResistAllCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {

@@ -1,7 +1,7 @@
 #include "UITab.h"
 #include "../Basic/Texthook/Texthook.h"
 #include "../Basic/Framehook/Framehook.h"
-#include "../../D2Ptrs.h"
+#include "../../D2/D2Ptrs.h"
 
 using namespace Drawing;
 

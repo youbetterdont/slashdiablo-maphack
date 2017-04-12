@@ -1,15 +1,15 @@
 #include "Screeninfo.h"
 #include "../../BH.h"
-#include "../../D2Ptrs.h"
-#include "../../D2Stubs.h"
+#include "../../D2/D2Ptrs.h"
+#include "../../D2/D2Stubs.h"
 #include <time.h>
-#include "../../D2Helpers.h"
+#include "../../D2/D2Helpers.h"
 using namespace Drawing;
 
 void ScreenInfo::OnLoad() {
 	LoadConfig();
 	
-	bhText = new Texthook(Perm, 794, 6, "ÿc4Cham BH v1.0.0 (Main Branch)");
+	bhText = new Texthook(Perm, 794, 6, "ÿc4Loli BH (Slash Branch v1.0)");
 	bhText->SetAlignment(Right);
 
 	
@@ -19,8 +19,8 @@ void ScreenInfo::OnLoad() {
 	if (!IsUsingMultiRes()) {
 		multiResText->SetText("");
 	}
-	gameTimer = GetTickCount();
 
+	gameTimer = GetTickCount();
 }
 
 void ScreenInfo::LoadConfig()
@@ -167,8 +167,6 @@ void ScreenInfo::OnDraw() {
 		Texthook::Draw(BH::GetGameWidth() / 2, 30 * (yOffset++), Center, 3, Red, "%s has expired!", (*it)->name.c_str());
 	}
 
-	// It's a kludge to peek into other modules for config info, but it just seems silly to
-	// create a new UI tab for each module with config parameters.
 	if (Toggles["Quest Drop Warning"].state) {
 		char *bossNames[3] = {"Mephisto", "Diablo", "Baal"};
 		int xpac = pData->nCharFlags & PLAYER_TYPE_EXPANSION;

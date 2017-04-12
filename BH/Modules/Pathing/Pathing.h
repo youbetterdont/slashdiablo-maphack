@@ -1,6 +1,6 @@
 #pragma once
 #include "../../Constants.h"
-#include "../../D2Ptrs.h"
+#include "../../D2/D2Ptrs.h"
 #include "../Module.h"
 #include "../../Drawing.h"
 #include "../../Config.h"
