@@ -36,9 +36,6 @@ class cInjector
 		static INT InjectToProcessByDLL(wstring wProcessDll, wstring wDllName);
 		static INT InjectToProcess(wstring wProcName, wstring wDllName);
 
-		static BOOL RunRemoteProc(DWORD dwPid, wstring wDllName, string wProcName);
-		static BOOL RunRemoteProc(HWND hwnd, wstring wDllName, string wProcName);
-
 		static HMODULE GetRemoteDll(DWORD dwPid, wstring wDllName);
 		static HMODULE GetRemoteDll(HWND hwnd, wstring wDllName);
 };

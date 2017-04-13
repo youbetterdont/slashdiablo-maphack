@@ -1,26 +1,34 @@
 #include "Screeninfo.h"
 #include "../../BH.h"
-#include "../../D2Ptrs.h"
-#include "../../D2Stubs.h"
-#include "../Item/ItemDisplay.h"
+#include "../../D2/D2Ptrs.h"
+#include "../../D2/D2Stubs.h"
 #include <time.h>
-
+#include "../../D2/D2Helpers.h"
 using namespace Drawing;
 
-map<std::string, Toggle> ScreenInfo::Toggles;
-
 void ScreenInfo::OnLoad() {
-	xpos = 790;
-	Toggles["Experience Meter"] = BH::config->ReadToggle("Experience Meter", "VK_NUMPAD7", false);
+	LoadConfig();
+	
+	bhText = new Texthook(Perm, BH::GetGameWidth() - 6, 6, "ÿc4Loli BH [1.13d] HD (Slash Branch v1.0)");
+	bhText->SetAlignment(Right);
+
+	
+	multiResText = new Texthook(Perm, BH::GetGameWidth() - 6, 23, "ÿc4with MultiRes v1.13c");
+	multiResText->SetAlignment(Right);
+
+	if (!IsUsingMultiRes()) {
+		multiResText->SetText("");
+	}
+
+	gameTimer = GetTickCount();
+}
+
+void ScreenInfo::LoadConfig()
+{
+	Toggles["Quest Drop Warning"] = BH::config->ReadToggle("Quest Drop Warning", "None", false);
+	Toggles["Show Exp Meter"] = BH::config->ReadToggle("Show Exp Meter", "None", true);
 
 	automapInfo = BH::config->ReadArray("AutomapInfo");
-	bhText = new Texthook(Perm, xpos, 6, "ÿc4BH v0.1.7e [1.13d] HD (SlashDiablo Branch)");
-	bhText->SetAlignment(Right);
-	if (BH::cGuardLoaded) {
-		Texthook* cGuardText = new Texthook(Perm, xpos, 23, "ÿc4cGuard Loaded");
-		cGuardText->SetAlignment(Right);
-	}
-	gameTimer = GetTickCount();
 
 	map<string, string> SkillWarnings = BH::config->ReadAssoc("Skill Warning");
 	for (auto it = SkillWarnings.cbegin(); it != SkillWarnings.cend(); it++) {
@@ -35,16 +43,23 @@ void ScreenInfo::OnLoad() {
 	}
 }
 
-void ScreenInfo::OnResolutionChanged(int newX, int newY) {
-	bhText->SetBaseX(newX - 10);
-	xpos = newX - 10;
-}
-
 void ScreenInfo::OnGameJoin(const string& name, const string& pass, int diff) {
 	gameTimer = GetTickCount();
 	UnitAny* pUnit = D2CLIENT_GetPlayerUnit();
 	startExperience = (int)D2COMMON_GetUnitStat(pUnit, STAT_EXP, 0);
 	startLevel = (int)D2COMMON_GetUnitStat(pUnit, STAT_LEVEL, 0);
+}
+
+void ScreenInfo::OnOOGDraw()
+{
+	if (bhText->GetBaseX() != BH::GetGameWidth() - 6)
+	{
+		bhText->SetBaseX(BH::GetGameWidth() - 6);
+	}
+	if (multiResText->GetBaseX() != BH::GetGameWidth() - 6)
+	{
+		multiResText->SetBaseX(BH::GetGameWidth() - 6);
+	}
 }
 
 // Right-clicking in the chat console pastes from the clipboard
@@ -118,6 +133,15 @@ void ScreenInfo::OnDraw() {
 		return;
 	}
 
+	if (bhText->GetBaseX() != BH::GetGameWidth() - 6)
+	{
+		bhText->SetBaseX(BH::GetGameWidth() - 6);
+	}
+	if (multiResText->GetBaseX() != BH::GetGameWidth() - 6)
+	{
+		multiResText->SetBaseX(BH::GetGameWidth() - 6);
+	}
+
 	ULONGLONG ticks = BHGetTickCount();
 	ULONGLONG ms = ticks - packetTicks;
 	if (!ReceivedQuestPacket && packetRequests < 6 && ms > 5000) {
@@ -140,12 +164,10 @@ void ScreenInfo::OnDraw() {
 	}
 
 	for (std::deque<StateWarning*>::iterator it = CurrentWarnings.begin(); it != CurrentWarnings.end(); ++it) {
-		Texthook::Draw(xpos / 2, 30 * (yOffset++), Center, 3, Red, "%s has expired!", (*it)->name.c_str());
+		Texthook::Draw(BH::GetGameWidth() / 2, 30 * (yOffset++), Center, 3, Red, "%s has expired!", (*it)->name.c_str());
 	}
 
-	// It's a kludge to peek into other modules for config info, but it just seems silly to
-	// create a new UI tab for each module with config parameters.
-	if ((*BH::MiscToggles)["Quest Drop Warning"].state) {
+	if (Toggles["Quest Drop Warning"].state) {
 		char *bossNames[3] = {"Mephisto", "Diablo", "Baal"};
 		int xpac = pData->nCharFlags & PLAYER_TYPE_EXPANSION;
 		int doneDuriel = D2COMMON_GetQuestFlag2(quests, THE_SEVEN_TOMBS, QFLAG_REWARD_GRANTED);
@@ -169,14 +191,13 @@ void ScreenInfo::OnDraw() {
 			if (ms > 2000) {
 				warningTicks = ticks;
 			} else if (ms > 500) {
-				Texthook::Draw(400, 30 * (yOffset++), Center, 3, Red, "%s Quest Active", bossNames[warning]);
+				Texthook::Draw(BH::GetGameWidth() / 2, 30 * (yOffset++), Center, 3, Red, "%s Quest Active", bossNames[warning]);
 			}
 		}
 	}
 
-	if (Toggles["Experience Meter"].state) {
+	if (Toggles["Show Exp Meter"].state)
 		drawExperienceInfo();
-	}
 }
 
 void ScreenInfo::drawExperienceInfo(){
@@ -211,7 +232,7 @@ void ScreenInfo::drawExperienceInfo(){
 	}
 	sprintf_s(sExp, "%00.2f%% (%s%00.2f%%) [%s%.2f%s/s]", pExp, expGainPct >= 0 ? "+" : "", expGainPct, expPerSecond >= 0 ? "+" : "", expPerSecond, unit);
 
-	Texthook::Draw((*p_D2CLIENT_ScreenSizeX / 2) - 100, (*p_D2CLIENT_ScreenSizeY) - 60, Center, 0, White, "%s", sExp);
+	Texthook::Draw(BH::GetGameWidth() / 2, BH::GetGameHeight() - 60, Right, 0, White, "%s", sExp);
 }
 
 void ScreenInfo::OnAutomapDraw() {
@@ -221,7 +242,7 @@ void ScreenInfo::OnAutomapDraw() {
 	char* szDiff[3] = {"Normal", "Nightmare", "Hell"};
 	if (!pInfo || !pData || !pUnit)
 		return;
-	int y = 6+(BH::cGuardLoaded?16:0);
+	int y = 6+(IsUsingMultiRes()?16:0);
 
 	char gameTime[20];
 	int nTime = ((GetTickCount() - gameTimer) / 1000);
@@ -259,8 +280,11 @@ void ScreenInfo::OnAutomapDraw() {
 			else
 				key.replace(key.find("%" + automap[n].key + "%"), automap[n].key.length() + 2, automap[n].value);
 		}
+
 		if (key.length() > 0)
-			Texthook::Draw(xpos, (y+=16), Right,0,Gold,"%s", key.c_str());
+		{
+				Texthook::Draw(BH::GetGameWidth() - 6, (y += 16), Right, 0, Gold, "%s", key.c_str());
+		}
 	}
 
 	delete [] level;

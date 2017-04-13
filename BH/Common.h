@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
-#include "D2Ptrs.h"
+#include "D2/D2Ptrs.h"
 
 void Tokenize(const std::string& str, std::vector<std::string>& tokens, const std::string& delimiters);
 wchar_t* AnsiToUnicode(const char* str);
@@ -37,5 +37,3 @@ struct KeyCode {
 KeyCode GetKeyCode(unsigned int nKey);
 KeyCode GetKeyCode(const char* name);
 ULONGLONG BHGetTickCount(void);
-
-std::string string_format(const std::string fmt_str, ...);

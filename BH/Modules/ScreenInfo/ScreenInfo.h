@@ -1,5 +1,5 @@
 #pragma once
-#include "../../D2Structs.h"
+#include "../../D2/D2Structs.h"
 #include "../Module.h"
 #include "../../Config.h"
 #include "../../Drawing.h"
@@ -28,9 +28,9 @@ class ScreenInfo : public Module {
 		std::map<DWORD, string> SkillWarningMap;
 		std::deque<StateWarning*> CurrentWarnings;
 		Drawing::Texthook* bhText;
+		Drawing::Texthook* multiResText;
 		DWORD gameTimer;
 
-		int xpos;
 		int packetRequests;
 		ULONGLONG warningTicks;
 		ULONGLONG packetTicks;
@@ -40,21 +40,18 @@ class ScreenInfo : public Module {
 		bool ReceivedQuestPacket;
 		DWORD startExperience;
 		int startLevel;
-
-		void ScreenInfo::drawExperienceInfo();
+		void drawExperienceInfo();
+		std::map<string, Toggle> Toggles;
 	public:
-		static map<std::string, Toggle> Toggles;
-
 		ScreenInfo() :
 			Module("Screen Info"), warningTicks(BHGetTickCount()), packetRequests(0),
-			MephistoBlocked(false), DiabloBlocked(false), BaalBlocked(false), ReceivedQuestPacket(false),
-			startExperience(0), startLevel(0) {};
+			MephistoBlocked(false), DiabloBlocked(false), BaalBlocked(false), ReceivedQuestPacket(false) {};
 
 		void OnLoad();
-		void OnResolutionChanged(int newX, int newY);
+		void LoadConfig();
 		void OnGameJoin(const string& name, const string& pass, int diff);
 		void OnGameExit();
-
+		void OnOOGDraw();
 		void OnRightClick(bool up, int x, int y, bool* block);
 		void OnDraw();
 		void OnAutomapDraw();

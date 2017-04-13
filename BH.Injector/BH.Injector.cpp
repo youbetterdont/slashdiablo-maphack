@@ -1,37 +1,26 @@
 /*
 	BH.Injector - Injects BH
-    Copyright (C) 2011 McGod
-	
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+	Copyright (C) 2011 McGod
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Affero General Public License as
+	published by the Free Software Foundation, either version 3 of the
+	License, or (at your option) any later version.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU Affero General Public License for more details.
 
-*/
+	You should have received a copy of the GNU Affero General Public License
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+	*/
 #include "BH.Injector.h"
 #include "EventSink.h"
 #include <thread>
-/*
-#undef _DLL
-#undef _UNICODE
-#include "StormLib.h"
-#define _UNICODE
-#define _DLL
-*/
-
-typedef bool (*ReadMPQFiles)(std::string patchPath, bool writeFiles);
-
 
 wstring BH::wPath;
-string patchPath;
 volatile bool terminate_autoinject = false;
 void DoAutoInject();
 
@@ -42,21 +31,6 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam) {
 	GetClassName(hwnd, szClassName, 1024);
 	//Check if it is Diablo II
 	if (!wcscmp(szClassName, L"Diablo II")) {
-		char szFileName[1024];
-		DWORD dwProcessId = 0;
-		GetWindowThreadProcessId(hwnd, &dwProcessId);
-		if (dwProcessId) {
-			HANDLE hProcess = OpenProcess(PROCESS_VM_READ|PROCESS_QUERY_INFORMATION, FALSE, dwProcessId);
-			if (hProcess) {
-				UINT ret = GetModuleFileNameExA(hProcess, NULL, szFileName, 1024);
-				patchPath.assign(szFileName);
-				size_t start_pos = patchPath.find("Game.exe");
-				if (start_pos != std::string::npos) {
-					patchPath.replace(start_pos, 8, "Patch_D2.mpq");
-				}
-			}
-		}
-
 		//Convert lParam to vector
 		vector<DiabloWindow*>* pVector = (vector<DiabloWindow*>*)lParam;
 		//Push class into vector
@@ -67,18 +41,15 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam) {
 
 char* getCmdOption(char** begin, char** end, const std::string& option) {
 	char** itr = std::find(begin, end, option);
-	if (itr != end && ++itr != end)
-	{
+	if (itr != end && ++itr != end) {
 		return *itr;
 	}
 	return 0;
 }
 
-bool cmdOptionExists(char** begin, char** end, const std::string& option)
-{
+bool cmdOptionExists(char** begin, char** end, const std::string& option) {
 	return std::find(begin, end, option) != end;
 }
-
 
 //Main Function
 int main(int argc, const char* argv[]) {
@@ -88,10 +59,12 @@ int main(int argc, const char* argv[]) {
 
 	BH::wPath = wtPath;
 	BH::wPath += L"\\";
-	
+
 	if (!cInjector::EnableDebugPriv()) {
-		printf("\tYou must run this injector as an adminstrator!\nIf you're using Windows Vista or Windows 7, right click and choose \'Run as Adminstrator\'");
-		system("PAUSE");
+		std::cout << "\tYou must run this injector as an adminstrator!" << std::endl;
+		std::cout << "If you're using Windows Vista or Windows 7, right click and choose \'Run as Adminstrator\'" << std::endl;
+		std::cout << "Press any key to continue . . . " << std::endl;
+		_getch();
 		return 1;
 	}
 
@@ -106,7 +79,19 @@ int main(int argc, const char* argv[]) {
 		string str(numOpt);
 		stringstream ss(str);
 		if ((ss >> nOpt).fail()) {
-			printf("\tCannot convert -o argument to an integer!\n");
+			std::cout << "\tCannot convert -o argument to an integer!" << std::endl;
+			system("PAUSE");
+			return 1;
+		}
+	}
+
+	int nHandle = -1;
+	char *numHandle = getCmdOption((char**)argv, (char**)argv + argc, "-o");
+	if (numHandle) {
+		string str(numHandle);
+		stringstream ss(str);
+		if ((ss >> nHandle).fail()) {
+			std::cout << "\tCannot convert -o argument to an integer!" << std::endl;
 			system("PAUSE");
 			return 1;
 		}
@@ -116,79 +101,77 @@ int main(int argc, const char* argv[]) {
 	EnumWindows(EnumWindowsProc, (LPARAM)&Windows);
 
 	//Print intro and the beginning of the menu.
-	printf("BH v0.1.7e [1.13d] By McGod\n");
-	printf("SlashDiablo Branch: Edited By Deadlock, underbent, and Slayergod13\n");
-	printf("HD 1344x700 resolution -- by TravHatesMe, ported to 1.13c -- by Trial\n");
-	printf("Visit http://www.reddit.com/r/slashdiablo for updates!\n");
-
-	printf("\n");
-	printf("Command-line parameters:\n");
-	printf("\t-o <option number>: set injection option (0 for inject all, etc)\n");
-	printf("\t-p: don't pause after injection\n");
-	printf("\n");
+	std::cout << "Loli BH [1.13d] (Slash Branch v1.0) by LoliSquad" << std::endl;
+	std::cout << "IAmTrial Branch" << std::endl;
+	std::cout << "HD 1344x700 resolution -- by TravHatesMe, ported to 1.13c -- by Trial" << std::endl;
+	std::cout << std::endl;
+	std::cout << "Shoutout to raler and rob for their help with this project!" << std::endl;
+	std::cout << "Visit http://www.reddit.com/r/slashdiablo for updates!" << std::endl;
+	std::cout << std::endl;
+	std::cout << "Command-line parameters:" << std::endl;
+	std::cout << "\t-o <option number>: set injection option (0 for inject all, etc)" << std::endl;
+	std::cout << "\t-p: don't pause after injection" << std::endl;
+	std::cout << std::endl;
 
 	if (nOpt < 0) {
-		printf("Please choose an option to inject.\n");
-		printf("\t0) Inject into All\n");
-		printf("\t1) Uninject from All\n");
-		printf("\t2) Autoinject\n");
+		std::cout << "Please choose an option to inject." << std::endl;
+		std::cout << "\t0) Inject into All" << std::endl;
+		std::cout << "\t1) Uninject from All" << std::endl;
+		std::cout << "\t2) Autoinject" << std::endl;
 
 		int nCount = 3;
 		for (vector<DiabloWindow*>::iterator window = Windows.begin(); window < Windows.end(); window++) {
 			(*window)->MenuMessage(nCount++);
 		}
-		printf("\n");
+		std::cout << std::endl;
 
 		nOpt = _getch() - 48;
 	}
 	std::thread autoinject_thread;
-	switch(nOpt) 
-	{
-		case 0://Inject into all
-			for (vector<DiabloWindow*>::iterator window = Windows.begin(); window < Windows.end(); window++){
-				(*window)->Inject();
-			}
+	switch (nOpt) {
+	case 0://Inject into all
+		for (vector<DiabloWindow*>::iterator window = Windows.begin(); window < Windows.end(); window++)
+			(*window)->Inject();
 		break;
-		case 1://Unload from all
-			for (vector<DiabloWindow*>::iterator window = Windows.begin(); window < Windows.end(); window++)
-				(*window)->Unload();
+	case 1://Unload from all
+		for (vector<DiabloWindow*>::iterator window = Windows.begin(); window < Windows.end(); window++)
+			(*window)->Unload();
 		break;
-		case 2://Autoinject
-			for (vector<DiabloWindow*>::iterator window = Windows.begin(); window < Windows.end(); window++) {
-				(*window)->Inject();
-			}
-			autoinject_thread = thread(DoAutoInject);
-			printf("Auto injecting into new instances. Press any key to stop.\n");
-			_getch();
-			noPause = true;
-			terminate_autoinject = true;
-			autoinject_thread.join();
+	case 2://Autoinject
+		for (vector<DiabloWindow*>::iterator window = Windows.begin(); window < Windows.end(); window++) {
+			(*window)->Inject();
+		}
+		autoinject_thread = thread(DoAutoInject);
+		std::cout << "Auto injecting into new instances. Press any key to stop." << std::endl;
+		_getch();
+		noPause = true;
+		terminate_autoinject = true;
+		autoinject_thread.join();
 		break;
-
-		default://Specific window
-			int nWindow = nOpt - 3;
-			if (nWindow < 0 || nWindow >= (int)Windows.size())
-				printf("You have chosen an invalid option.\n");
-			else 
-				if (Windows[nWindow]->IsInjected())
-					Windows[nWindow]->Unload();
-				else
-					Windows[nWindow]->Inject();
+	default://Specific window
+		int nWindow = nOpt - 2;
+		if (nWindow < 0 || nWindow >= (int)Windows.size())
+			std::cout << "You have chosen an invalid option." << std::endl;
+		else
+			if (Windows[nWindow]->IsInjected())
+				Windows[nWindow]->Unload();
+			else
+				Windows[nWindow]->Inject();
 		break;
 	}
-	
+
 	if (!noPause) {
-		system("PAUSE");
+		std::cout << "Press any key to continue . . . " << std::endl;
+		_getch();
 	}
 }
 
 // Code taken from MSDN https://msdn.microsoft.com/en-us/library/aa390423%28v=vs.85%29.aspx
 // This sets up a COM interface to WMI for notifications on new processes with the image name 'Game.exe'
 // The notification is handled in EventSink:Indicate
-void DoAutoInject()
-{
+void DoAutoInject() {
 	HRESULT hres;
-	printf("\n");
+	std::cout << std::endl;
 
 	// Step 1: --------------------------------------------------
 	// Initialize COM. ------------------------------------------
@@ -339,8 +322,7 @@ void DoAutoInject()
 	}
 
 	// Wait for the event
-	while (!terminate_autoinject)
-	{
+	while (!terminate_autoinject) {
 		Sleep(1000);
 	}
 

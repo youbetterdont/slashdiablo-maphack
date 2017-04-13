@@ -1,16 +1,22 @@
 #include "Resolution.h"
-#include "../../D2Ptrs.h"
+#include "../../D2/D2Ptrs.h"
 #include "../../BH.h"
-#include "../../D2Stubs.h"
-#include "../../D2Helpers.h"
+#include "../../D2/D2Stubs.h"
+#include "../../D2/D2Helpers.h"
 #include "ScreenRefresh.h"
 
 using namespace std;
 
 void Resolution::OnLoad() {
 	isInGame = false;
+	
 	newWidth = BH::config->ReadInt("New Width", 1344);
 	newHeight = BH::config->ReadInt("New Height", 700);
+	Toggles["Toggle Resolution"] = BH::config->ReadToggle("Toggle Resolution", "VK_6", false);
+}
+
+void Resolution::LoadConfig() {
+	
 }
 
 void Resolution::OnUnload() {
@@ -46,7 +52,7 @@ void Resolution::SetResolution(int x, int y) {
 void Resolution::OnDraw() {
 	// Credits to /u/TravHatesMe aka blurt for sharing this code.
 	// Fixes the Hall of Mirrors effect on the bottom UI.
-	if (isInGame && ((*BH::MiscToggles)["Toggle Resolution"].state)) {
+	if (isInGame && (Toggles["Toggle Resolution"].state)) {
 		const int UIBoxHalfWidth = 155;
 		unsigned int box1Width = (newWidth / 2) - (UIBoxHalfWidth + 165);
 
@@ -58,13 +64,13 @@ void Resolution::OnDraw() {
 void Resolution::OnKey(bool up, BYTE key, LPARAM lParam, bool* block) {
 	if (!isInGame)
 		return;
-	if (key == ((*BH::MiscToggles)["Toggle Resolution"].toggle)) {
+	if (key == (Toggles["Toggle Resolution"].toggle)) {
 		*block = true;
 		if (up) {
-			bool isLoaded = (*BH::MiscToggles)["Toggle Resolution"].state;
+			bool isLoaded = Toggles["Toggle Resolution"].state;
 			if (!isLoaded) {
 				this->SetResolution(newWidth, newHeight);
-				(*BH::MiscToggles)["Toggle Resolution"].state = true;
+				Toggles["Toggle Resolution"].state = true;
 			}
 		}
 	}
@@ -74,7 +80,7 @@ void Resolution::OnGameJoin(const string& name, const string& pass, int diff) {
 	isInGame = true;
 
 	//if the user has already toggled it from a previous game, autoload it
-	if (((*BH::MiscToggles)["Toggle Resolution"].state)
+	if ((Toggles["Toggle Resolution"].state)
 		&& newWidth > 0 && newHeight > 0) {
 		this->SetResolution(newWidth, newHeight);
 		ScreenRefresh::RefreshDisplay();
@@ -84,7 +90,7 @@ void Resolution::OnGameJoin(const string& name, const string& pass, int diff) {
 void Resolution::OnGameExit() {
 	isInGame = false;
 	//raise resolution changed event so that other modules can readjust positions
-	if ((*BH::MiscToggles)["Toggle Resolution"].state) {
+	if (Toggles["Toggle Resolution"].state) {
 		__raise BH::moduleManager->OnResolutionChanged(800, 600);
 	}
 }

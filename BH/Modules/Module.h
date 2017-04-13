@@ -13,10 +13,10 @@ class Module {
 
 		void Load();
 		void Unload();
-
+		void ReloadConfig();
 	public:
 		Module(string name);
-		virtual ~Module();
+		~Module();
 
 		string GetName() { return name; };
 		bool IsActive() { return active; };
@@ -24,6 +24,7 @@ class Module {
 		// Module Events
 		virtual void OnLoad() {};
 		virtual void OnUnload() {};
+		virtual void LoadConfig() {};
 
 		virtual void OnLoop() {};
 

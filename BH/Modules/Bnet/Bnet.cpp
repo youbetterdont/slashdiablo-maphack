@@ -1,41 +1,48 @@
 #include "Bnet.h"
-#include "../../D2Ptrs.h"
+#include "../../D2/D2Ptrs.h"
 #include "../../BH.h"
 
 unsigned int Bnet::failToJoin;
 std::string Bnet::lastName;
 std::string Bnet::lastPass;
+std::regex Bnet::reg = std::regex("^(.*?)(\\d+)$");
 
-Patch* nextGameName1 = new Patch(Call, D2MULTI, 0xADAB, (int)Bnet::NextGameNamePatch, 5);
-Patch* nextGamePass1 = new Patch(Call, D2MULTI, 0xADE6, (int)Bnet::NextGamePasswordPatch, 5);
-Patch* nextGameName2 = new Patch(Call, D2MULTI, 0xB5E9, (int)Bnet::NextGameNamePatch, 5);
-Patch* nextGamePass2 = new Patch(Call, D2MULTI, 0xB624, (int)Bnet::NextGamePasswordPatch, 5);
+Patch* nextGame1 = new Patch(Call, D2MULTI, 0xADAB, (int)Bnet::NextGamePatch, 5);
+Patch* nextGame2 = new Patch(Call, D2MULTI, 0xB5E9, (int)Bnet::NextGamePatch, 5);
+Patch* nextPass1 = new Patch(Call, D2MULTI, 0xADE6, (int)Bnet::NextPassPatch, 5);
+Patch* nextPass2 = new Patch(Call, D2MULTI, 0xB624, (int)Bnet::NextPassPatch, 5);
 Patch* ftjPatch = new Patch(Call, D2CLIENT, 0x443FE, (int)FailToJoin_Interception, 6);
 
 void Bnet::OnLoad() {
-	showLastGame = BH::config->ReadBoolean("Show Last Game", true);
-	saveLastPass = BH::config->ReadBoolean("Save Last Password", true);
+	LoadConfig();
+}
+
+void Bnet::LoadConfig() {
+	showLastGame = BH::config->ReadBoolean("Autofill Last Game", true);
+	showLastPass = BH::config->ReadBoolean("Autofill Last Password", true);
+	nextInstead = BH::config->ReadBoolean("Autofill Next Game Instead", true);
 	failToJoin = BH::config->ReadInt("Fail To Join", 4000);
 
 	if (showLastGame) {
-		nextGameName1->Install();
-		nextGameName2->Install();
+		nextGame1->Install();
+		nextGame2->Install();
 	}
 
-	if (saveLastPass) {
-		nextGamePass1->Install();
-		nextGamePass2->Install();
+	if (showLastPass) {
+		nextPass1->Install();
+		nextPass2->Install();
 	}
 
 	if (failToJoin > 0 && !D2CLIENT_GetPlayerUnit())
-		ftjPatch->Install();		
+		ftjPatch->Install();
 }
 
 void Bnet::OnUnload() {
-	nextGameName1->Remove();
-	nextGameName2->Remove();
-	nextGamePass1->Remove();
-	nextGamePass2->Remove();
+	nextGame1->Remove();
+	nextGame2->Remove();
+
+	nextPass1->Remove();
+	nextPass2->Remove();
 
 	ftjPatch->Remove();
 }
@@ -43,14 +50,47 @@ void Bnet::OnUnload() {
 void Bnet::OnGameJoin(const string& name, const string& pass, int diff) {
 	if (name.length() > 0)
 		lastName = name;
-	lastPass = pass;
+
+	if (pass.length() > 0)
+		lastPass = pass;
+	else
+		lastPass = "";
+	
+	if (nextInstead) {
+		std::smatch match;
+		if (std::regex_search(Bnet::lastName, match, Bnet::reg) && match.size() == 3) {
+			std::string name = match.format("$1");
+			if (name.length() != 0) {
+				int count = atoi(match.format("$2").c_str());
+
+				//Restart at 1 if the next number would exceed the max game name length of 15
+				if (lastName.length() == 15) {
+					int maxCountLength = 15 - name.length();
+					int countLength = 1;
+					int tempCount = count + 1;
+					while (tempCount > 9) {
+						countLength++;
+						tempCount /= 10;
+					}
+					if (countLength > maxCountLength) {
+						count = 1;
+					} else {
+						count++;
+					}
+				} else {
+					count++;
+				}
+				char buffer[16];
+				sprintf_s(buffer, sizeof(buffer), "%s%d", name.c_str(), count);
+				lastName = std::string(buffer);
+			}
+		}
+	}
 
 	ftjPatch->Remove();
 
-	nextGameName1->Remove();
-	nextGameName2->Remove();
-	nextGamePass1->Remove();
-	nextGamePass2->Remove();
+	nextGame1->Remove();
+	nextGame2->Remove();
 }
 
 void Bnet::OnGameExit() {
@@ -58,67 +98,40 @@ void Bnet::OnGameExit() {
 		ftjPatch->Install();
 
 	if (showLastGame) {
-		nextGameName1->Install();
-		nextGameName2->Install();
+		nextGame1->Install();
+		nextGame2->Install();
 	}
 
-	if (saveLastPass) {
-		nextGamePass1->Install();
-		nextGamePass2->Install();
+	if (showLastPass) {
+		nextPass1->Install();
+		nextPass2->Install();
 	}
 }
 
-VOID __fastcall Bnet::NextGameNamePatch(Control* box, BOOL(__stdcall *FunCallBack)(Control*, DWORD, DWORD)) {
-	unsigned int numberStartPosition, numberEndPosition;
-	if ((numberEndPosition = Bnet::lastName.size()) == 0)
+VOID __fastcall Bnet::NextGamePatch(Control* box, BOOL (__stdcall *FunCallBack)(Control*, DWORD, DWORD)) {
+	if (Bnet::lastName.size() == 0)
 		return;
 
-	// Increment game number, if the last substring of the game name is a number.
-	// Credits to Loli BH for inspiration and PhyRaX for requesting.
-	std::string newGameName = Bnet::lastName;
-
-	// Find the start and end of the game number.
-	numberStartPosition = numberEndPosition;
-	while (numberStartPosition > 0 && Bnet::lastName.at(numberStartPosition - 1) >= '0' && Bnet::lastName.at(numberStartPosition - 1) <= '9') {
-		numberStartPosition--;
-	}
-
-	// If game number exists, then increment game number by one and replace
-	// the string.
-	if (numberStartPosition != numberEndPosition) {
-		unsigned long long gameNumber = std::stoull(Bnet::lastName.substr(numberStartPosition, numberEndPosition - numberStartPosition));
-		gameNumber++;
-		newGameName = Bnet::lastName.substr(0, numberStartPosition) + std::to_string(gameNumber);
-	}
-
-	wchar_t *wszLastGameName = AnsiToUnicode(newGameName.c_str());
+	wchar_t *wszLastGameName = AnsiToUnicode(Bnet::lastName.c_str());
 
 	D2WIN_SetControlText(box, wszLastGameName);
 	D2WIN_SelectEditBoxText(box);
-	
+
 	// original code
 	D2WIN_SetEditBoxProc(box, FunCallBack);
-
 	delete [] wszLastGameName;
 }
 
-VOID __fastcall Bnet::NextGamePasswordPatch(Control* box, BOOL(__stdcall *FunCallBack)(Control*, DWORD, DWORD)) {
+VOID __fastcall Bnet::NextPassPatch(Control* box, BOOL(__stdcall *FunCallBack)(Control*, DWORD, DWORD)) {
 	if (Bnet::lastPass.size() == 0)
 		return;
-
-	// Save the game password, because you don't want anyone to interrupt your
-	// 50001th solo Lower Kurast run.
-	// Credits to Loli BH for inspiration.
-
-	wchar_t *wszLastGamePass = AnsiToUnicode(Bnet::lastPass.c_str());
-
-	D2WIN_SetControlText(box, wszLastGamePass);
-	D2WIN_SelectEditBoxText(box);
-
+	wchar_t *wszLastPass = AnsiToUnicode(Bnet::lastPass.c_str());
+	
+	D2WIN_SetControlText(box, wszLastPass);
+	
 	// original code
 	D2WIN_SetEditBoxProc(box, FunCallBack);
-
-	delete[] wszLastGamePass;
+	delete[] wszLastPass;
 }
 
 void __declspec(naked) FailToJoin_Interception()

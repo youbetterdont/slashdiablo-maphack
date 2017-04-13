@@ -1,34 +1,28 @@
 #pragma once
-#include "../../D2Structs.h"
+#include "../../D2/D2Structs.h"
 #include "../Module.h"
 #include "../../Config.h"
 #include "../../Common.h"
 #include "../../BitReader.h"
 #include "../Item/ItemDisplay.h"
-#include "../../MPQInit.h"
 
-extern int INVENTORY_WIDTH;
-extern int INVENTORY_HEIGHT;
-extern int STASH_WIDTH;
-extern int LOD_STASH_HEIGHT;
-extern int CLASSIC_STASH_HEIGHT;
-extern int CUBE_WIDTH;
-extern int CUBE_HEIGHT;
+#define INVENTORY_WIDTH 10
+#define INVENTORY_HEIGHT 4
+#define STASH_WIDTH 6
+#define LOD_STASH_HEIGHT 8
+#define CLASSIC_STASH_HEIGHT 4
+#define CUBE_WIDTH 3
+#define CUBE_HEIGHT 4
 
-extern int INVENTORY_LEFT_1344;
-extern int INVENTORY_TOP_800;
-extern int INVENTORY_TOP_1344;
-extern int STASH_LEFT_800;
-extern int STASH_LEFT_1344;
-extern int LOD_STASH_TOP_800;
-extern int LOD_STASH_TOP_1344;
-extern int CLASSIC_STASH_TOP_800;
-extern int CLASSIC_STASH_TOP_1344;
-extern int CUBE_LEFT_800;
-extern int CUBE_LEFT_1344;
-extern int CUBE_TOP_800;
-extern int CUBE_TOP_1344;
-extern int CELL_SIZE;
+//Pixel Sizes
+#define CELL_SIZE 29
+#define INVENTORY_LEFT_FROM_CENTER 19
+#define INVENTORY_TOP_FROM_CENTER 15
+#define STASH_LEFT_FROM_CENTER -246
+#define LOD_STASH_TOP_FROM_CENTER -158
+#define CLASSIC_STASH_TOP_FROM_CENTER 33
+#define CUBE_LEFT_FROM_CENTER -202
+#define CUBE_TOP_FROM_CENTER -101
 
 struct ItemPacketData {
 	unsigned int itemId;
@@ -41,32 +35,20 @@ struct ItemPacketData {
 class ItemMover : public Module {
 private:
 	bool FirstInit;
-	int *InventoryItemIds;
-	int *StashItemIds;
-	int *CubeItemIds;
+	int InventoryItemIds[INVENTORY_WIDTH * INVENTORY_HEIGHT];
+	int StashItemIds[STASH_WIDTH * LOD_STASH_HEIGHT];
+	int CubeItemIds[CUBE_WIDTH * CUBE_HEIGHT];
 	unsigned int HealKey;
 	unsigned int ManaKey;
 	ItemPacketData ActivePacket;
 	CRITICAL_SECTION crit;
+	std::map<string, unsigned int> TextColorMap;
 public:
-	ItemMover() : Module("Item Mover"), ActivePacket(), FirstInit(false), InventoryItemIds(NULL), StashItemIds(NULL), CubeItemIds(NULL) {
+	ItemMover() : Module("Item Mover"), ActivePacket(), FirstInit(false) {
 		InitializeCriticalSection(&crit);
 	};
 
-	~ItemMover() {
-		if (InventoryItemIds) {
-			delete[] InventoryItemIds;
-		}
-		if (StashItemIds) {
-			delete[] StashItemIds;
-		}
-		if (CubeItemIds) {
-			delete[] CubeItemIds;
-		}
-		DeleteCriticalSection(&crit);
-	};
-
-	void Init();
+	~ItemMover() { DeleteCriticalSection(&crit); };
 
 	void Lock() { EnterCriticalSection(&crit); };
 	void Unlock() { LeaveCriticalSection(&crit); };
@@ -82,6 +64,9 @@ public:
 	void OnRightClick(bool up, int x, int y, bool* block);
 	void OnGamePacketRecv(BYTE* packet, bool *block);
 	void OnGameExit();
+
+	int GetPlayerArea();
+	bool IsTownLevel(int nLevel);
 };
 
 

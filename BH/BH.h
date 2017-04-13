@@ -19,20 +19,24 @@ struct cGuardModule
 };
 
 namespace BH {
-	extern string path;
-	extern HINSTANCE instance;
-	extern ModuleManager* moduleManager;
-	extern Config* config;
-	extern Drawing::UI* settingsUI;
-	extern Drawing::StatsDisplay* statsDisplay;
-	extern WNDPROC OldWNDPROC;
-	extern map<string, Toggle>* MiscToggles;
-	extern map<string, Toggle>* MiscToggles2;
-	extern bool cGuardLoaded;
-	extern bool initialized;
-	extern Patch* oogDraw;
+		extern unsigned int gameWidth;
+		extern unsigned int gameHeight;
 
-	extern bool Startup(HINSTANCE instance, VOID* reserved);
-	extern "C" __declspec(dllexport) void Initialize();
-	extern bool Shutdown();
+		extern string path;
+		extern HINSTANCE instance;
+		extern ModuleManager* moduleManager;
+		extern Config* config;
+		extern Config* itemFilter;
+		extern Drawing::UI* settingsUI;
+		extern Drawing::StatsDisplay* statsDisplay;
+		extern WNDPROC OldWNDPROC;
+		extern map<string, Toggle>* ItemToggles;
+		extern bool cGuardLoaded;
+		extern Patch* oogDraw;
+
+		extern bool Startup(HINSTANCE instance, VOID* reserved);
+		extern bool Shutdown();
+		extern void ReloadConfig();
+		extern unsigned int GetGameWidth();
+		extern unsigned int GetGameHeight();
 };

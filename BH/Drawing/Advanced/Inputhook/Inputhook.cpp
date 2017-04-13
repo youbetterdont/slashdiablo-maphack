@@ -1,5 +1,5 @@
 #include "Inputhook.h"
-#include "../../../D2Ptrs.h"
+#include "../../../D2/D2Ptrs.h"
 #include "../../Basic/Framehook/Framehook.h"
 #include "../../../Common.h"
 
@@ -244,8 +244,10 @@ unsigned int Inputhook::GetCharacterLimit() {
 					string mText = text.substr(GetSelectionPosition(), GetSelectionLength());
 			
 					HGLOBAL hGlobal = GlobalAlloc(GMEM_MOVEABLE, (mText.size() + 1) * sizeof(CHAR)); 
-					char* szStr = (char*)GlobalLock(hGlobal);
-					memcpy(szStr, mText.c_str(), mText.size() * sizeof(CHAR));
+					if (hGlobal != 0) {
+						char* szStr = (char*)GlobalLock(hGlobal);
+						memcpy(szStr, mText.c_str(), mText.size() * sizeof(CHAR));
+					}
 					GlobalUnlock(hGlobal);
 					EmptyClipboard();
 					SetClipboardData(CF_TEXT, hGlobal);

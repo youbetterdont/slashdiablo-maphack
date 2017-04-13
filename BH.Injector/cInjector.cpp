@@ -18,8 +18,6 @@
 */
 #pragma comment(lib, "psapi.lib")
 #include "BH.Injector.h"
-#include "PEStructs.h"
-
 #include <tlhelp32.h>
 
 BOOL cInjector::EnableDebugPriv(VOID) // Abin's function.
@@ -101,112 +99,25 @@ BOOL cInjector::InjectDLL(DWORD dwPid, wstring wDllName)
 						return true;
 					}
 
-					printf("WARNING: this maphack will only work with Diablo II client version 1.13D!\n");
-					printf("You appear to have a different client version. To learn how to downgrade your\n");
-					printf("client, see the Guides & Resources section of the slashdiablo subreddit.\n");
+					std::cout << "WARNING: this maphack will only work with Diablo II client version 1.13C!" << std::endl;
+					std::cout << "You appear to have a different client version. You should use the hack specific" << std::endl;
+					std::cout << "to your client, see the Guides & Resources section of the slashdiablo subreddit." << std::endl;
 					return false;
 				} else {
-					printf("VirtualAllocEx() failed with error code %d\n", GetLastError());
+					std::cout << "VirtualAllocEx() failed with error code " << GetLastError() << std::endl;
 				}
 			} else {
-				printf("GetProcAddress() failed with error code %d\n", GetLastError());
+				std::cout << "GetProcAddress() failed with error code " << GetLastError() << std::endl;
 			}
 
 			FreeLibrary(hKernel32);
 		} else {
-			printf("LoadLibrary() failed with error code %d\n", GetLastError());
+			std::cout << "LoadLibrary() failed with error code " << GetLastError() << std::endl;
 		}
 
 		CloseHandle(hProc);
 	} else {
-		printf("OpenProcess() failed with error code %d\n", GetLastError());
-	}
-
-	return FALSE;
-}
-
-HMODULE GetRemoteModuleAddress(DWORD dwPid, wstring wDllName){
-	HMODULE hMods[1024];
-	HANDLE hProcess;
-	DWORD cbNeeded;
-	HMODULE address;
-	unsigned int i;
-
-	// Get a handle to the process.
-	hProcess = OpenProcess(PROCESS_QUERY_INFORMATION |
-		PROCESS_VM_READ,
-		FALSE, dwPid);
-	if (NULL == hProcess)
-		return 0;
-
-	if (EnumProcessModules(hProcess, hMods, sizeof(hMods), &cbNeeded))
-	{
-		for (i = 0; i < (cbNeeded / sizeof(HMODULE)); i++)
-		{
-			TCHAR szModName[MAX_PATH];
-
-			// Get the full path to the module's file.
-
-			if (GetModuleFileNameEx(hProcess, hMods[i], szModName,
-				sizeof(szModName) / sizeof(TCHAR)))
-			{
-				wstring modPath = szModName;
-				if (modPath.compare(modPath.length() - wDllName.length(), wDllName.length(), wDllName) == 0) {
-					address = hMods[i];
-					break;
-				}
-			}
-		}
-	}
-
-	CloseHandle(hProcess);
-	return address;
-}
-
-BOOL cInjector::RunRemoteProc(HWND hwnd, wstring wDllName, string procName){
-	DWORD dwPid;
-	GetWindowThreadProcessId(hwnd, &dwPid);
-	return cInjector::RunRemoteProc(dwPid, wDllName, procName);
-}
-
-BOOL cInjector::RunRemoteProc(DWORD dwPid, wstring wDllName, string procName){
-	if (!FindInjectedModule(dwPid)) {
-		return false;
-	}
-
-	HANDLE hThread;
-	HANDLE hProc;
-	HMODULE hMod;
-	LPVOID procAddress;
-
-	hProc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwPid);
-
-	if (hProc)
-	{
-		std::string s;
-		s.assign(wDllName.begin(), wDllName.end());
-
-		PE::ulong procOffset = PE::GetFunctionOffset(s, procName);
-
-		if (procOffset)
-		{
-			long MODULE_BASE = reinterpret_cast<long>(GetRemoteModuleAddress(dwPid, wDllName));
-
-			hThread = CreateRemoteThread(hProc, NULL, NULL, reinterpret_cast<LPTHREAD_START_ROUTINE>((LPVOID)(MODULE_BASE + procOffset)), NULL, NULL, NULL);
-			WaitForSingleObject(hThread, INFINITE);
-
-			CloseHandle(hProc);
-			CloseHandle(hThread);
-			return true;
-		}
-		else {
-			printf("GetProcAddress() failed with error code %d\n", GetLastError());
-		}
-
-		CloseHandle(hProc);
-	}
-	else {
-		printf("OpenProcess() failed with error code %d\n", GetLastError());
+		std::cout << "OpenProcess() failed with error code " << GetLastError() << std::endl;
 	}
 
 	return FALSE;

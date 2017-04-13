@@ -2,7 +2,6 @@
 #include "eventsink.h"
 #include "BH.Injector.h"
 
-extern string patchPath;
 
 BOOL CALLBACK EnumWindowsProcAutoInject(HWND hwnd, LPARAM lParam) {
 	DWORD lpdwProcessId;
@@ -13,18 +12,9 @@ BOOL CALLBACK EnumWindowsProcAutoInject(HWND hwnd, LPARAM lParam) {
 	//Check if it is Diablo II
 	if (!wcscmp(szClassName, L"Diablo II")) {
 		if (lpdwProcessId == lParam) {
-			printf("\nDiablo 2 instance found. Injecting... \n");
+			std::cout << std::endl << "Diablo 2 instance found. Injecting..." << std::endl;
 
-			char szFileName[1024];
 			HANDLE hProcess = OpenProcess(PROCESS_VM_READ | PROCESS_QUERY_INFORMATION, FALSE, lpdwProcessId);
-			if (hProcess) {
-				UINT ret = GetModuleFileNameExA(hProcess, NULL, szFileName, 1024);
-				patchPath.assign(szFileName);
-				size_t start_pos = patchPath.find("Game.exe");
-				if (start_pos != std::string::npos) {
-					patchPath.replace(start_pos, 8, "Patch_D2.mpq");
-				}
-			}
 
 			DiabloWindow dw = DiabloWindow(hwnd);
 			dw.Inject();
