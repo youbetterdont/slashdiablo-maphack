@@ -9,11 +9,11 @@ using namespace Drawing;
 void ScreenInfo::OnLoad() {
 	LoadConfig();
 	
-	bhText = new Texthook(Perm, 794, 6, "ÿc4Loli BH (Slash Branch v1.0)");
+	bhText = new Texthook(Perm, BH::GetGameWidth() - 6, 6, "ÿc4Loli BH HD (Slash Branch v1.0)");
 	bhText->SetAlignment(Right);
 
 	
-	multiResText = new Texthook(Perm, 794, 23, "ÿc4with MultiRes v1.13c");
+	multiResText = new Texthook(Perm, BH::GetGameWidth() - 6, 23, "ÿc4with MultiRes v1.13c");
 	multiResText->SetAlignment(Right);
 
 	if (!IsUsingMultiRes()) {

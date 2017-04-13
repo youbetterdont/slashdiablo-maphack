@@ -15,6 +15,9 @@ using namespace Drawing;
 void Pathing::OnLoad() {
 	LoadConfig();
 
+	int width = BH::config->ReadInt("New Width", 1344);
+	int height = BH::config->ReadInt("New Height", 700);
+
 	settingsTab = new UITab("Pathing", BH::settingsUI);
 
 	new Texthook(settingsTab, 60, 12, "Toggles");
@@ -34,6 +37,15 @@ void Pathing::OnLoad() {
 	new Colorhook(settingsTab, 250, 57, &Colors[3], "WP     ");
 
 	new Colorhook(settingsTab, 250, 72, &Colors[4], "Prev   ");
+
+	std::string newW = to_string(width);
+	std::string newH = to_string(height);
+	std::string resStr = "Toggle " + newW + "x" + newH;
+
+	new Keyhook(settingsTab, 40, 102, &Toggles["Toggle Resolution"].toggle, resStr);
+
+	new Texthook(settingsTab, 40, 117, "Warning: Toggling resolution may");
+	new Texthook(settingsTab, 40, 132, "initially result in a game crash.");
 }
 
 void Pathing::LoadConfig() {

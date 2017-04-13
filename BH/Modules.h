@@ -10,3 +10,4 @@
 #include "Modules\ItemMover\ItemMover.h"
 #include "Modules\Pathing\Pathing.h"
 #include "Modules\Party\Party.h"
+#include "Modules\Resolution\Resolution.h"

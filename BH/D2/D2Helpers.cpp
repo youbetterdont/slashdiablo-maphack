@@ -4,6 +4,9 @@
 #include "../Common.h"
 #include "../Constants.h"
 
+int getWidthWithHD();
+int getHeightWithHD();
+
 RosterUnit* FindPlayerRoster(DWORD unitId) {
 	for (RosterUnit* roster = (*p_D2CLIENT_PlayerUnitList); roster; roster = roster->pNext) {
 		if (roster->dwUnitId == unitId)
@@ -183,12 +186,12 @@ unsigned int GetScreenHeight()
 		}
 		else
 		{
-			height = ((D2GFX_GetScreenSize() == 0) ? 480 : 600);
+			height = getHeightWithHD();
 		}
 	}
 	else
 	{
-		height = ((D2GFX_GetScreenSize() == 0) ? 480 : 600);
+		height = getHeightWithHD();
 	}
 	return height;
 }
@@ -206,12 +209,58 @@ unsigned int GetScreenWidth()
 		}
 		else
 		{
-			width = ((D2GFX_GetScreenSize() == 0) ? 640 : 800);
+			width = getWidthWithHD();
 		}
 	}
 	else
 	{
-		width = ((D2GFX_GetScreenSize() == 0) ? 640 : 800);
+		width = getWidthWithHD();
 	}
 	return width;
+}
+
+int getWidthWithHD() {
+	int width;
+	switch(D2GFX_GetScreenSize()) {
+	case 0:
+		width = 640;
+		break;
+
+	case 2:
+		width = 800;
+		break;
+
+	case 3:
+		width = 1344;
+		break;
+
+	default:
+		width = 640;
+		break;
+	}
+
+	return width;
+}
+
+int getHeightWithHD() {
+	int height;
+	switch(D2GFX_GetScreenSize()) {
+	case 0:
+		height = 480;
+		break;
+
+	case 2:
+		height = 600;
+		break;
+
+	case 3:
+		height = 700;
+		break;
+
+	default:
+		height = 480;
+		break;
+	}
+
+	return height;
 }

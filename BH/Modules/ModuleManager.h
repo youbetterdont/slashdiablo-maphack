@@ -33,6 +33,8 @@ class ModuleManager {
 		__event void OnGameJoin(const string& name, const string& pass, int diff);
 		__event void OnGameExit();
 
+		__event void OnResolutionChanged(int newX, int newY);
+
 		__event void OnDraw();
 		__event void OnAutomapDraw();
 		__event void OnOOGDraw();

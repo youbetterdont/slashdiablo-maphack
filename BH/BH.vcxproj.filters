@@ -115,6 +115,9 @@
     <Filter Include="BH\Modules\ItemMover">
       <UniqueIdentifier>{f0228985-25bf-47bc-8e7e-2d5bec1a7586}</UniqueIdentifier>
     </Filter>
+    <Filter Include="BH\Modules\Resolution">
+      <UniqueIdentifier>{8b2569cb-6992-4649-86d3-f8f4e2a2c450}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DllMain.cpp">
@@ -206,6 +209,12 @@
     </ClCompile>
     <ClCompile Include="Modules\Pathing\Pathing.cpp">
       <Filter>BH\Modules\AutoTele</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\Resolution\Resolution.cpp">
+      <Filter>BH\Modules\Resolution</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\Resolution\ScreenRefresh.cpp">
+      <Filter>BH\Modules\Resolution</Filter>
     </ClCompile>
     <ClCompile Include="D2\D2Handlers.cpp">
       <Filter>Diablo II\Handlers</Filter>
@@ -355,6 +364,12 @@
     </ClInclude>
     <ClInclude Include="D2\D2Stubs.h">
       <Filter>Diablo II\Stubs</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\Resolution\Resolution.h">
+      <Filter>BH\Modules\Resolution</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\Resolution\ScreenRefresh.h">
+      <Filter>BH\Modules\Resolution</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

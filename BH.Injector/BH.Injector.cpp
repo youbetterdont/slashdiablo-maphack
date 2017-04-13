@@ -94,8 +94,9 @@ int main(int argc, const char* argv[]) {
 	}
 
 	//Print intro and the beginning of the menu.
-	printf("BH v0.1.5s By raler\n");
-	printf("ChamDiablo Branch\n");
+	printf("Loli BH (Slash Branch v1.0) by LoliSquad\n");
+	printf("IAmTrial Branch\n");
+	printf("HD 1344x700 resolution -- by TravHatesMe, ported to 1.13c -- by Trial\n");
 	printf("Visit http://www.reddit.com/r/chamdiablo for updates!\n");
 	printf("\n");
 	printf("Command-line parameters:\n");
