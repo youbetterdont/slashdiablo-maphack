@@ -9,11 +9,10 @@ ModuleManager::ModuleManager() {
 }
 
 ModuleManager::~ModuleManager() {
-	for (auto it = moduleList.begin(); it != moduleList.end(); ++it) {
-		Module* module = (*it).second;
+	while(moduleList.size() > 0) {
+		Module* module = moduleList.begin()->second;
 		delete module;
 	}
-	moduleList.clear();
 }
 
 void ModuleManager::FixName(std::string& name)

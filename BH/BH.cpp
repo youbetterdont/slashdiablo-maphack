@@ -1,15 +1,10 @@
 #define _DEFINE_PTRS
 #include "BH.h"
 #include <Shlwapi.h>
-#include <psapi.h>
 #include "D2Ptrs.h"
 #include "D2Intercepts.h"
 #include "D2Handlers.h"
 #include "Modules.h"
-#include "MPQReader.h"
-#include "MPQInit.h"
-#include "TableReader.h"
-#include "Task.h"
 
 string BH::path;
 HINSTANCE BH::instance;
@@ -17,7 +12,6 @@ ModuleManager* BH::moduleManager;
 Config* BH::config;
 Drawing::UI* BH::settingsUI;
 Drawing::StatsDisplay* BH::statsDisplay;
-bool BH::initialized;
 bool BH::cGuardLoaded;
 WNDPROC BH::OldWNDPROC;
 map<string, Toggle>* BH::MiscToggles;
@@ -26,7 +20,7 @@ map<string, Toggle>* BH::MiscToggles2;
 Patch* patches[] = {
 	new Patch(Call, D2CLIENT, 0x44230, (int)GameLoop_Interception, 7),
 
-	new Patch(Jump, D2CLIENT, 0xC3DB4, (int)GameDraw_Interception, 6),
+	new Patch(Jump, D2CLIENT, 0xC3DB4,	(int)GameDraw_Interception, 6),
 	new Patch(Jump, D2CLIENT, 0x626C9, (int)GameAutomapDraw_Interception, 5),
 
 	new Patch(Call, BNCLIENT, 0xEABC, (int)ChatPacketRecv_Interception, 12),
@@ -56,12 +50,11 @@ bool BH::Startup(HINSTANCE instance, VOID* reserved) {
 	BH::instance = instance;
 	if (reserved != NULL) {
 		cGuardModule* pModule = (cGuardModule*)reserved;
-		if (!pModule)
+		if(!pModule)
 			return FALSE;
 		path.assign(pModule->szPath);
 		cGuardLoaded = true;
-	}
-	else {
+	} else {
 		char szPath[MAX_PATH];
 		GetModuleFileName(BH::instance, szPath, MAX_PATH);
 		PathRemoveFileSpec(szPath);
@@ -70,54 +63,19 @@ bool BH::Startup(HINSTANCE instance, VOID* reserved) {
 		cGuardLoaded = false;
 	}
 
-
-	initialized = false;
-	Initialize();
-	return true;
-}
-
-DWORD WINAPI LoadMPQData(VOID* lpvoid){
-	char szFileName[1024];
-	std::string patchPath;
-	UINT ret = GetModuleFileName(NULL, szFileName, 1024);
-	patchPath.assign(szFileName);
-	size_t start_pos = patchPath.rfind("\\");
-	if (start_pos != std::string::npos) {
-		start_pos++;
-		if (start_pos < patchPath.size()){
-			patchPath.replace(start_pos, patchPath.size() - start_pos, "Patch_D2.mpq");
-		}
-	}
-
-	ReadMPQFiles(patchPath);
-	InitializeMPQData();
-	Tables::initTables();
-
-	return 0;
-}
-
-void BH::Initialize()
-{
 	moduleManager = new ModuleManager();
 	config = new Config("BH.cfg");
 	config->Parse();
 
-	if (D2GFX_GetHwnd()) {
-		BH::OldWNDPROC = (WNDPROC)GetWindowLong(D2GFX_GetHwnd(), GWL_WNDPROC);
-		SetWindowLong(D2GFX_GetHwnd(), GWL_WNDPROC, (LONG)GameWindowEvent);
+	if(D2GFX_GetHwnd()) {
+		BH::OldWNDPROC = (WNDPROC)GetWindowLong(D2GFX_GetHwnd(),GWL_WNDPROC);
+		SetWindowLong(D2GFX_GetHwnd(),GWL_WNDPROC,(LONG)GameWindowEvent);
 	}
 
 	settingsUI = new Drawing::UI("Settings", 350, 200);
+	statsDisplay = new Drawing::StatsDisplay("Stats");
 
-	Task::InitializeThreadPool(2);
-
-	// Read the MPQ Data asynchronously
-	//CreateThread(0, 0, LoadMPQData, 0, 0, 0);
-	Task::Enqueue([]() -> void {
-		LoadMPQData(NULL);
-	});
-
-	
+	new Maphack();
 	new ScreenInfo();
 	new Gamefilter();
 	new Bnet();
@@ -127,12 +85,8 @@ void BH::Initialize()
 	new Party();
 	new ItemMover();
 	new Resolution();
-	new StashExport();
-	new Maphack();
 
 	moduleManager->LoadModules();
-
-	statsDisplay = new Drawing::StatsDisplay("Stats");
 
 	MiscToggles = ((AutoTele*)moduleManager->Get("autotele"))->GetToggles();
 	MiscToggles2 = ((Item*)moduleManager->Get("item"))->GetToggles();
@@ -154,25 +108,25 @@ void BH::Initialize()
 	// loading/installation finishes.
 	CreateThread(0, 0, GameThread, 0, 0, 0);
 
-	initialized = true;
+	return true;
 }
 
 bool BH::Shutdown() {
-	if (initialized){
-		moduleManager->UnloadModules();
 
-		delete moduleManager;
-		delete settingsUI;
-		delete statsDisplay;
+	moduleManager->UnloadModules();
 
-		SetWindowLong(D2GFX_GetHwnd(), GWL_WNDPROC, (LONG)BH::OldWNDPROC);
-		for (int n = 0; n < (sizeof(patches) / sizeof(Patch*)); n++) {
-			delete patches[n];
-		}
+	delete moduleManager;
+	delete settingsUI;
+	delete statsDisplay;
 
-		oogDraw->Remove();
-		delete config;
+	SetWindowLong(D2GFX_GetHwnd(),GWL_WNDPROC,(LONG)BH::OldWNDPROC);
+	for (int n = 0; n < (sizeof(patches) / sizeof(Patch*)); n++) {
+		delete patches[n];
 	}
-	
+
+	oogDraw->Remove();
+
+	delete config;
+
 	return true;
 }

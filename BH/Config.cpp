@@ -21,11 +21,16 @@ bool Config::Parse() {
 	contents.erase(contents.begin(), contents.end());
 
 	//Begin to loop the configuration file one line at a time.
-	std::string line;
-	while (std::getline(file, line)){
+	string line;
+	char szLine[2048];
+	while(!file.eof()) {
+		//Get the current line from the file.
+		file.getline(szLine, 2048);
+		line = szLine;
+
 		//Remove any comments from the config
-		if (line.find("//") != string::npos)
-			line = line.erase(line.find("//"));
+		if (line.find_first_of("//") != string::npos)
+			line = line.erase(line.find_first_of("//"));
 
 		//Insure we have something in the line now.
 		if (line.length() == 0)

@@ -8,12 +8,10 @@ using namespace Drawing;
 UITab::~UITab() {
 	ui->Lock();
 	// Remove all hooks associated to the tab.
-	for (auto it = Hooks.begin(); it != Hooks.end(); it++){
-		Hook* h = *it;
-		delete h;
+	while(Hooks.size() > 0) {
+		delete (*Hooks.begin());
 	}
-	Hooks.clear();
-	
+
 	// Remove tab from list.
 	ui->Tabs.remove(this);
 

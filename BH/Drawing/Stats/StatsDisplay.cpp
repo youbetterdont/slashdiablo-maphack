@@ -12,33 +12,8 @@ StatsDisplay *StatsDisplay::display;
 StatsDisplay::StatsDisplay(std::string name) {
 	int xPos = 10;
 	int yPos = 10;
-	int width = 220;
+	int width = 200;
 	int height = 400;
-
-	vector<pair<string, string>> stats = BH::config->ReadMapList("Stat Screen");
-	for (unsigned int i = 0; i < stats.size(); i++) {
-		std::transform(stats[i].first.begin(), stats[i].first.end(), stats[i].first.begin(), ::tolower);
-		if (StatMap.count(stats[i].first) > 0) {
-			StatProperties *sp = StatMap[stats[i].first];
-			DisplayedStat *customStat = new DisplayedStat();
-			customStat->name = stats[i].first;
-			customStat->useValue = false;
-			std::transform(customStat->name.begin(), customStat->name.end(), customStat->name.begin(), ::tolower);
-			if (sp->saveParamBits > 0) {
-				int num = -1;
-				stringstream ss(Trim(stats[i].second));
-				if ((ss >> num).fail() || num < 0) {
-					continue;
-				}
-				customStat->useValue = true;
-				customStat->value = num;
-			}
-			customStats.push_back(customStat);
-		}
-	}
-	if (customStats.size() > 0) {
-		height += (customStats.size() * 16) + 8;
-	}
 
 	InitializeCriticalSection(&crit);
 	SetX(xPos);
@@ -125,7 +100,7 @@ void StatsDisplay::OnDraw() {
 
 		Drawing::Boxhook::Draw(GetX(),GetY(), GetXSize(), GetYSize(), White, Drawing::BTBlack);
 		Drawing::Framehook::DrawRectStub(&pRect);
-		Texthook::Draw(115, (y += 8), Center, 1, Silver, "Character Stats");
+		Texthook::Draw(105, (y += 8), Center, 1, Silver, "Character Stats");
 		Texthook::Draw(15, (y += 24), None, 6, Gold, "ÿc4Name:ÿc0 %s", unit->pPlayerData->szName);
 		Texthook::Draw(15, (y += 16), None, 6, Gold, "ÿc4Level:ÿc0 %d", (int)D2COMMON_GetUnitStat(unit, STAT_LEVEL, 0));
 		y += 8;
@@ -144,21 +119,13 @@ void StatsDisplay::OnDraw() {
 		Texthook::Draw(15, (y += 16), None, 6, Green, "ÿc4Poison Resist:ÿc2 %d ÿc0/ %d", (int)D2COMMON_GetUnitStat(unit, STAT_POISONRESIST, 0) + penalty, pMax);
 		y += 8;
 
-		int fAbsorb = (int)D2COMMON_GetUnitStat(unit, STAT_FIREABSORB, 0);
-		int fAbsorbPct = (int)D2COMMON_GetUnitStat(unit, STAT_FIREABSORBPERCENT, 0);
-		int cAbsorb = (int)D2COMMON_GetUnitStat(unit, STAT_COLDABSORB, 0);
-		int cAbsorbPct = (int)D2COMMON_GetUnitStat(unit, STAT_COLDABSORBPERCENT, 0);
-		int lAbsorb = (int)D2COMMON_GetUnitStat(unit, STAT_LIGHTNINGABSORB, 0);
-		int lAbsorbPct = (int)D2COMMON_GetUnitStat(unit, STAT_LIGHTNINGABSORBPERCENT, 0);
-		int mAbsorb = (int)D2COMMON_GetUnitStat(unit, STAT_MAGICABSORB, 0);
-		int mAbsorbPct = (int)D2COMMON_GetUnitStat(unit, STAT_MAGICABSORBPERCENT, 0);
-		Texthook::Draw(15, (y += 16), None, 6, Red, "ÿc4Absorption: ÿc1%dÿc0/ÿc1%d%c ÿc3%dÿc0/ÿc3%d%c ÿc9%dÿc0/ÿc9%d%c ÿc8%dÿc0/ÿc8%d%c", fAbsorb, fAbsorbPct, '%', cAbsorb, cAbsorbPct, '%', lAbsorb, lAbsorbPct, '%', mAbsorb, mAbsorbPct, '%');
-
+		int fAbsorb = (int)D2COMMON_GetUnitStat(unit, STAT_FIREABSORBPERCENT, 0);
+		int cAbsorb = (int)D2COMMON_GetUnitStat(unit, STAT_COLDABSORBPERCENT, 0);
+		int lAbsorb = (int)D2COMMON_GetUnitStat(unit, STAT_LIGHTNINGABSORBPERCENT, 0);
 		int dmgReduction = (int)D2COMMON_GetUnitStat(unit, STAT_DMGREDUCTION, 0);
 		int dmgReductionPct = (int)D2COMMON_GetUnitStat(unit, STAT_DMGREDUCTIONPCT, 0);
-		int magReduction = (int)D2COMMON_GetUnitStat(unit, STAT_MAGICDMGREDUCTION, 0);
-		int magReductionPct = (int)D2COMMON_GetUnitStat(unit, STAT_MAGICDMGREDUCTIONPCT, 0);
-		Texthook::Draw(15, (y += 16), None, 6, Tan, "ÿc4Damage Reduction: ÿc7%dÿc0/ÿc7%d%c ÿc8%dÿc0/ÿc8%d%c", dmgReduction, dmgReductionPct, '%', magReduction, magReductionPct, '%');
+		Texthook::Draw(15, (y += 16), None, 6, Red, "ÿc4Absorption: ÿc1%dÿc0 / ÿc3%dÿc0 / ÿc9%d", fAbsorb, cAbsorb, lAbsorb);
+		Texthook::Draw(15, (y += 16), None, 6, Tan, "ÿc4Damage Reduction:ÿc0 %d / %d%c", dmgReduction, dmgReductionPct, '%');
 		y += 8;
 
 		Texthook::Draw(15, (y += 16), None, 6, Gold, "ÿc4Faster Cast Rate:ÿc0 %d", (int)D2COMMON_GetUnitStat(unit, STAT_FASTERCAST, 0));
@@ -177,17 +144,7 @@ void StatsDisplay::OnDraw() {
 		Texthook::Draw(15, (y += 16), None, 6, Gold, "ÿc4Magic Find:ÿc0 %d", (int)D2COMMON_GetUnitStat(unit, STAT_MAGICFIND, 0));
 		Texthook::Draw(15, (y += 16), None, 6, Gold, "ÿc4Gold Find:ÿc0 %d", (int)D2COMMON_GetUnitStat(unit, STAT_GOLDFIND, 0));
 		Texthook::Draw(15, (y += 16), None, 6, Gold, "ÿc4Stash Gold:ÿc0 %d", (int)D2COMMON_GetUnitStat(unit, STAT_GOLDBANK, 0));
-
 		Texthook::Draw(15, (y += 16), None, 6, Gold, "ÿc4Cow King:ÿc0 %s", cowKingKilled ? "killed" : "alive");
-
-		if (customStats.size() > 0) {
-			y += 8;
-			for (unsigned int i = 0; i < customStats.size(); i++) {
-				int secondary = customStats[i]->useValue ? customStats[i]->value : 0;
-				int stat = (int)D2COMMON_GetUnitStat(unit, STAT_NUMBER(customStats[i]->name), secondary);
-				Texthook::Draw(15, (y += 16), None, 6, Gold, "ÿc4%s:ÿc0 %d", customStats[i]->name.c_str(), stat);
-			}
-		}
 	}
 }
 
