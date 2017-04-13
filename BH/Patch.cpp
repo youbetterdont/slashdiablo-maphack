@@ -75,18 +75,6 @@ bool Patch::Install() {
 
 		//Set the address to redirect to
 		*(DWORD*)&code[1] = function - (address + 5);
-	} else if (type != NOP) {
-		switch (type) {
-		case PushBYTE:
-			code[0] = 0x6A;
-			code[1] = function;
-			break;
-
-		case PushDWORD:
-			code[0] = 0x68;
-			*(DWORD*)&code[1] = function;
-			break;
-		}
 	}
 
 	//Write the patch in

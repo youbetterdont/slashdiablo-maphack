@@ -226,6 +226,10 @@ int getWidthWithHD() {
 		width = 640;
 		break;
 
+	case 1:
+		width = 800;
+		break;
+
 	case 2:
 		width = 800;
 		break;
@@ -247,6 +251,10 @@ int getHeightWithHD() {
 	switch(D2GFX_GetScreenSize()) {
 	case 0:
 		height = 480;
+		break;
+
+	case 1:
+		height = 600;
 		break;
 
 	case 2:

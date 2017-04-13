@@ -33,4 +33,7 @@
 *.swp
 Debug/
 Packaging/*
+Release/*
 BH/Release/*
+BH.Injector/Release/*
+BH.Injector/Packaging/*

@@ -17,6 +17,12 @@
     <ClCompile Include="cInjector.cpp">
       <Filter>cInjector</Filter>
     </ClCompile>
+    <ClCompile Include="EventSink.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PEStructs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BH.Injector.h">
@@ -24,6 +30,12 @@
     </ClInclude>
     <ClInclude Include="cInjector.h">
       <Filter>cInjector</Filter>
+    </ClInclude>
+    <ClInclude Include="EventSink.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PEStructs.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
