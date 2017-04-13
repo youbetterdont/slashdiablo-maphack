@@ -1,45 +1,33 @@
-# Cham
-![Cham Launcher](http://i.imgur.com/aFQMBG7.png)
-## Launcher Features
-* Set Diablo II launch flags
-* Run as Admin
-* Run in Windows XP SP2 compatability mode
-* Launch with Maphack
-* Launch with MultiRes
-* Built in gateway editor and selector
+slashdiablo-maphack
+===================
 
-## Maphack Features
-* Full Maphack
-* Quest Drop Notifications
-* Game List Refresher
-* Save Last Game Name
-* View Character Stats
-* Auto Party
-* Auto Enable Looting
-* Buff Falloff Notifications
-* Custom Item Filter
-* Experience Meter
-* Item Drop Notifications
-* Easy Item Move Between Locations(Inventory, Stash, Cube)
-* In Client Config Reloading(Ctrl + R)
+A customized maphack for reddit's slashdiablo D2 server
 
-## Installation and Usage
-1. Download the file package from: https://github.com/raler/Cham/raw/master/ChamLauncherV1.0.1.zip
-2. Extract the contents of the package to your Diablo 2 directory.
-3. Run ChamLauncher.exe as an Administrator.
-4. Set your launch parameters.(Windowed, Maphack, MultiRes, etc.)
-5. Select/Add the server you wish to play on.
-6. Press Play.
+This maphack is based on BH maphack, written by McGod from the blizzhackers
+forum. It was extensively customized for the slashdiablo realm by Deadlock39,
+who created versions 0.1.1 and 0.1.2.
 
-## Help and Troubleshooting
-####I am getting error c00000005. What do I do?
+Currently works with client version 1.13C.
 
-Try playing after each of the following steps:
+Major features include:
 
-1. Make sure you are running ChamLauncher as an administrator.
-2. Select Run as Admin and Run in XP2 Mode.
-3. Add Game.exe and D2MultiRes//PlugY.exe to the DEP exception list and restart your computer.
+* Full maphack
+ * Monsters, missiles displayed on map
+ * Infinite light radius
+ * Configurable monster colors (see wiki for details)
+ * Indicators of current level's exits
+* Configurable item display features (see wiki for details)
+ * Modify item names and add sockets, item levels, ethereality
+ * Change colors and display items on the map
+* One-click item movement
+ * Shift-rightclick moves between stash/open cube and inventory
+ * Ctrl-rightclick moves from stash/open cube/inventory to ground
+ * Ctrl-shift-rightclick moves from stash/inventory into closed cube
+* Auto-party (default hotkey: 9)
+* Auto-loot (default hotkey: 7)
+* Use potions directly from inventory (default hotkeys: numpad * and -)
+* Display gear of other players (default hotkey: 0)
+* Screen showing secondary attributes such as IAS/FHR (default hotkey: 8)
+* Warnings when buffs expire (see "Skill Warning" in config file)
 
-####I am receiving the error "The program can't start because MSVCR110.dll is missing from your computer." What do I do?
-
-1. Download VSU_4\vcredist_x86.exe from https://www.microsoft.com/en-us/download/details.aspx?id=30679 and follow the installation instructions.
+The hotkeys for all features can be changed in the config file.
