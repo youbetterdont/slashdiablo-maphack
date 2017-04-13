@@ -99,25 +99,25 @@ BOOL cInjector::InjectDLL(DWORD dwPid, wstring wDllName)
 						return true;
 					}
 
-					printf("WARNING: this maphack will only work with Diablo II client version 1.13C!\n");
-					printf("You appear to have a different client version. To learn how to downgrade your\n");
-					printf("client, see the Guides & Resources section of the slashdiablo subreddit.\n");
+					std::cout << "WARNING: this maphack will only work with Diablo II client version 1.13C!" << std::endl;
+					std::cout << "You appear to have a different client version. To learn how to downgrade your" << std::endl;
+					std::cout << "client, see the Guides & Resources section of the slashdiablo subreddit." << std::endl;
 					return false;
 				} else {
-					printf("VirtualAllocEx() failed with error code %d\n", GetLastError());
+					std::cout << "VirtualAllocEx() failed with error code " << GetLastError() << std::endl;
 				}
 			} else {
-				printf("GetProcAddress() failed with error code %d\n", GetLastError());
+				std::cout << "GetProcAddress() failed with error code " << GetLastError() << std::endl;
 			}
 
 			FreeLibrary(hKernel32);
 		} else {
-			printf("LoadLibrary() failed with error code %d\n", GetLastError());
+			std::cout << "LoadLibrary() failed with error code " << GetLastError() << std::endl;
 		}
 
 		CloseHandle(hProc);
 	} else {
-		printf("OpenProcess() failed with error code %d\n", GetLastError());
+		std::cout << "OpenProcess() failed with error code " << GetLastError() << std::endl;
 	}
 
 	return FALSE;

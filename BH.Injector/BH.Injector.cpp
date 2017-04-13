@@ -61,8 +61,10 @@ int main(int argc, const char* argv[]) {
 	BH::wPath += L"\\";
 
 	if (!cInjector::EnableDebugPriv()) {
-		printf("\tYou must run this injector as an adminstrator!\nIf you're using Windows Vista or Windows 7, right click and choose \'Run as Adminstrator\'");
-		system("PAUSE");
+		std::cout << "\tYou must run this injector as an adminstrator!" << std::endl;
+		std::cout << "If you're using Windows Vista or Windows 7, right click and choose \'Run as Adminstrator\'" << std::endl;
+		std::cout << "Press any key to continue . . . " << std::endl;
+		_getch();
 		return 1;
 	}
 
@@ -140,7 +142,7 @@ int main(int argc, const char* argv[]) {
 			(*window)->Inject();
 		}
 		autoinject_thread = thread(DoAutoInject);
-		printf("Auto injecting into new instances. Press any key to stop.\n");
+		std::cout << "Auto injecting into new instances. Press any key to stop." << std::endl;
 		_getch();
 		noPause = true;
 		terminate_autoinject = true;
@@ -149,7 +151,7 @@ int main(int argc, const char* argv[]) {
 	default://Specific window
 		int nWindow = nOpt - 2;
 		if (nWindow < 0 || nWindow >= (int)Windows.size())
-			printf("You have chosen an invalid option.\n");
+			std::cout << "You have chosen an invalid option." << std::endl;
 		else
 			if (Windows[nWindow]->IsInjected())
 				Windows[nWindow]->Unload();
@@ -169,7 +171,7 @@ int main(int argc, const char* argv[]) {
 // The notification is handled in EventSink:Indicate
 void DoAutoInject() {
 	HRESULT hres;
-	printf("\n");
+	std::cout << std::endl;
 
 	// Step 1: --------------------------------------------------
 	// Initialize COM. ------------------------------------------

@@ -12,7 +12,7 @@ BOOL CALLBACK EnumWindowsProcAutoInject(HWND hwnd, LPARAM lParam) {
 	//Check if it is Diablo II
 	if (!wcscmp(szClassName, L"Diablo II")) {
 		if (lpdwProcessId == lParam) {
-			printf("\nDiablo 2 instance found. Injecting... \n");
+			std::cout << std::endl << "Diablo 2 instance found. Injecting..." << std::endl;
 
 			HANDLE hProcess = OpenProcess(PROCESS_VM_READ | PROCESS_QUERY_INFORMATION, FALSE, lpdwProcessId);
 
