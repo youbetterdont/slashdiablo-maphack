@@ -1,5 +1,5 @@
 #include "Keyhook.h"
-#include "../../../D2Ptrs.h"
+#include "../../../D2/D2Ptrs.h"
 #include "../../../Common.h"
 
 using namespace std;
@@ -53,7 +53,7 @@ void Keyhook::OnDraw() {
 
 	string text = prefix + keyCode.literalName;
 	if (timeout) {
-		unsigned int time = (unsigned int)(3 - floor((double)(GetTickCount() - timeout) / 1000));
+		unsigned int time = (unsigned int)(3 - floor((double)(GetTickCount64() - timeout) / 1000));
 		if (time <= 0)
 			timeout = 0;
 		char num[100];

@@ -17,6 +17,7 @@ class Party : public Module {
 	public:
 		Party() : Module("Party") {};
 		void OnLoad();
+		void LoadConfig();
 		void OnUnload();
 		void OnLoop();
 		void OnKey(bool up, BYTE key, LPARAM lParam, bool* block);

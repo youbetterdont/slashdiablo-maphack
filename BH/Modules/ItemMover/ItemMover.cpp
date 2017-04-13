@@ -1,10 +1,13 @@
 #include "ItemMover.h"
 #include "../../BH.h"
-#include "../../D2Ptrs.h"
-#include "../../D2Stubs.h"
+#include "../../D2/D2Ptrs.h"
+#include "../../D2/D2Stubs.h"
+
+#define VALIDPTR(x) ( (x) && (!IsBadReadPtr(x,sizeof(x))) )
 
 // This module was inspired by the RedVex plugin "Item Mover", written by kaiks.
 // Thanks to kaiks for sharing his code.
+using namespace Drawing;
 
 bool ItemMover::LoadInventory(UnitAny *unit, int xpac, int source, int sourceX, int sourceY, bool shiftState, bool ctrlState, int stashUI, int invUI) {
 	bool returnValue = false;
@@ -195,23 +198,31 @@ void ItemMover::OnRightClick(bool up, int x, int y, bool* block) {
 	}
 
 	int xpac = pData->nCharFlags & PLAYER_TYPE_EXPANSION;
-	bool resHackEnabled = (*BH::MiscToggles)["Toggle Resolution"].state;
 
-	int inventoryLeft = resHackEnabled ? INVENTORY_LEFT_1300 : INVENTORY_LEFT_800;
+
+	unsigned int centerX = BH::GetGameWidth() / 2;
+	unsigned int centerY = BH::GetGameHeight() / 2;
+
+
+	int inventoryLeft = INVENTORY_LEFT_FROM_CENTER + centerX;
+	int inventoryTop = INVENTORY_TOP_FROM_CENTER + centerY;
 	int inventoryRight = inventoryLeft + (CELL_SIZE * INVENTORY_WIDTH);
-	int inventoryTop = resHackEnabled ? INVENTORY_TOP_1300 : INVENTORY_TOP_800;
 	int inventoryBottom = inventoryTop + (CELL_SIZE * INVENTORY_HEIGHT);
-	int stashLeft = resHackEnabled ? STASH_LEFT_1300 : STASH_LEFT_800;
+
+
+
+	int stashLeft = STASH_LEFT_FROM_CENTER + centerX;
+	int stashTop = (xpac ? LOD_STASH_TOP_FROM_CENTER : CLASSIC_STASH_TOP_FROM_CENTER) + centerY;
 	int stashRight = stashLeft + (CELL_SIZE * STASH_WIDTH);
-	int stashTop = xpac ? 
-		(resHackEnabled ? LOD_STASH_TOP_1300 : LOD_STASH_TOP_800) : 
-		(resHackEnabled ? CLASSIC_STASH_TOP_1300 : CLASSIC_STASH_TOP_800);
-	int stashHeight = xpac ? LOD_STASH_HEIGHT : CLASSIC_STASH_HEIGHT;
+	int stashHeight = xpac ? 8 : 4;
 	int stashBottom = stashTop + (CELL_SIZE * stashHeight);
-	int cubeLeft = resHackEnabled ? CUBE_LEFT_1300 : CUBE_LEFT_800;
+
+
+	int cubeLeft = CUBE_LEFT_FROM_CENTER + centerX;
+	int cubeTop = CUBE_TOP_FROM_CENTER + centerY;
 	int cubeRight = cubeLeft + (CELL_SIZE * CUBE_WIDTH);
-	int cubeTop = resHackEnabled ? CUBE_TOP_1300 : CUBE_TOP_800;
 	int cubeBottom = cubeTop + (CELL_SIZE * CUBE_HEIGHT);
+
 
 	int source, sourceX, sourceY;
 	int invUI = D2CLIENT_GetUIState(UI_INVENTORY);
@@ -243,6 +254,20 @@ void ItemMover::OnRightClick(bool up, int x, int y, bool* block) {
 void ItemMover::OnLoad() {
 	HealKey = BH::config->ReadKey("Use Healing Potion", "VK_NUMPADMULTIPLY");
 	ManaKey = BH::config->ReadKey("Use Mana Potion", "VK_NUMPADSUBTRACT");
+
+	TextColorMap["\xFF\x63\x30"] = 0;  // white
+	TextColorMap["\xFF\x63\x31"] = 1;  // red
+	TextColorMap["\xFF\x63\x32"] = 2;  // green
+	TextColorMap["\xFF\x63\x33"] = 3;  // blue
+	TextColorMap["\xFF\x63\x34"] = 4;  // gold
+	TextColorMap["\xFF\x63\x35"] = 5;  // gray
+	TextColorMap["\xFF\x63\x36"] = 6;  // black
+	TextColorMap["\xFF\x63\x37"] = 7;  // tan
+	TextColorMap["\xFF\x63\x38"] = 8;  // orange
+	TextColorMap["\xFF\x63\x39"] = 9;  // yellow
+	TextColorMap["\xFF\x63\x3A"] = 10;  // dark green
+	TextColorMap["\xFF\x63\x3B"] = 11;  // purple
+	TextColorMap["\xFF\x63\x2F"] = 12;  // silver
 }
 
 void ItemMover::OnKey(bool up, BYTE key, LPARAM lParam, bool* block)  {
@@ -283,6 +308,28 @@ void ItemMover::OnKey(bool up, BYTE key, LPARAM lParam, bool* block)  {
 	}
 }
 
+int ItemMover::GetPlayerArea() {
+	if (VALIDPTR(D2CLIENT_GetPlayerUnit())) {
+		if (VALIDPTR(D2CLIENT_GetPlayerUnit()->pPath))
+			if (VALIDPTR(D2CLIENT_GetPlayerUnit()->pPath->pRoom1))
+				if (VALIDPTR(D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2))
+					if (VALIDPTR(D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2->pLevel))
+						return D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2->pLevel->dwLevelNo;
+	}
+	return 0;
+}
+
+bool ItemMover::IsTownLevel(int nLevel)
+{
+	if (nLevel == MAP_A1_ROGUE_ENCAMPMENT ||
+		nLevel == MAP_A2_LUT_GHOLEIN ||
+		nLevel == MAP_A3_KURAST_DOCKS ||
+		nLevel == MAP_A4_THE_PANDEMONIUM_FORTRESS ||
+		nLevel == MAP_A5_HARROGATH)
+		return TRUE;
+	return FALSE;
+}
+
 void ItemMover::OnGamePacketRecv(BYTE* packet, bool* block) {
 	switch (packet[0])
 	{
@@ -304,18 +351,32 @@ void ItemMover::OnGamePacketRecv(BYTE* packet, bool* block) {
 				Unlock();
 			}
 
-			if ((*BH::MiscToggles2)["Advanced Item Display"].state) {
+			if ((*BH::ItemToggles)["Advanced Item Display"].state) {
 				bool success = true;
 				ItemInfo item = {};
 				ParseItem((unsigned char*)packet, &item, &success);
+
 				//PrintText(1, "Item packet: %s, %s, %X, %d, %d", item.name.c_str(), item.code, item.attrs->flags, item.sockets, GetDefense(&item));
 				if ((item.action == ITEM_ACTION_NEW_GROUND || item.action == ITEM_ACTION_OLD_GROUND) && success) {
-					//PrintText(1, "Item on ground: %s, %s, %s, %X", item.name.c_str(), item.code, item.attrs->category.c_str(), item.attrs->flags);
-					for (vector<Rule*>::iterator it = IgnoreRuleList.begin(); it != IgnoreRuleList.end(); it++) {
+					bool showOnMap = false;
+
+					for (vector<Rule*>::iterator it = MapRuleList.begin(); it != MapRuleList.end(); it++) {
 						if ((*it)->Evaluate(NULL, &item)) {
-							*block = true;
-							//PrintText(1, "Blocking item: %s, %s, %d", item.name.c_str(), item.code, item.amount);
+							if ((*BH::ItemToggles)["Item Drop Notifications"].state && item.action == ITEM_ACTION_NEW_GROUND && !IsTownLevel(GetPlayerArea()))
+								PrintText(0, "Item dropped: %s%s", (*it)->action.colorOnMap.c_str(), item.name.c_str());
+							showOnMap = true;
 							break;
+						}
+					}
+
+					//PrintText(1, "Item on ground: %s, %s, %s, %X", item.name.c_str(), item.code, item.attrs->category.c_str(), item.attrs->flags);
+					if(!showOnMap) {
+						for (vector<Rule*>::iterator it = IgnoreRuleList.begin(); it != IgnoreRuleList.end(); it++) {
+							if ((*it)->Evaluate(NULL, &item)) {
+								*block = true;
+								//PrintText(1, "Blocking item: %s, %s, %d", item.name.c_str(), item.code, item.amount);
+								break;
+							}
 						}
 					}
 				}
@@ -715,7 +776,7 @@ bool ProcessStat(unsigned int stat, BitReader &reader, ItemProperty &itemProp) {
 		}
 	}
 
-	if (stat >= STAT_DEFENSEPERLEVEL && stat <= STAT_FINDGEMSPERLEVEL) {
+	if (stat >= STAT_DEFENSEPERLEVEL && stat <= STAT_DEADLYSTRIKEPERLEVEL) {
 		itemProp.perLevel = reader.read(saveBits);
 		return true;
 	}

@@ -1,6 +1,6 @@
 #include "Linehook.h"
 #include "../../../Common.h"
-#include "../../../D2Ptrs.h"
+#include "../../../D2/D2Ptrs.h"
 
 using namespace Drawing;
 

@@ -81,11 +81,23 @@ int main(int argc, const char* argv[]) {
 		}
 	}
 
+	int nHandle = -1;
+	char *numHandle = getCmdOption((char**)argv, (char**)argv + argc, "-h");
+	if (numHandle) {
+		string str(numHandle);
+		stringstream ss(str);
+		if ((ss >> nHandle).fail()) {
+			printf("\tCannot convert -o argument to an integer!\n");
+			system("PAUSE");
+			return 1;
+		}
+	}
+
 	//Print intro and the beginning of the menu.
-	printf("BH v0.1.5s2 By McGod\n");
-	printf("SlashDiablo Branch: Edited By Deadlock, underbent\n");
+	printf("Loli BH (Slash Branch v1.0) by LoliSquad\n");
+	printf("IAmTrial Branch\n");
 	printf("HD 1344x700 resolution -- by TravHatesMe, ported to 1.13c -- by Trial\n");
-	printf("Visit http://www.reddit.com/r/slashdiablo for updates!\n");
+	printf("Visit http://www.reddit.com/r/chamdiablo for updates!\n");
 	printf("\n");
 	printf("Command-line parameters:\n");
 	printf("\t-o <option number>: set injection option (0 for inject all, etc)\n");
@@ -101,43 +113,58 @@ int main(int argc, const char* argv[]) {
 		return 1;
 	}
 
-	if (nOpt < 0) {
-		printf("Please choose an option to inject.\n");
-		printf("\t0) Inject into All\n");
-		printf("\t1) Uninject from All\n");
 
-		int nCount = 2;
-		for (vector<DiabloWindow*>::iterator window = Windows.begin(); window < Windows.end(); window++) {
-			(*window)->MenuMessage(nCount++);
-		}
-		printf("\n");
-
-		nOpt = _getch() - 48;
-	}
-
-	switch(nOpt) 
+	if (nHandle != -1)
 	{
+		for (vector<DiabloWindow*>::iterator window = Windows.begin(); window < Windows.end(); window++)
+		{
+			if ((*window)->pHwnd == (HWND)nHandle)
+			{
+				(*window)->Inject();
+			}
+		}
+	}
+	else
+	{
+
+		if (nOpt < 0) {
+			printf("Please choose an option to inject.\n");
+			printf("\t0) Inject into All\n");
+			printf("\t1) Uninject from All\n");
+
+			int nCount = 2;
+			for (vector<DiabloWindow*>::iterator window = Windows.begin(); window < Windows.end(); window++) {
+				(*window)->MenuMessage(nCount++);
+			}
+			printf("\n");
+
+			nOpt = _getch() - 48;
+		}
+
+		switch (nOpt)
+		{
 		case 0://Inject into all
 			for (vector<DiabloWindow*>::iterator window = Windows.begin(); window < Windows.end(); window++)
 				(*window)->Inject();
-		break;
+			break;
 		case 1://Unload from all
 			for (vector<DiabloWindow*>::iterator window = Windows.begin(); window < Windows.end(); window++)
 				(*window)->Unload();
-		break;
+			break;
 		default://Specific window
 			int nWindow = nOpt - 2;
 			if (nWindow < 0 || nWindow >= (int)Windows.size())
 				printf("You have chosen an invalid option.\n");
-			else 
+			else
 				if (Windows[nWindow]->IsInjected())
 					Windows[nWindow]->Unload();
 				else
 					Windows[nWindow]->Inject();
-		break;
-	}
-	
-	if (!noPause) {
-		system("PAUSE");
+			break;
+		}
+
+		if (!noPause) {
+			system("PAUSE");
+		}
 	}
 }

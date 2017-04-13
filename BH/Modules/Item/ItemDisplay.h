@@ -1,6 +1,6 @@
 #pragma once
 #include "../../Constants.h"
-#include "../../D2Ptrs.h"
+#include "../../D2/D2Ptrs.h"
 #include "../../Config.h"
 #include "../../BH.h"
 
@@ -375,6 +375,17 @@ private:
 	bool EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2);
 };
 
+class RequiredLevelCondition : public Condition
+{
+public:
+	RequiredLevelCondition(BYTE op, BYTE rlvl) : requiredLevel(rlvl), operation(op) { conditionType = CT_Operand; };
+private:
+	BYTE operation;
+	BYTE requiredLevel;
+	bool EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2);
+	bool EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2);
+};
+
 class ItemGroupCondition : public Condition
 {
 public:
@@ -499,4 +510,5 @@ inline bool IntegerCompare(unsigned int Lvalue, int operation, unsigned int Rval
 void GetItemName(UnitItemInfo *uInfo, string &name);
 void SubstituteNameVariables(UnitItemInfo *uInfo, string &name, Action *action);
 int GetDefense(ItemInfo *item);
-BYTE GetAffixLevel(BYTE ilvl, BYTE qlvl, unsigned int flags, char *code);
+BYTE GetAffixLevel(BYTE ilvl, BYTE qlvl, unsigned int flags, char* code);
+BYTE GetRequiredLevel(UnitAny* item);

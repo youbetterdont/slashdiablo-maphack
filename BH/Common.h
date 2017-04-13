@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
-#include "D2Ptrs.h"
+#include "D2/D2Ptrs.h"
 
 void Tokenize(const std::string& str, std::vector<std::string>& tokens, const std::string& delimiters);
 wchar_t* AnsiToUnicode(const char* str);

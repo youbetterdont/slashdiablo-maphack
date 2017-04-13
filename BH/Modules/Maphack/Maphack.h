@@ -1,5 +1,5 @@
 #pragma once
-#include "../../D2Structs.h"
+#include "../../D2/D2Structs.h"
 #include "../Module.h"
 #include "../../Config.h"
 #include "../../Drawing.h"
@@ -25,17 +25,17 @@ class Maphack : public Module {
 		unsigned int revealType;
 		bool revealedGame, revealedAct[6], revealedLevel[255];
 		std::map<string, unsigned int> TextColorMap;
+
 		std::map<string, unsigned int> automapColors;
 		std::map<int, unsigned int> automapMonsterColors;
 		std::list<LevelList*> automapLevels;
 		map<std::string, Toggle> Toggles;
 		Drawing::UITab* settingsTab;
 		std::map<DWORD, std::vector<BaseSkill>> Skills;
-
 	public:
 	Maphack();
 
-	void ReadConfig();
+	void LoadConfig();
 	void OnLoad();
 	void OnUnload();
 

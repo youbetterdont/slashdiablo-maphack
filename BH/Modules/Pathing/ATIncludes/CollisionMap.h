@@ -8,7 +8,7 @@
 
 #include "ArrayEx.h"
 #include "Matrix.h"
-#include "../../../D2Ptrs.h"
+#include "../../../D2/D2Ptrs.h"
 
 #ifndef __COLLISIONMAP_H__
 #define __COLLISIONMAP_H__
@@ -234,7 +234,7 @@ BOOL CCollisionMap::BuildMapData(DWORD AreaIds[], int nSize)
 
 
 	//Get the most left-top level for the base and the size of the entire wanted map
-	Level* pBestLevel = AutoTele::GetLevel(D2CLIENT_GetPlayerUnit()->pAct, AreaIds[0]);
+	Level* pBestLevel = Pathing::GetLevel(D2CLIENT_GetPlayerUnit()->pAct, AreaIds[0]);
 	DWORD dwXSize = 0;
 	DWORD dwYSize = 0;
 	m_ptLevelOrigin.x = pBestLevel->dwPosX * 5;
@@ -244,7 +244,7 @@ BOOL CCollisionMap::BuildMapData(DWORD AreaIds[], int nSize)
 	//Loop all the given areas
 	for (int n = 0; n < nSize; n++) {
 		//Get the level struct for given id
-		Level* pLevel = AutoTele::GetLevel(D2CLIENT_GetPlayerUnit()->pAct, AreaIds[n]);
+		Level* pLevel = Pathing::GetLevel(D2CLIENT_GetPlayerUnit()->pAct, AreaIds[n]);
 	
 		//Make sure we have pLevel
 		if (!pLevel)
@@ -267,7 +267,7 @@ BOOL CCollisionMap::BuildMapData(DWORD AreaIds[], int nSize)
 
 	DwordArray aSkip;
 	for (int n = 0; n < nSize; n++) {
-		Level* pLevel = AutoTele::GetLevel(D2CLIENT_GetPlayerUnit()->pAct, AreaIds[n]);
+		Level* pLevel = Pathing::GetLevel(D2CLIENT_GetPlayerUnit()->pAct, AreaIds[n]);
 		if (!pLevel)
 			continue;
 
@@ -741,7 +741,7 @@ int CCollisionMap::GetLevelExits(LPLevelExit* lpLevel)
 
 	
 
-	for(Room2* pRoom = AutoTele::GetLevel(D2CLIENT_GetPlayerUnit()->pAct, dwLevelId)->pRoom2First; pRoom; pRoom = pRoom->pRoom2Next)
+	for(Room2* pRoom = Pathing::GetLevel(D2CLIENT_GetPlayerUnit()->pAct, dwLevelId)->pRoom2First; pRoom; pRoom = pRoom->pRoom2Next)
 	{
 		Room2* *pNear = pRoom->pRoom2Near;
 		for(DWORD i = 0; i < pRoom->dwRoomsNear; i++)

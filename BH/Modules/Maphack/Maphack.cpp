@@ -1,10 +1,10 @@
 /* Maphack Module
  *
  */
-#include "../../D2Ptrs.h"
-#include "../../D2Helpers.h"
-#include "../../D2Stubs.h"
-#include "../../D2Intercepts.h"
+#include "../../D2/D2Ptrs.h"
+#include "../../D2/D2Helpers.h"
+#include "../../D2/D2Stubs.h"
+#include "../../D2/D2Intercepts.h"
 #include "Maphack.h"
 #include "../../BH.h"
 #include "../../Drawing.h"
@@ -19,58 +19,7 @@ Patch* shakePatch = new Patch(Call, D2CLIENT, 0x442A2,(int)Shake_Interception, 5
 Maphack::Maphack() : Module("Maphack") {
 	revealType = MaphackRevealAct;
 	ResetRevealed();
-	ReadConfig();
-}
-
-void Maphack::ReadConfig() {
-	revealType = (MaphackReveal)BH::config->ReadInt("RevealMode", 0);
-
-	Config automap(BH::config->ReadAssoc("Missile Color"));
-	automapColors["Player Missile"] = automap.ReadInt("Player", 0x97);
-	automapColors["Neutral Missile"] = automap.ReadInt("Neutral", 0x0A);
-	automapColors["Partied Missile"] = automap.ReadInt("Partied", 0x84);
-	automapColors["Hostile Missile"] = automap.ReadInt("Hostile", 0x5B);
-
-	TextColorMap["ÿc0"] = 0x20;  // white
-	TextColorMap["ÿc1"] = 0x0A;  // red
-	TextColorMap["ÿc2"] = 0x84;  // green
-	TextColorMap["ÿc3"] = 0x97;  // blue
-	TextColorMap["ÿc4"] = 0x0D;  // gold
-	TextColorMap["ÿc5"] = 0xD0;  // gray
-	TextColorMap["ÿc6"] = 0x00;  // black
-	TextColorMap["ÿc7"] = 0x5A;  // tan
-	TextColorMap["ÿc8"] = 0x60;  // orange
-	TextColorMap["ÿc9"] = 0x0C;  // yellow
-	TextColorMap["ÿc;"] = 0x9B;  // purple
-
-	map<string, string> MonsterColors = BH::config->ReadAssoc("Monster Color");
-	for (auto it = MonsterColors.cbegin(); it != MonsterColors.cend(); ) {
-		// If the key is a number, it means a monster we've assigned a specific color
-		int monsterId = -1;
-		stringstream ss((*it).first);
-		if ((ss >> monsterId).fail()) {
-			++it;
-		} else {
-			int monsterColor = StringToNumber((*it).second);
-			automapMonsterColors[monsterId] = monsterColor;
-			MonsterColors.erase(it++);
-		}
-	}
-
-	Config monster(MonsterColors);
-	automapColors["Normal Monster"] = monster.ReadInt("Normal", 0x5B);
-	automapColors["Minion Monster"] = monster.ReadInt("Minion", 0x60);
-	automapColors["Champion Monster"] = monster.ReadInt("Champion", 0x91);
-	automapColors["Boss Monster"] = monster.ReadInt("Boss", 0x84);
-
-	Toggles["Auto Reveal"] = BH::config->ReadToggle("Reveal Map", "None", true);
-	Toggles["Show Monsters"] = BH::config->ReadToggle("Show Monsters", "None", true);
-	Toggles["Show Missiles"] = BH::config->ReadToggle("Show Missiles", "None", true);
-	Toggles["Force Light Radius"] = BH::config->ReadToggle("Force Light Radius", "None", true);
-	Toggles["Remove Weather"] = BH::config->ReadToggle("Remove Weather", "None", true);
-	Toggles["Infravision"] = BH::config->ReadToggle("Infravision", "None", true);
-	Toggles["Remove Shake"] = BH::config->ReadToggle("Remove Shake", "None", true);
-	Toggles["Display Level Names"] = BH::config->ReadToggle("Display Level Names", "None", true);
+	LoadConfig();
 }
 
 void Maphack::ResetRevealed() {
@@ -99,7 +48,7 @@ void Maphack::ResetPatches() {
 		infraPatch->Install();
 	else
 		infraPatch->Remove();
-		//GameShake Patch
+	//GameShake Patch
 	if (Toggles["Remove Shake"].state)
 		shakePatch->Install();
 	else
@@ -109,7 +58,7 @@ void Maphack::ResetPatches() {
 
 void Maphack::OnLoad() {
 	ResetRevealed();
-	ReadConfig();
+	LoadConfig();
 	ResetPatches();
 
 	settingsTab = new UITab("Maphack", BH::settingsUI);
@@ -164,7 +113,79 @@ void Maphack::OnLoad() {
 
 }
 
+void Maphack::LoadConfig() {
+	revealType = (MaphackReveal)BH::config->ReadInt("RevealMode", 0);
+
+	Config automap(BH::config->ReadAssoc("Missile Color"));
+	automapColors["Player Missile"] = automap.ReadInt("Player", 0x97);
+	automapColors["Neutral Missile"] = automap.ReadInt("Neutral", 0x0A);
+	automapColors["Partied Missile"] = automap.ReadInt("Partied", 0x84);
+	automapColors["Hostile Missile"] = automap.ReadInt("Hostile", 0x5B);
+
+	TextColorMap["\xFF\x63\x30"] = 0x20;  // white
+	TextColorMap["\xFF\x63\x31"] = 0x0A;  // red
+	TextColorMap["\xFF\x63\x32"] = 0x84;  // green
+	TextColorMap["\xFF\x63\x33"] = 0x97;  // blue
+	TextColorMap["\xFF\x63\x34"] = 0x0D;  // gold
+	TextColorMap["\xFF\x63\x35"] = 0xD0;  // gray
+	TextColorMap["\xFF\x63\x36"] = 0x00;  // black
+	TextColorMap["\xFF\x63\x37"] = 0x5A;  // tan
+	TextColorMap["\xFF\x63\x38"] = 0x60;  // orange
+	TextColorMap["\xFF\x63\x39"] = 0x0C;  // yellow
+	TextColorMap["\xFF\x63\x3A"] = 0x75;  // dark green
+	TextColorMap["\xFF\x63\x3B"] = 0x9B;  // purple
+	TextColorMap["\xFF\x63\x2F"] = 0x1F;  // silver
+
+	map<string, string> MonsterColors = BH::config->ReadAssoc("Monster Color");
+	for (auto it = MonsterColors.cbegin(); it != MonsterColors.cend(); ) {
+		// If the key is a number, it means a monster we've assigned a specific color
+		int monsterId = -1;
+		stringstream ss((*it).first);
+		if ((ss >> monsterId).fail()) {
+			++it;
+		}
+		else {
+			int monsterColor = StringToNumber((*it).second);
+			automapMonsterColors[monsterId] = monsterColor;
+			MonsterColors.erase(it++);
+		}
+	}
+
+	Config monster(MonsterColors);
+	automapColors["Normal Monster"] = monster.ReadInt("Normal", 0x5B);
+	automapColors["Minion Monster"] = monster.ReadInt("Minion", 0x60);
+	automapColors["Champion Monster"] = monster.ReadInt("Champion", 0x91);
+	automapColors["Boss Monster"] = monster.ReadInt("Boss", 0x84);
+
+	Toggles["Auto Reveal"] = BH::config->ReadToggle("Reveal Map", "None", true);
+	Toggles["Show Monsters"] = BH::config->ReadToggle("Show Monsters", "None", true);
+	Toggles["Show Missiles"] = BH::config->ReadToggle("Show Missiles", "None", true);
+	Toggles["Force Light Radius"] = BH::config->ReadToggle("Force Light Radius", "None", true);
+	Toggles["Remove Weather"] = BH::config->ReadToggle("Remove Weather", "None", true);
+	Toggles["Infravision"] = BH::config->ReadToggle("Infravision", "None", true);
+	Toggles["Remove Shake"] = BH::config->ReadToggle("Remove Shake", "None", true);
+	Toggles["Display Level Names"] = BH::config->ReadToggle("Display Level Names", "None", true);
+}
+
+
+
 void Maphack::OnKey(bool up, BYTE key, LPARAM lParam, bool* block) {
+	bool ctrlState = ((GetKeyState(VK_LCONTROL) & 0x80) || (GetKeyState(VK_RCONTROL) & 0x80));
+	if (key == 0x52 && ctrlState)
+	{
+		*block = true;
+
+		if (!up)
+			return;
+		if (!D2CLIENT_GetPlayerUnit())
+			D2MULTI_PrintChannelText("Reloading configuration file.", White);
+		else
+			PrintText(0, "Reloading configuration file.");
+
+		BH::ReloadConfig();
+		return;
+	}
+
 	for (map<string,Toggle>::iterator it = Toggles.begin(); it != Toggles.end(); it++) {
 		if (key == (*it).second.toggle) {
 			*block = true;
@@ -187,6 +208,7 @@ void Maphack::OnUnload() {
 
 void Maphack::OnLoop() {
 	
+
 	// Remove or install patchs based on state.
 	ResetPatches();
 
@@ -215,6 +237,7 @@ void Maphack::OnAutomapDraw() {
 	if (!player || !player->pAct || player->pPath->pRoom1->pRoom2->pLevel->dwLevelNo == 0)
 		return;
 
+	
 	for (Room1* room1 = player->pAct->pRoom1; room1; room1 = room1->pRoomNext) {
 		for (UnitAny* unit = room1->pUnitFirst; unit; unit = unit->pListNext) {
 			POINT automapLoc;
@@ -228,6 +251,9 @@ void Maphack::OnAutomapDraw() {
 					color = automapColors["Champion Monster"];
 				if (unit->pMonsterData->fMinion)
 					color = automapColors["Minion Monster"];
+				//Cow king pack
+				if (unit->dwTxtFileNo == 391 && unit->pMonsterData->anEnchants[0] == 8 && unit->pMonsterData->anEnchants[1] == 17 && unit->pMonsterData->anEnchants[3] != 0)
+					color = 0xE1;
 
 				// User can override colors of non-boss monsters
 				if (automapMonsterColors.find(unit->dwTxtFileNo) != automapMonsterColors.end() && !unit->pMonsterData->fBoss) {
@@ -235,7 +261,7 @@ void Maphack::OnAutomapDraw() {
 				}
 
 				//Determine immunities
-				string szImmunities[] = {"ÿc7i", "ÿc8i", "ÿc1i", "ÿc9i", "ÿc3i", "ÿc2i"};
+				string szImmunities[] = { "ÿc7i", "ÿc8i", "ÿc1i", "ÿc9i", "ÿc3i", "ÿc2i" };
 				DWORD dwImmunities[] = {36,37,39,41,43,45};
 				string immunityText;
 				for (int n = 0; n < 6; n++) {
@@ -269,6 +295,7 @@ void Maphack::OnAutomapDraw() {
 				}
 				Drawing::Hook::ScreenToAutomap(&automapLoc, unit->pPath->xPos, unit->pPath->yPos);
 				Drawing::Boxhook::Draw(automapLoc.x - 1, automapLoc.y - 1, 2, 2, color, Drawing::BTHighlight);
+
 			} else if (unit->dwType == UNIT_ITEM) {
 				UnitItemInfo uInfo;
 				uInfo.item = unit;
@@ -519,9 +546,10 @@ void Maphack::RevealRoom(Room2* room) {
 				cellNo = 745;
 		// Special Object Check
 		} else if (preset->dwType == 2) {
+
 			// Uber Chest in Lower Kurast Check
 			if (preset->dwTxtFileNo == 580 && room->pLevel->dwLevelNo == 79)		
-				cellNo = 9;
+				cellNo = 318;
 
 			// Countess Chest Check
 			if (preset->dwTxtFileNo == 371) 

@@ -13,7 +13,7 @@ class Module {
 
 		void Load();
 		void Unload();
-
+		void ReloadConfig();
 	public:
 		Module(string name);
 		~Module();
@@ -24,6 +24,7 @@ class Module {
 		// Module Events
 		virtual void OnLoad() {};
 		virtual void OnUnload() {};
+		virtual void LoadConfig() {};
 
 		virtual void OnLoop() {};
 

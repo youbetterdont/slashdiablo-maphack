@@ -7,11 +7,13 @@ private:
 	int newWidth;
 	int newHeight;
 	bool isInGame;
+	std::map<string, Toggle> Toggles;
 	void SetResolution(int x, int y);
 	int GetMode(int height);
 
 public:
 	Resolution() : Module("Resolution") {};
+	void LoadConfig();
 	void OnLoad();
 	void OnUnload();
 	void OnDraw();

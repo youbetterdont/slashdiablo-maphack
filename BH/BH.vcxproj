@@ -17,24 +17,28 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E549AF63-EF8D-4054-A95B-9C4AE6F51029}</ProjectGuid>
     <RootNamespace>BH</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v100</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v100</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Packaging|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v100</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -54,6 +58,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Packaging|Win32'">
     <TargetExt>.dll</TargetExt>
+    <IntDir>$(Configuration)\D2BHMaphack\</IntDir>
+    <OutDir>$(SolutionDir)$(Configuration)\D2BHMaphack\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -99,10 +105,10 @@
     <ClCompile Include="BitReader.cpp" />
     <ClCompile Include="Common.cpp" />
     <ClCompile Include="Config.cpp" />
-    <ClCompile Include="D2Handlers.cpp" />
-    <ClCompile Include="D2Helpers.cpp" />
-    <ClCompile Include="D2Intercepts.cpp" />
-    <ClCompile Include="D2Stubs.cpp" />
+    <ClCompile Include="D2\D2Handlers.cpp" />
+    <ClCompile Include="D2\D2Helpers.cpp" />
+    <ClCompile Include="D2\D2Intercepts.cpp" />
+    <ClCompile Include="D2\D2Stubs.cpp" />
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="Drawing\Advanced\Checkhook\Checkhook.cpp" />
     <ClCompile Include="Drawing\Advanced\Colorhook\Colorhook.cpp" />
@@ -118,9 +124,8 @@
     <ClCompile Include="Drawing\Stats\StatsDisplay.cpp" />
     <ClCompile Include="Drawing\UI\UI.cpp" />
     <ClCompile Include="Drawing\UI\UITab.cpp" />
-    <ClCompile Include="Modules\AutoTele\AutoTele.cpp" />
+    <ClCompile Include="Modules\Pathing\Pathing.cpp" />
     <ClCompile Include="Modules\Bnet\Bnet.cpp" />
-    <ClCompile Include="Modules\Gamefilter\Gamefilter.cpp" />
     <ClCompile Include="Modules\Item\Item.cpp" />
     <ClCompile Include="Modules\Item\ItemDisplay.cpp" />
     <ClCompile Include="Modules\ItemMover\ItemMover.cpp" />
@@ -131,8 +136,6 @@
     <ClCompile Include="Modules\Resolution\Resolution.cpp" />
     <ClCompile Include="Modules\Resolution\ScreenRefresh.cpp" />
     <ClCompile Include="Modules\ScreenInfo\ScreenInfo.cpp" />
-    <ClCompile Include="Modules\SpamFilter\Bayes.cpp" />
-    <ClCompile Include="Modules\SpamFilter\SpamFilter.cpp" />
     <ClCompile Include="Patch.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -141,12 +144,12 @@
     <ClInclude Include="Common.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="Constants.h" />
-    <ClInclude Include="D2Handlers.h" />
-    <ClInclude Include="D2Helpers.h" />
-    <ClInclude Include="D2Intercepts.h" />
-    <ClInclude Include="D2Ptrs.h" />
-    <ClInclude Include="D2Structs.h" />
-    <ClInclude Include="D2Stubs.h" />
+    <ClInclude Include="D2\D2Handlers.h" />
+    <ClInclude Include="D2\D2Helpers.h" />
+    <ClInclude Include="D2\D2Intercepts.h" />
+    <ClInclude Include="D2\D2Ptrs.h" />
+    <ClInclude Include="D2\D2Structs.h" />
+    <ClInclude Include="D2\D2Stubs.h" />
     <ClInclude Include="Drawing.h" />
     <ClInclude Include="Drawing\Advanced\Checkhook\Checkhook.h" />
     <ClInclude Include="Drawing\Advanced\Colorhook\Colorhook.h" />
@@ -163,16 +166,15 @@
     <ClInclude Include="Drawing\UI\UI.h" />
     <ClInclude Include="Drawing\UI\UITab.h" />
     <ClInclude Include="Modules.h" />
-    <ClInclude Include="Modules\AutoTele\ATIncludes\ArrayEx.h" />
-    <ClInclude Include="Modules\AutoTele\ATIncludes\CMapIncludes.h" />
-    <ClInclude Include="Modules\AutoTele\ATIncludes\CollisionMap.h" />
-    <ClInclude Include="Modules\AutoTele\ATIncludes\Matrix.h" />
-    <ClInclude Include="Modules\AutoTele\ATIncludes\SyncObj.h" />
-    <ClInclude Include="Modules\AutoTele\ATIncludes\TeleportPath.h" />
-    <ClInclude Include="Modules\AutoTele\ATIncludes\Vectors.h" />
-    <ClInclude Include="Modules\AutoTele\AutoTele.h" />
+    <ClInclude Include="Modules\Pathing\ATIncludes\ArrayEx.h" />
+    <ClInclude Include="Modules\Pathing\ATIncludes\CMapIncludes.h" />
+    <ClInclude Include="Modules\Pathing\ATIncludes\CollisionMap.h" />
+    <ClInclude Include="Modules\Pathing\ATIncludes\Matrix.h" />
+    <ClInclude Include="Modules\Pathing\ATIncludes\SyncObj.h" />
+    <ClInclude Include="Modules\Pathing\ATIncludes\TeleportPath.h" />
+    <ClInclude Include="Modules\Pathing\ATIncludes\Vectors.h" />
+    <ClInclude Include="Modules\Pathing\Pathing.h" />
     <ClInclude Include="Modules\Bnet\Bnet.h" />
-    <ClInclude Include="Modules\Gamefilter\Gamefilter.h" />
     <ClInclude Include="Modules\Item\Item.h" />
     <ClInclude Include="Modules\Item\ItemDisplay.h" />
     <ClInclude Include="Modules\ItemMover\ItemMover.h" />
@@ -183,8 +185,6 @@
     <ClInclude Include="Modules\Resolution\Resolution.h" />
     <ClInclude Include="Modules\Resolution\ScreenRefresh.h" />
     <ClInclude Include="Modules\ScreenInfo\ScreenInfo.h" />
-    <ClInclude Include="Modules\SpamFilter\Bayes.h" />
-    <ClInclude Include="Modules\SpamFilter\SpamFilter.h" />
     <ClInclude Include="Patch.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

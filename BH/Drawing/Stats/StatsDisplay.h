@@ -51,3 +51,11 @@ namespace Drawing {
 			static bool KeyClick(bool bUp, BYTE bKey, LPARAM lParam);
 	};
 };
+
+struct bpInfo {
+	int currentBP;
+	int nextBP;
+	int frames;
+};
+
+bpInfo GetCurrentBP(int playerClass, int bpType, int statValue);
