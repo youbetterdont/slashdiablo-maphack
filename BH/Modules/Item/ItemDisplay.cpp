@@ -737,7 +737,7 @@ void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 		Condition::AddOperand(conditions, new CharStatCondition(num, 0, operation, value));
 	} else if (key.compare(0, 5, "MULTI") == 0) {
 
-		std::regex multi_reg("([0-9]{1,4}),([0-9]{1,4})",
+		std::regex multi_reg("([0-9]{1,10}),([0-9]{1,10})",
 			std::regex_constants::ECMAScript | std::regex_constants::icase);
 		std::smatch multi_match;
 		if (std::regex_search(key, multi_match, multi_reg)) {
