@@ -10,8 +10,8 @@ Drawing::Hook* PartyHook;
 Drawing::Hook* LootHook;
 
 void Party::OnLoad() {
-	Toggles["Enabled"] = BH::config->ReadToggle("Party Enabled", "None", true);
-	Toggles["LootEnabled"] = BH::config->ReadToggle("Looting Enabled", "None", true);
+	BH::config->ReadToggle("Party Enabled", "None", true, Toggles["Enabled"]);
+	BH::config->ReadToggle("Looting Enabled", "None", true, Toggles["LootEnabled"]);
 	c = 0;
 
 	PartyHook = new Drawing::Checkhook(Drawing::InGame, 100, 100, &Toggles["Enabled"].state, "Autoparty Enabled");

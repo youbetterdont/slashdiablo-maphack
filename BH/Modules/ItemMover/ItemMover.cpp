@@ -347,8 +347,8 @@ void ItemMover::OnRightClick(bool up, int x, int y, bool* block) {
 }
 
 void ItemMover::LoadConfig() {
-	HealKey = BH::config->ReadKey("Use Healing Potion", "VK_NUMPADMULTIPLY");
-	ManaKey = BH::config->ReadKey("Use Mana Potion", "VK_NUMPADSUBTRACT");
+	BH::config->ReadKey("Use Healing Potion", "VK_NUMPADMULTIPLY", HealKey);
+	BH::config->ReadKey("Use Mana Potion", "VK_NUMPADSUBTRACT", ManaKey);
 }
 
 void ItemMover::OnLoad() {

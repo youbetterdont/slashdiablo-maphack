@@ -30,23 +30,23 @@ void Item::OnLoad() {
 }
 
 void Item::LoadConfig() {
-	Toggles["Show Ethereal"] = BH::config->ReadToggle("Show Ethereal", "None", true);
-	Toggles["Show Sockets"] = BH::config->ReadToggle("Show Sockets", "None", true);
-	Toggles["Show iLvl"] = BH::config->ReadToggle("Show iLvl", "None", true);
-	Toggles["Show Rune Numbers"] = BH::config->ReadToggle("Show Rune Numbers", "None", true);
-	Toggles["Alt Item Style"] = BH::config->ReadToggle("Alt Item Style", "None", true);
-	Toggles["Color Mod"] = BH::config->ReadToggle("Color Mod", "None", false);
-	Toggles["Shorten Item Names"] = BH::config->ReadToggle("Shorten Item Names", "None", false);
-	Toggles["Advanced Item Display"] = BH::config->ReadToggle("Advanced Item Display", "None", false);
-	Toggles["Item Drop Notifications"] = BH::config->ReadToggle("Item Drop Notifications", "None", false);
-	Toggles["Item Close Notifications"] = BH::config->ReadToggle("Item Close Notifications", "None", false);
-	Toggles["Allow Unknown Items"] = BH::config->ReadToggle("Allow Unknown Items", "None", false);
+	BH::config->ReadToggle("Show Ethereal", "None", true, Toggles["Show Ethereal"]);
+	BH::config->ReadToggle("Show Sockets", "None", true, Toggles["Show Sockets"]);
+	BH::config->ReadToggle("Show ILvl", "None", true, Toggles["Show iLvl"]);
+	BH::config->ReadToggle("Show Rune Numbers", "None", true, Toggles["Show Rune Numbers"]);
+	BH::config->ReadToggle("Alt Item Style", "None", true, Toggles["Alt Item Style"]);
+	BH::config->ReadToggle("Color Mod", "None", false, Toggles["Color Mod"]);
+	BH::config->ReadToggle("Shorten Item Names", "None", false, Toggles["Shorten Item Names"]);
+	BH::config->ReadToggle("Advanced Item Display", "None", false, Toggles["Advanced Item Display"]);
+	BH::config->ReadToggle("Item Drop Notifications", "None", false, Toggles["Item Drop Notifications"]);
+	BH::config->ReadToggle("Item Close Notifications", "None", false, Toggles["Item Close Notifications"]);
+	BH::config->ReadToggle("Allow Unknown Items", "None", false, Toggles["Allow Unknown Items"]);
 
 	ItemDisplay::UninitializeItemRules();
 
 	//InitializeMPQData();
 
-	showPlayer = BH::config->ReadKey("Show Players Gear", "VK_0");
+	BH::config->ReadKey("Show Players Gear", "VK_0", showPlayer);
 }
 
 void Item::DrawSettings() {
