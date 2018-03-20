@@ -45,6 +45,7 @@
 
 #include "Item.h"
 #include "../../D2Ptrs.h"
+#include "../../D2Strings.h"
 #include "../../BH.h"
 #include "../../D2Stubs.h"
 #include "ItemDisplay.h"
@@ -513,7 +514,143 @@ void Item::OrigGetItemName(UnitAny *item, string &itemName, char *code)
 }
 
 bool __stdcall Item::OnDamagePropertyBuild(UnitAny* pItem, DamageStats* pDmgStats, int nStat, wchar_t* wOut) {
-	//
+	wchar_t newDesc[128];
+
+	// Ignore a max stat, use just a min dmg prop to gen the property string
+	if (nStat == STAT_MAXIMUMFIREDAMAGE || nStat == STAT_MAXIMUMCOLDDAMAGE || nStat == STAT_MAXIMUMLIGHTNINGDAMAGE|| nStat == STAT_MAXIMUMMAGICALDAMAGE ||
+		nStat == STAT_MAXIMUMPOISONDAMAGE || nStat == STAT_POISONDAMAGELENGTH || nStat == STAT_ENHANCEDMAXIMUMDAMAGE)
+		return TRUE;
+
+	int stat_min, stat_max;
+	wchar_t* szProp = 0;
+	bool ranged = true;
+	if (nStat == STAT_MINIMUMFIREDAMAGE) {
+		if (pDmgStats->nFireDmgRange == 0)
+			return FALSE;
+		stat_min = pDmgStats->nMinFireDmg;
+		stat_max = pDmgStats->nMaxFireDmg;
+		if (stat_min >= stat_max) {
+			szProp = D2LANG_GetLocaleText(D2STR_STRMODFIREDAMAGE);
+			ranged = false;
+		}
+		else {
+			szProp = D2LANG_GetLocaleText(D2STR_STRMODFIREDAMAGERANGE);
+		}
+	}
+	else if (nStat == STAT_MINIMUMCOLDDAMAGE) {
+		if (pDmgStats->nColdDmgRange == 0)
+			return FALSE;
+		stat_min = pDmgStats->nMinColdDmg;
+		stat_max = pDmgStats->nMaxColdDmg;
+		if (stat_min >= stat_max) {
+			szProp = D2LANG_GetLocaleText(D2STR_STRMODCOLDDAMAGE);
+			ranged = false;
+		}
+		else {
+			szProp = D2LANG_GetLocaleText(D2STR_STRMODCOLDDAMAGERANGE);
+		}
+	}
+	else if (nStat == STAT_MINIMUMLIGHTNINGDAMAGE) {
+		if (pDmgStats->nLightDmgRange == 0)
+			return FALSE;
+		stat_min = pDmgStats->nMinLightDmg;
+		stat_max = pDmgStats->nMaxLightDmg;
+		if (stat_min >= stat_max) {
+			szProp = D2LANG_GetLocaleText(D2STR_STRMODLIGHTNINGDAMAGE);
+			ranged = false;
+		}
+		else {
+			szProp = D2LANG_GetLocaleText(D2STR_STRMODLIGHTNINGDAMAGERANGE);
+		}
+	}
+	else if (nStat == STAT_MINIMUMMAGICALDAMAGE) {
+		if (pDmgStats->nMagicDmgRange == 0)
+			return FALSE;
+		stat_min = pDmgStats->nMinMagicDmg;
+		stat_max = pDmgStats->nMaxMagicDmg;
+		if (stat_min >= stat_max) {
+			szProp = D2LANG_GetLocaleText(D2STR_STRMODMAGICDAMAGE);
+			ranged = false;
+		}
+		else {
+			szProp = D2LANG_GetLocaleText(D2STR_STRMODMAGICDAMAGERANGE);
+		}
+	}
+	else if (nStat == STAT_MINIMUMPOISONDAMAGE) {
+		if (pDmgStats->nPsnDmgRange == 0)
+			return FALSE;
+		if (pDmgStats->nPsnCount <= 0)
+			pDmgStats->nPsnCount = 1;
+
+		pDmgStats->nPsnLen = pDmgStats->nPsnLen / pDmgStats->nPsnCount;
+
+		pDmgStats->nMinPsnDmg = stat_min = ((pDmgStats->nMinPsnDmg * pDmgStats->nPsnLen) + 128) / 256;
+		pDmgStats->nMaxPsnDmg = stat_max = ((pDmgStats->nMaxPsnDmg * pDmgStats->nPsnLen) + 128) / 256;
+
+		if (stat_min >= stat_max) {
+			szProp = D2LANG_GetLocaleText(D2STR_STRMODPOISONDAMAGE);
+			swprintf_s(newDesc, 128, szProp, stat_max, pDmgStats->nPsnLen / 25); // Per frame
+		}
+		else {
+			szProp = D2LANG_GetLocaleText(D2STR_STRMODPOISONDAMAGERANGE);
+			swprintf_s(newDesc, 128, szProp, stat_min, stat_max, pDmgStats->nPsnLen / 25);
+		}
+		wcscat_s(wOut, 1024, newDesc);
+		return TRUE;
+	}
+	else if (nStat == STAT_SECONDARYMAXIMUMDAMAGE) {
+		if (pDmgStats->dword14)
+			return TRUE;
+		return pDmgStats->nDmgRange;
+	}
+	else if (nStat == STAT_MINIMUMDAMAGE || nStat == STAT_MAXIMUMDAMAGE || nStat == STAT_SECONDARYMINIMUMDAMAGE) {
+		if (pDmgStats->dword14)
+			return TRUE;
+		if (!pDmgStats->nDmgRange)
+			return FALSE;
+
+		stat_min = pDmgStats->nMinLightDmg;
+		stat_max = pDmgStats->nMaxLightDmg;
+
+		if (stat_min >= stat_max) {
+			pDmgStats->dword14 = TRUE;
+			pDmgStats->nDmgRange = 0;
+			return FALSE;
+		}
+		else {
+			pDmgStats->dword14 = TRUE;
+			szProp = D2LANG_GetLocaleText(D2STR_STRMODMINDAMAGERANGE);
+
+		}
+	}
+	else if (nStat == STAT_ENHANCEDMINIMUMDAMAGE) {
+		if (!pDmgStats->nDmgPercentRange)
+			return false;
+		stat_min = pDmgStats->nMinDmgPercent;
+		stat_max = (int) (D2LANG_GetLocaleText(10023)); // "Enhanced damage"
+		szProp = L"+%d%% %s\n";
+	}
+
+	if (!szProp)
+		return FALSE;
+
+	if (ranged) {
+		swprintf_s(newDesc, 128, szProp, stat_min, stat_max);
+	}
+	else {
+		swprintf_s(newDesc, 128, szProp, stat_max);
+	}
+
+	// <!--
+	if (newDesc[wcslen(newDesc) - 1] == L'\n')
+		newDesc[wcslen(newDesc) - 1] = L'\0';
+	if (newDesc[wcslen(newDesc) - 1] == L'\n')
+		newDesc[wcslen(newDesc) - 1] = L'\0';
+	// OnPropertyBuild(newDesc, nStat, pItem, NULL);
+	// Beside this add-on the function is almost 1:1 copy of Blizzard's one -->
+	wcscat_s(wOut, 1024, newDesc);
+	wcscat_s(wOut, 1024, L"\n");
+	return TRUE;
 }
 
 UnitAny* Item::GetViewUnit ()
