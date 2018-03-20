@@ -1,3 +1,48 @@
+/**
+*
+* D2Structs.h
+* BH: Copyright 2011 (C) McGod
+* SlashDiablo Maphack: Copyright (C) SlashDiablo Community
+*
+*  This file is part of SlashDiablo Maphack.
+*
+*  SlashDiablo Maphack is free software: you can redistribute it and/or modify
+*  it under the terms of the GNU Affero General Public License as published
+*  by the Free Software Foundation, either version 3 of the License, or
+*  (at your option) any later version.
+*
+*  This program is distributed in the hope that it will be useful,
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*  GNU Affero General Public License for more details.
+*
+*  You should have received a copy of the GNU Affero General Public License
+*  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*
+* This file incorporates work covered by the following copyright and
+* permission notice:
+*
+*   ==========================================================
+*   D2Ex2
+*   https://github.com/lolet/D2Ex2
+*   ==========================================================
+*   Copyright (c) 2011-2014 Bartosz Jankowski
+*
+*   Licensed under the Apache License, Version 2.0 (the "License");
+*   you may not use this file except in compliance with the License.
+*   You may obtain a copy of the License at
+*
+*   http://www.apache.org/licenses/LICENSE-2.0
+*
+*   Unless required by applicable law or agreed to in writing, software
+*   distributed under the License is distributed on an "AS IS" BASIS,
+*   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+*   See the License for the specific language governing permissions and
+*   limitations under the License.
+*   ==========================================================
+*
+*/
+
 #pragma once
 #ifndef _D2STRUCTS_H
 #define _D2STRUCTS_H
@@ -456,6 +501,52 @@ struct ItemData {
 	WORD _12;						//0x6A
 	DWORD _13[6];					//0x6C
 	UnitAny *pOwner;				//0x84
+};
+
+struct DamageStats
+{
+	DWORD nMinDmg;
+	DWORD nMaxDmg;
+	DWORD dword8;
+	DWORD dwordC;
+	BOOL nDmgRange;
+	DWORD dword14;
+	DWORD nMinDmgPercent;
+	DWORD nMaxDmgPercent;
+	DWORD dword20;
+	DWORD dword24;
+	BOOL nDmgPercentRange;
+	DWORD dword2C;
+	DWORD nMinColdDmg;
+	DWORD nMaxColdDmg;
+	DWORD dword38;
+	DWORD dword3C;
+	DWORD nColdDmgRange;
+	DWORD dword44;
+	DWORD nMinLightDmg;
+	DWORD nMaxLightDmg;
+	DWORD dword50;
+	DWORD dword54;
+	DWORD nLightDmgRange;
+	DWORD dword5C;
+	DWORD nMinFireDmg;
+	DWORD nMaxFireDmg;
+	DWORD dword68;
+	DWORD dword6C;
+	DWORD nFireDmgRange;
+	DWORD dword74;
+	DWORD nMinPsnDmg;
+	DWORD nMaxPsnDmg;
+	DWORD nPsnLen;
+	DWORD nPsnCount;
+	DWORD nPsnDmgRange;
+	DWORD dword8C;
+	DWORD nMinMagicDmg;
+	DWORD nMaxMagicDmg;
+	DWORD dword98;
+	DWORD dword9C;
+	DWORD nMagicDmgRange;
+	DWORD dwordA4;
 };
 
 struct ItemText {
