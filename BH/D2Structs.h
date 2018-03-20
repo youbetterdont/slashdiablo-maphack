@@ -48,6 +48,8 @@
 #define _D2STRUCTS_H
 
 #include <windows.h>
+#include "D2DataTables.h"
+#include "CommonStructs.h"
 
 #pragma warning ( push )
 #pragma warning ( disable: 4201 )
@@ -111,20 +113,6 @@ struct InteractStruct {
 	DWORD _2;					//0x18
 };
 
-struct CellFile {
-	DWORD dwVersion;				//0x00
-	struct {
-		WORD dwFlags;
-		BYTE mylastcol;
-		BYTE mytabno:1;
-	};								//0x04
-	DWORD eFormat;					//0x08
-	DWORD termination;				//0x0C
-	DWORD numdirs;					//0x10
-	DWORD numcells;					//0x14
-	GfxCell *cells[1];				//0x18
-};
-
 struct CellContext {
 	DWORD nCellNo;					//0x00
 	DWORD _1[12];					//0x04
@@ -163,15 +151,6 @@ struct ControlPreferences
 {
 	DWORD dwType;//0x00
 	// ..
-};
-
-struct ControlText {
-	wchar_t* wText; //0x00
-	wchar_t* wText2;//0x04
-	DWORD _1[3];	//0x08
-	DWORD dwColor;	//0x14
-	DWORD _2;		//0x18
-	ControlText* pNext;//0x1C
 };
 
 struct Control {
@@ -256,19 +235,6 @@ struct PlayerData {
 	Waypoint *pNormalWaypoint;		//0x1c
 	Waypoint *pNightmareWaypoint;	//0x20
 	Waypoint *pHellWaypoint;		//0x24
-};
-
-struct CollMap {
-	DWORD dwPosGameX;				//0x00
-	DWORD dwPosGameY;				//0x04
-	DWORD dwSizeGameX;				//0x08
-	DWORD dwSizeGameY;				//0x0C
-	DWORD dwPosRoomX;				//0x10
-	DWORD dwPosRoomY;				//0x14
-	DWORD dwSizeRoomX;				//0x18
-	DWORD dwSizeRoomY;				//0x1C
-	WORD *pMapStart;				//0x20
-	WORD *pMapEnd;					//0x22
 };
 
 struct PresetUnit {
@@ -479,12 +445,12 @@ struct ItemData {
 	DWORD _2[2];					//0x10
 	DWORD dwFlags;					//0x18
 	DWORD _3[3];					//0x1C
-	DWORD dwQuality2;				//0x28
+	DWORD dwFileIndex;				//0x28
 	DWORD dwItemLevel;				//0x2C
 	WORD wVersion;					//0x30
 	WORD wRarePrefix;				//0x32
 	WORD wRareSuffix;				//0x34
-	WORD _14;						//0x36
+	WORD wAutoPrefix;				//0x36
 	WORD wPrefix[3];				//0x38
 	WORD wSuffix[3];				//0x3E
 	BYTE BodyLocation;				//0x44
@@ -501,52 +467,6 @@ struct ItemData {
 	WORD _12;						//0x6A
 	DWORD _13[6];					//0x6C
 	UnitAny *pOwner;				//0x84
-};
-
-struct DamageStats
-{
-	DWORD nMinDmg;
-	DWORD nMaxDmg;
-	DWORD dword8;
-	DWORD dwordC;
-	BOOL nDmgRange;
-	DWORD dword14;
-	DWORD nMinDmgPercent;
-	DWORD nMaxDmgPercent;
-	DWORD dword20;
-	DWORD dword24;
-	BOOL nDmgPercentRange;
-	DWORD dword2C;
-	DWORD nMinColdDmg;
-	DWORD nMaxColdDmg;
-	DWORD dword38;
-	DWORD dword3C;
-	DWORD nColdDmgRange;
-	DWORD dword44;
-	DWORD nMinLightDmg;
-	DWORD nMaxLightDmg;
-	DWORD dword50;
-	DWORD dword54;
-	DWORD nLightDmgRange;
-	DWORD dword5C;
-	DWORD nMinFireDmg;
-	DWORD nMaxFireDmg;
-	DWORD dword68;
-	DWORD dword6C;
-	DWORD nFireDmgRange;
-	DWORD dword74;
-	DWORD nMinPsnDmg;
-	DWORD nMaxPsnDmg;
-	DWORD nPsnLen;
-	DWORD nPsnCount;
-	DWORD nPsnDmgRange;
-	DWORD dword8C;
-	DWORD nMinMagicDmg;
-	DWORD nMaxMagicDmg;
-	DWORD dword98;
-	DWORD dword9C;
-	DWORD nMagicDmgRange;
-	DWORD dwordA4;
 };
 
 struct ItemText {
@@ -612,24 +532,6 @@ struct MonsterData {
 	struct {
 		wchar_t wName[28];
 	};								//0x2C
-};
-
-struct ObjectTxt {
-	char szName[0x40];				//0x00
-	wchar_t wszName[0x40];			//0x40
-	BYTE _1[4];						//0xC0
-	BYTE nSelectable0;				//0xC4
-	BYTE _2[0x87];					//0xC5
-	BYTE nOrientation;				//0x14C
-	BYTE _2b[0x19];					//0x14D
-	BYTE nSubClass;					//0x166
-	BYTE _3[0x11];					//0x167
-	BYTE nParm0;					//0x178
-	BYTE _4[0x39];					//0x179
-	BYTE nPopulateFn;				//0x1B2
-	BYTE nOperateFn;				//0x1B3
-	BYTE _5[8];						//0x1B4
-	DWORD nAutoMap;					//0x1BB
 };
 
 struct ObjectData {
@@ -811,32 +713,6 @@ struct OverheadMsg {
 struct D2MSG {
 	HWND myHWND;
 	char lpBuf[256];
-};
-
-
-struct InventoryLayout {
-	BYTE SlotWidth;
-	BYTE SlotHeight;
-	BYTE unk1;
-	BYTE unk2;
-	DWORD Left;
-	DWORD Right;
-	DWORD Top;
-	DWORD Bottom;
-	BYTE SlotPixelWidth;
-	BYTE SlotPixelHeight;
-};
-
-struct MpqTable;
-
-struct sgptDataTable {
-	MpqTable*	pPlayerClass;
-	DWORD		dwPlayerClassRecords;
-	MpqTable*	pBodyLocs;
-	DWORD		dwBodyLocsRecords;
-	MpqTable*	pStorePage;
-	DWORD		dwStorePageRecords;
-	MpqTable*	pElemTypes;
 };
 
 #pragma warning ( pop )

@@ -242,8 +242,8 @@ void StashExport::GetItemInfo(UnitAny* pItem, JSONObject* pBuffer){
 		case ITEM_QUALITY_MAGIC:{
 				auto name = type;
 				for (int i = 0; i < 3; i++){
-					const char* prefix = D2COMMON_GetItemMagicalMods(pItem->pItemData->wPrefix[i]);
-					const char* suffix = D2COMMON_GetItemMagicalMods(pItem->pItemData->wSuffix[i]);
+					const char* prefix = D2COMMON_GetItemMagicalMods(pItem->pItemData->wPrefix[i])->szName;
+					const char* suffix = D2COMMON_GetItemMagicalMods(pItem->pItemData->wSuffix[i])->szName;
 					if (prefix){
 						name = std::string(prefix) + " " + name;
 					}
@@ -256,7 +256,7 @@ void StashExport::GetItemInfo(UnitAny* pItem, JSONObject* pBuffer){
 			}
 			break;
 		case ITEM_QUALITY_UNIQUE:{
-				JSONObject *unDef = Tables::UniqueItems.entryAt(pItem->pItemData->dwQuality2);
+				JSONObject *unDef = Tables::UniqueItems.entryAt(pItem->pItemData->dwFileIndex);
 				if (unDef){
 					pBuffer->set("name", unDef->getString("index"));
 					fillStats(statsObject, unDef, pItem, "prop%d", "par%d", "min%d", "max%d", 13);
@@ -264,7 +264,7 @@ void StashExport::GetItemInfo(UnitAny* pItem, JSONObject* pBuffer){
 			}
 			break;
 		case ITEM_QUALITY_SET:{
-			JSONObject *setDef = Tables::SetItems.entryAt(pItem->pItemData->dwQuality2);
+			JSONObject *setDef = Tables::SetItems.entryAt(pItem->pItemData->dwFileIndex);
 			if (setDef){
 				pBuffer->set("set", setDef->getString("set"));
 				pBuffer->set("name", setDef->getString("index"));
