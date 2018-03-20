@@ -54,6 +54,7 @@ map<std::string, Toggle> Item::Toggles;
 UnitAny* Item::viewingUnit;
 
 Patch* itemNamePatch = new Patch(Call, D2CLIENT, { 0x92366, 0x96736 }, (int)ItemName_Interception, 6);
+Patch* itemStatsRangePatch = new Patch(Call, D2CLIENT, { 0/* TODO */, 0x2E04B }, (int)ItemStatsRange_Interception, 5);
 Patch* viewInvPatch1 = new Patch(Call, D2CLIENT, { 0x953E2, 0x997B2 }, (int)ViewInventoryPatch1_ASM, 6);
 Patch* viewInvPatch2 = new Patch(Call, D2CLIENT, { 0x94AB4, 0x98E84 }, (int)ViewInventoryPatch2_ASM, 6);
 Patch* viewInvPatch3 = new Patch(Call, D2CLIENT, { 0x93A6F, 0x97E3F }, (int)ViewInventoryPatch3_ASM, 5);
@@ -511,6 +512,10 @@ void Item::OrigGetItemName(UnitAny *item, string &itemName, char *code)
 	}
 }
 
+bool __stdcall Item::OnDamagePropertyBuild(UnitAny* pItem, DamageStats* pDmgStats, int nStat, wchar_t* wOut) {
+	//
+}
+
 UnitAny* Item::GetViewUnit ()
 {
 	UnitAny* view = (viewingUnit) ? viewingUnit : D2CLIENT_GetPlayerUnit();
@@ -529,6 +534,20 @@ void __declspec(naked) ItemName_Interception()
 		call Item::ItemNamePatch
 		mov al, [ebp+0x12a]
 		ret
+	}
+}
+
+void __declspec(naked) ItemStatsRange_Interception()
+{
+	__asm {
+		push[esp + 8]			// wOut
+		push[esp + 8]			// nStat
+		push eax				// pStats
+		push[esp - 0x20 + 12]	// pItem
+
+		call Item::OnDamagePropertyBuild
+
+		ret 8
 	}
 }
 
