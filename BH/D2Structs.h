@@ -48,8 +48,8 @@
 #define _D2STRUCTS_H
 
 #include <windows.h>
-#include "D2DataTables.h"
 #include "CommonStructs.h"
+#include "D2DataTables.h"
 
 #pragma warning ( push )
 #pragma warning ( disable: 4201 )

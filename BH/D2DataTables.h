@@ -1731,8 +1731,6 @@ struct sgptDataTable {
 	BYTE*	pExperience;			//0xC78
 	DifficultyLevelsTxt*pDiffLvlsTxt;//0xC7C
 	DWORD	dwDiffLvlsRecs;			//0xC80
-// An unexpected surprise!
-#ifdef VER_113D // NOTE: not all members are correct
 	DWORD	_1;						//0xC84
 	BYTE*	pCharTemp;				//0xC88
 	DWORD	dwCharTempRecs;			//0xC8C
@@ -1759,32 +1757,6 @@ struct sgptDataTable {
 	DWORD	dwMapCacheRecs;			//0xD00
 	DWORD	_6[2];					//0xD04
     DWORD*  pIgnoreList;            //0xD0C
-#else
-	BYTE*	pExpFieldD2;			//0xC84
-	DWORD	ExpFieldData[10];		//0xC88
-	BYTE*	pLvlSubExtra;			//0xCB0
-	DWORD	dwLvlSubExtraRecs;		//0xCB4
-	BYTE*	pCharTemp;				//0xCB8
-	DWORD	dwCharTempRecs;			//0xCBC
-	ArenaTxt*pArena;				//0xCC0
-	BYTE*	pLvlTypes;				//0xCC4
-	BYTE*	pWaypoints;				//0xCC8
-	DWORD	dwWaypointsRecs;		//0xCCC
-	DWORD	dwLvlTypes;				//0xCD0
-	BYTE*	pLvlWarp;				//0xCD4
-	DWORD	dwLvlWarpRecs;			//0xCD8
-	LvlMazeTxt*	pLvlMaze;				//0xCDC
-	DWORD	dwLvlMazeRecs;			//0xCE0
-	BYTE*	pLvlSub;				//0xCE4
-	DWORD	dwLvlSubRecs;			//0xCE8
-	BYTE*	pLvlSubCache;			//0xCEC
-	DWORD	_1[3];					//0xCF0
-	BYTE*	pMapCache;				//0xCFC
-	DWORD	dwMapCacheRecs;			//0xD00
-	CubeMainTxt*	pCubeMain;		//0xD04
-	DWORD	dwCubeMainRecs;			//0xD08
-    BOOL	bWriteBinFiles;			//0xD0C
-#endif
 	};
 
 #endif
