@@ -23,20 +23,15 @@ bool Config::Parse() {
 	orderedKeyVals.clear();
 
 	//Begin to loop the configuration file one line at a time.
-	string line;
-	char szLine[2048];
+	std::string line;
 	int lineNo = 0;
-	while (!file.eof()) {
-		//Get the current line from the file.
-		file.getline(szLine, 2048);
-		line = szLine;
+	while (std::getline(file, line)) {
 		lineNo++;
-
 		std::string comment;
 		//Remove any comments from the config
-		if (line.find_first_of("//") != string::npos) {
-			comment = line.substr(line.find_first_of("//"));
-			line = line.erase(line.find_first_of("//"));
+		if (line.find("//") != string::npos) {
+			comment = line.substr(line.find("//"));
+			line = line.erase(line.find("//"));
 		}
 
 		//Insure we have something in the line now.

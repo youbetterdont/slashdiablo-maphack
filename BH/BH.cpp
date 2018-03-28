@@ -124,7 +124,6 @@ void BH::Initialize()
 	new Gamefilter();
 	new Bnet();
 	new Item();
-	new SpamFilter();
 	new AutoTele();
 	new Party();
 	new ItemMover();
