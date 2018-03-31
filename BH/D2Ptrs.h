@@ -309,7 +309,7 @@ ASMPTR(D2CLIENT, LoadAct_2, 0x62760, 0x2B420)
 ASMPTR(D2CLIENT, GetUnitFromId_I, 0xA4E20, 0x61480)
 VARPTR(D2CLIENT, pUnitTable, POINT, 0x10A608, 0x1047B8)
 
-ASMPTR(D2CLIENT, ParseStats_J, 0/*TODO*/, 0x2CE40)
+ASMPTR(D2CLIENT, ParseStats_J, 0x54E10, 0x2CE40)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // D2Common Ordinals
@@ -329,7 +329,7 @@ FUNCPTR(D2COMMON, GetLevel, Level * __fastcall, (ActMisc *pMisc, DWORD dwLevelNo
 
 FUNCPTR(D2COMMON, GetStatList, StatList* __stdcall, (UnitAny* pUnit, DWORD dwUnk, DWORD dwMaxEntries ), -10930, -10449)
 FUNCPTR(D2COMMON, CopyStatList, DWORD __stdcall, (StatList* pStatList, Stat* pStatArray, DWORD dwMaxEntries), -10658, -10195)
-FUNCPTR(D2COMMON, GetBaseStatSigned, int __stdcall, (UnitAny *pUnit, int nStat, int nLayer), 0 /*TODO*/, -10216)
+FUNCPTR(D2COMMON, GetBaseStatSigned, int __stdcall, (UnitAny *pUnit, int nStat, int nLayer), -10587, -10216)
 FUNCPTR(D2COMMON, GetUnitStat, DWORD __stdcall, (UnitAny* pUnit, DWORD dwStat, DWORD dwStat2), -10973, -10550)
 FUNCPTR(D2COMMON, GetUnitState, int __stdcall, (UnitAny *pUnit, DWORD dwStateNo), -10494, -10706)
 
@@ -345,11 +345,11 @@ FUNCPTR(D2COMMON, GetRepairCost, DWORD __stdcall, (DWORD _1, UnitAny* pUnit, DWO
 FUNCPTR(D2COMMON, GetItemMagicalMods, AutoMagicTxt* __stdcall, (int wPrefixNum), -10248, -10174)
 FUNCPTR(D2COMMON, GetItemFromInventory, UnitAny *__stdcall, (Inventory* inv), -10460, -11132)
 FUNCPTR(D2COMMON, GetNextItemFromInventory, UnitAny *__stdcall, (UnitAny *pItem), -10464, -10879)
-FUNCPTR(D2COMMON, GetItemType, int __stdcall, (UnitAny *pItem), 0 /*TODO*/, -10121)
-FUNCPTR(D2COMMON, IsMatchingType, BOOL __stdcall, (UnitAny *pItem, int iType), 0 /*TODO*/, -10601)
+FUNCPTR(D2COMMON, GetItemType, int __stdcall, (UnitAny *pItem), -11088, -10121)
+FUNCPTR(D2COMMON, IsMatchingType, BOOL __stdcall, (UnitAny *pItem, int iType), -10744, -10601)
 
-FUNCPTR(D2COMMON, GetRunesTxt, RunesTxt* __stdcall, (int RecordNo), 0 /*TODO*/, -10405)
-FUNCPTR(D2COMMON, GetRunesTxtRecords, int* __stdcall, (void), 0 /*TODO*/, -10981)
+FUNCPTR(D2COMMON, GetRunesTxt, RunesTxt* __stdcall, (int RecordNo), -10006, -10405)
+FUNCPTR(D2COMMON, GetRunesTxtRecords, int* __stdcall, (void), -11032, -10981)
 
 FUNCPTR(D2COMMON, GenerateOverheadMsg, OverheadMsg* __stdcall, (DWORD dwUnk, char* szMsg, DWORD dwTrigger), -10454, -10538)
 FUNCPTR(D2COMMON, FixOverheadMsg, void __stdcall, (OverheadMsg* pMsg, DWORD dwUnk), -10097, -10417)
@@ -373,7 +373,7 @@ FUNCPTR(D2COMMON, IsTownByRoom, BOOL __stdcall, (Room1* pRoom1), -10057, -10691)
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 VARPTR(D2COMMON, sgptDataTable, sgptDataTable*, 0x99E1C, 0xA33F0)
-VARPTR(D2COMMON, AutoMagicTxt, AutoMagicTxt*, 0 /*TODO*/, 0xA4CE4)
+VARPTR(D2COMMON, AutoMagicTxt, AutoMagicTxt*, 0x9FBC8, 0xA4CE4)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////

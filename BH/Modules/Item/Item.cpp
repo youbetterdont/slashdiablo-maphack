@@ -60,7 +60,7 @@ UnitAny* Item::viewingUnit;
 
 Patch* itemNamePatch = new Patch(Call, D2CLIENT, { 0x92366, 0x96736 }, (int)ItemName_Interception, 6);
 Patch* itemPropertyStringDamagePatch = new Patch(Call, D2CLIENT, { 0x55D7B, 0x2E04B }, (int)GetItemPropertyStringDamage_Interception, 5);
-Patch* itemPropertyStringPatch = new Patch(Call, D2CLIENT, { 0 /* TODO */, 0x2E06D }, (int)GetItemPropertyString_Interception, 5);
+Patch* itemPropertyStringPatch = new Patch(Call, D2CLIENT, { 0x55D9D, 0x2E06D }, (int) GetItemPropertyString_Interception, 5);
 Patch* viewInvPatch1 = new Patch(Call, D2CLIENT, { 0x953E2, 0x997B2 }, (int)ViewInventoryPatch1_ASM, 6);
 Patch* viewInvPatch2 = new Patch(Call, D2CLIENT, { 0x94AB4, 0x98E84 }, (int)ViewInventoryPatch2_ASM, 6);
 Patch* viewInvPatch3 = new Patch(Call, D2CLIENT, { 0x93A6F, 0x97E3F }, (int)ViewInventoryPatch3_ASM, 5);
@@ -78,7 +78,7 @@ void Item::OnLoad() {
 		Toggles["Show Rune Numbers"].state || Toggles["Alt Item Style"].state || Toggles["Shorten Item Names"].state || Toggles["Advanced Item Display"].state)
 		itemNamePatch->Install();
 
-	if (Toggles["Show Item Stat Ranges"].state) {
+	if (Toggles["Always Show Item Stat Ranges"].state) {
 		itemPropertyStringDamagePatch->Install();
 		itemPropertyStringPatch->Install();
 	}
@@ -91,7 +91,7 @@ void Item::LoadConfig() {
 	Toggles["Show Sockets"] = BH::config->ReadToggle("Show Sockets", "None", true);
 	Toggles["Show iLvl"] = BH::config->ReadToggle("Show iLvl", "None", true);
 	Toggles["Show Rune Numbers"] = BH::config->ReadToggle("Show Rune Numbers", "None", true);
-	Toggles["Show Item Stat Ranges"] = BH::config->ReadToggle("Show Item Stat Ranges", "None", true);
+	Toggles["Always Show Item Stat Ranges"] = BH::config->ReadToggle("Always Show Item Stat Ranges", "None", true);
 	Toggles["Alt Item Style"] = BH::config->ReadToggle("Alt Item Style", "None", true);
 	Toggles["Color Mod"] = BH::config->ReadToggle("Color Mod", "None", false);
 	Toggles["Shorten Item Names"] = BH::config->ReadToggle("Shorten Item Names", "None", false);
@@ -122,8 +122,8 @@ void Item::DrawSettings() {
 	new Checkhook(settingsTab, 4, 60, &Toggles["Show Rune Numbers"].state, "Show Rune #");
 	new Keyhook(settingsTab, 200, 62, &Toggles["Show Rune Numbers"].toggle, "");
 
-	new Checkhook(settingsTab, 4, 75, &Toggles["Show Item Stat Ranges"].state, "Show Item Stat Ranges");
-	new Keyhook(settingsTab, 200, 77, &Toggles["Show Item Stat Ranges"].toggle, "");
+	new Checkhook(settingsTab, 4, 75, &Toggles["Always Show Item Stat Ranges"].state, "Always Show Item Stat Ranges");
+	new Keyhook(settingsTab, 200, 77, &Toggles["Always Show Item Stat Ranges"].toggle, "");
 
 	new Checkhook(settingsTab, 4, 90, &Toggles["Alt Item Style"].state, "Alt Style");
 	new Keyhook(settingsTab, 200, 92, &Toggles["Alt Item Style"].toggle, "");
@@ -673,7 +673,7 @@ BOOL __stdcall Item::OnDamagePropertyBuild(UnitAny* pItem, DamageStats* pDmgStat
 }
 
 void __stdcall Item::OnPropertyBuild(wchar_t* wOut, int nStat, UnitAny* pItem, int nStatParam) {
-	if (!(GetKeyState(VK_CONTROL) & 0x8000) || pItem == nullptr || pItem->dwType != UNIT_ITEM) {
+	if (!(Toggles["Always Show Item Stat Ranges"].state || GetKeyState(VK_CONTROL) & 0x8000) || pItem == nullptr || pItem->dwType != UNIT_ITEM) {
 		return;
 	}
 
