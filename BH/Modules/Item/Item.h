@@ -74,7 +74,7 @@ class Item : public Module {
 
 		static void __fastcall ItemNamePatch(wchar_t *name, UnitAny *item);
 		static void OrigGetItemName(UnitAny *item, string &itemName, char *code);
-		static bool __stdcall OnDamagePropertyBuild(UnitAny* pItem, DamageStats* pDmgStats, int nStat, wchar_t* wOut);
+		static BOOL __stdcall OnDamagePropertyBuild(UnitAny* pItem, DamageStats* pDmgStats, int nStat, wchar_t* wOut);
 		static void __stdcall OnPropertyBuild(wchar_t* wOut, int nStat, UnitAny* pItem, int nStatParam);
 
 		static UnitAny* GetViewUnit();

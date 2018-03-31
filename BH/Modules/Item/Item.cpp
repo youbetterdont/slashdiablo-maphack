@@ -51,11 +51,16 @@
 #include "ItemDisplay.h"
 #include "../../MPQInit.h"
 
+ItemsTxtStat* GetAllStatModifier(ItemsTxtStat* pStats, int nStats, int nStat, ItemsTxtStat* pOrigin);
+ItemsTxtStat* GetItemsTxtStatByMod(ItemsTxtStat* pStats, int nStats, int nStat, int nStatParam);
+RunesTxt* GetRunewordTxtById(int rwId);
+
 map<std::string, Toggle> Item::Toggles;
 UnitAny* Item::viewingUnit;
 
 Patch* itemNamePatch = new Patch(Call, D2CLIENT, { 0x92366, 0x96736 }, (int)ItemName_Interception, 6);
-Patch* itemStatsRangePatch = new Patch(Call, D2CLIENT, { 0x55D7B, 0x2E04B }, (int)ItemStatsRange_Interception, 5);
+Patch* itemPropertyStringDamagePatch = new Patch(Call, D2CLIENT, { 0x55D7B, 0x2E04B }, (int)GetItemPropertyStringDamage_Interception, 5);
+Patch* itemPropertyStringPatch = new Patch(Call, D2CLIENT, { 0 /* TODO */, 0x2E06D }, (int)GetItemPropertyString_Interception, 5);
 Patch* viewInvPatch1 = new Patch(Call, D2CLIENT, { 0x953E2, 0x997B2 }, (int)ViewInventoryPatch1_ASM, 6);
 Patch* viewInvPatch2 = new Patch(Call, D2CLIENT, { 0x94AB4, 0x98E84 }, (int)ViewInventoryPatch2_ASM, 6);
 Patch* viewInvPatch3 = new Patch(Call, D2CLIENT, { 0x93A6F, 0x97E3F }, (int)ViewInventoryPatch3_ASM, 5);
@@ -73,6 +78,11 @@ void Item::OnLoad() {
 		Toggles["Show Rune Numbers"].state || Toggles["Alt Item Style"].state || Toggles["Shorten Item Names"].state || Toggles["Advanced Item Display"].state)
 		itemNamePatch->Install();
 
+	if (Toggles["Show Item Stat Ranges"].state) {
+		itemPropertyStringDamagePatch->Install();
+		itemPropertyStringPatch->Install();
+	}
+
 	DrawSettings();
 }
 
@@ -81,6 +91,7 @@ void Item::LoadConfig() {
 	Toggles["Show Sockets"] = BH::config->ReadToggle("Show Sockets", "None", true);
 	Toggles["Show iLvl"] = BH::config->ReadToggle("Show iLvl", "None", true);
 	Toggles["Show Rune Numbers"] = BH::config->ReadToggle("Show Rune Numbers", "None", true);
+	Toggles["Show Item Stat Ranges"] = BH::config->ReadToggle("Show Item Stat Ranges", "None", true);
 	Toggles["Alt Item Style"] = BH::config->ReadToggle("Alt Item Style", "None", true);
 	Toggles["Color Mod"] = BH::config->ReadToggle("Color Mod", "None", false);
 	Toggles["Shorten Item Names"] = BH::config->ReadToggle("Shorten Item Names", "None", false);
@@ -111,29 +122,34 @@ void Item::DrawSettings() {
 	new Checkhook(settingsTab, 4, 60, &Toggles["Show Rune Numbers"].state, "Show Rune #");
 	new Keyhook(settingsTab, 200, 62, &Toggles["Show Rune Numbers"].toggle, "");
 
-	new Checkhook(settingsTab, 4, 75, &Toggles["Alt Item Style"].state, "Alt Style");
-	new Keyhook(settingsTab, 200, 77, &Toggles["Alt Item Style"].toggle, "");
+	new Checkhook(settingsTab, 4, 75, &Toggles["Show Item Stat Ranges"].state, "Show Item Stat Ranges");
+	new Keyhook(settingsTab, 200, 77, &Toggles["Show Item Stat Ranges"].toggle, "");
 
-	new Checkhook(settingsTab, 4, 90, &Toggles["Color Mod"].state, "Color Mod");
-	new Keyhook(settingsTab, 200, 92, &Toggles["Color Mod"].toggle, "");
+	new Checkhook(settingsTab, 4, 90, &Toggles["Alt Item Style"].state, "Alt Style");
+	new Keyhook(settingsTab, 200, 92, &Toggles["Alt Item Style"].toggle, "");
 
-	new Checkhook(settingsTab, 4, 105, &Toggles["Shorten Item Names"].state, "Shorten Names");
-	new Keyhook(settingsTab, 200, 107, &Toggles["Shorten Item Names"].toggle, "");
+	new Checkhook(settingsTab, 4, 105, &Toggles["Color Mod"].state, "Color Mod");
+	new Keyhook(settingsTab, 200, 107, &Toggles["Color Mod"].toggle, "");
 
-	new Checkhook(settingsTab, 4, 120, &Toggles["Advanced Item Display"].state, "Advanced Item Display");
-	new Keyhook(settingsTab, 200, 122, &Toggles["Advanced Item Display"].toggle, "");
+	new Checkhook(settingsTab, 4, 120, &Toggles["Shorten Item Names"].state, "Shorten Names");
+	new Keyhook(settingsTab, 200, 122, &Toggles["Shorten Item Names"].toggle, "");
 
-	new Checkhook(settingsTab, 4, 135, &Toggles["Item Drop Notifications"].state, "Item Drop Notifications");
-	new Keyhook(settingsTab, 200, 137, &Toggles["Item Drop Notifications"].toggle, "");
+	new Checkhook(settingsTab, 4, 135, &Toggles["Advanced Item Display"].state, "Advanced Item Display");
+	new Keyhook(settingsTab, 200, 137, &Toggles["Advanced Item Display"].toggle, "");
 
-	new Checkhook(settingsTab, 4, 150, &Toggles["Item Close Notifications"].state, "Item Close Notifications");
-	new Keyhook(settingsTab, 200, 152, &Toggles["Item Close Notifications"].toggle, "");
+	new Checkhook(settingsTab, 4, 150, &Toggles["Item Drop Notifications"].state, "Item Drop Notifications");
+	new Keyhook(settingsTab, 200, 152, &Toggles["Item Drop Notifications"].toggle, "");
 
-	new Keyhook(settingsTab, 4, 167, &showPlayer, "Show Players Gear");
+	new Checkhook(settingsTab, 4, 165, &Toggles["Item Close Notifications"].state, "Item Close Notifications");
+	new Keyhook(settingsTab, 200, 167, &Toggles["Item Close Notifications"].toggle, "");
+
+	new Keyhook(settingsTab, 4, 182, &showPlayer, "Show Players Gear");
 }
 
 void Item::OnUnload() {
 	itemNamePatch->Remove();
+	itemPropertyStringDamagePatch->Remove();
+	itemPropertyStringPatch->Remove();
 	viewInvPatch1->Remove();
 	viewInvPatch2->Remove();
 	viewInvPatch3->Remove();
@@ -513,7 +529,7 @@ void Item::OrigGetItemName(UnitAny *item, string &itemName, char *code)
 	}
 }
 
-bool __stdcall Item::OnDamagePropertyBuild(UnitAny* pItem, DamageStats* pDmgStats, int nStat, wchar_t* wOut) {
+BOOL __stdcall Item::OnDamagePropertyBuild(UnitAny* pItem, DamageStats* pDmgStats, int nStat, wchar_t* wOut) {
 	wchar_t newDesc[128];
 
 	// Ignore a max stat, use just a min dmg prop to gen the property string
@@ -522,7 +538,7 @@ bool __stdcall Item::OnDamagePropertyBuild(UnitAny* pItem, DamageStats* pDmgStat
 		return TRUE;
 
 	int stat_min, stat_max;
-	wchar_t* szProp = 0;
+	wchar_t* szProp = nullptr;
 	bool ranged = true;
 	if (nStat == STAT_MINIMUMFIREDAMAGE) {
 		if (pDmgStats->nFireDmgRange == 0)
@@ -601,7 +617,7 @@ bool __stdcall Item::OnDamagePropertyBuild(UnitAny* pItem, DamageStats* pDmgStat
 	else if (nStat == STAT_SECONDARYMAXIMUMDAMAGE) {
 		if (pDmgStats->dword14)
 			return TRUE;
-		return pDmgStats->nDmgRange;
+		return pDmgStats->nDmgRange != 0;
 	}
 	else if (nStat == STAT_MINIMUMDAMAGE || nStat == STAT_MAXIMUMDAMAGE || nStat == STAT_SECONDARYMINIMUMDAMAGE) {
 		if (pDmgStats->dword14)
@@ -625,14 +641,15 @@ bool __stdcall Item::OnDamagePropertyBuild(UnitAny* pItem, DamageStats* pDmgStat
 	}
 	else if (nStat == STAT_ENHANCEDMINIMUMDAMAGE) {
 		if (!pDmgStats->nDmgPercentRange)
-			return false;
+			return FALSE;
 		stat_min = pDmgStats->nMinDmgPercent;
 		stat_max = (int) (D2LANG_GetLocaleText(10023)); // "Enhanced damage"
 		szProp = L"+%d%% %s\n";
 	}
 
-	if (!szProp)
+	if (szProp == nullptr) {
 		return FALSE;
+	}
 
 	if (ranged) {
 		swprintf_s(newDesc, 128, szProp, stat_min, stat_max);
@@ -646,11 +663,268 @@ bool __stdcall Item::OnDamagePropertyBuild(UnitAny* pItem, DamageStats* pDmgStat
 		newDesc[wcslen(newDesc) - 1] = L'\0';
 	if (newDesc[wcslen(newDesc) - 1] == L'\n')
 		newDesc[wcslen(newDesc) - 1] = L'\0';
-	// OnPropertyBuild(newDesc, nStat, pItem, NULL);
+
+	OnPropertyBuild(newDesc, nStat, pItem, 0);
 	// Beside this add-on the function is almost 1:1 copy of Blizzard's one -->
 	wcscat_s(wOut, 1024, newDesc);
 	wcscat_s(wOut, 1024, L"\n");
+
 	return TRUE;
+}
+
+void __stdcall Item::OnPropertyBuild(wchar_t* wOut, int nStat, UnitAny* pItem, int nStatParam) {
+	if (!(GetKeyState(VK_CONTROL) & 0x8000) || pItem == nullptr || pItem->dwType != UNIT_ITEM) {
+		return;
+	}
+
+	ItemsTxtStat* stat = nullptr;
+	ItemsTxtStat* all_stat = nullptr; // Stat for common modifer like all-res, all-stats
+
+	switch (pItem->pItemData->dwQuality) {
+	case ITEM_QUALITY_SET:
+	{
+		SetItemsTxt * pTxt = &(*p_D2COMMON_sgptDataTable)->pSetItemsTxt[pItem->pItemData->dwFileIndex];
+		if (!pTxt)
+			break;
+		stat = GetItemsTxtStatByMod(pTxt->hStats, 9 + 10, nStat, nStatParam);
+		if (stat)
+			all_stat = GetAllStatModifier(pTxt->hStats, 9 + 10, nStat, stat);
+	}
+	case ITEM_QUALITY_UNIQUE:
+	{
+		if (pItem->pItemData->dwQuality == ITEM_QUALITY_UNIQUE) {
+			UniqueItemsTxt * pTxt = &(*p_D2COMMON_sgptDataTable)->pUniqueItemsTxt[pItem->pItemData->dwFileIndex];
+			if (pTxt == nullptr) {
+				break;
+			}
+
+			stat = GetItemsTxtStatByMod(pTxt->hStats, 12, nStat, nStatParam);
+
+			if (stat != nullptr) {
+				all_stat = GetAllStatModifier(pTxt->hStats, 12, nStat, stat);
+			}
+		}
+		
+		if (stat != nullptr) {
+			int statMin = stat->dwMin;
+			int statMax = stat->dwMax;
+
+			if (all_stat != nullptr) {
+				statMin += all_stat->dwMin;
+				statMax += all_stat->dwMax;
+			}
+
+			if (statMin < statMax) {
+				int	aLen = wcslen(wOut);
+				int leftSpace = 128 - aLen > 0 ? 128 - aLen : 0;
+
+				if (nStat == STAT_LIFEPERLEVEL || nStat == STAT_MANAPERLEVEL || nStat == STAT_MAXENHANCEDDMGPERLEVEL || nStat == STAT_MAXDAMAGEPERLEVEL)
+				{
+					statMin = D2COMMON_GetBaseStatSigned(D2CLIENT_GetPlayerUnit(), STAT_LEVEL, 0) * statMin >> 3;
+					statMax = D2COMMON_GetBaseStatSigned(D2CLIENT_GetPlayerUnit(), STAT_LEVEL, 0) * statMax >> 3;
+				}
+				if (leftSpace) {
+					swprintf_s(wOut + aLen, leftSpace, L" %s[%d - %d]%s", GetColorCode(TextColor::Yellow).c_str(), statMin, statMax, GetColorCode(TextColor::Blue).c_str());
+				}
+			}
+		}
+	} break;
+	default:
+	{
+		if (pItem->pItemData->dwFlags & ITEM_RUNEWORD) {
+			RunesTxt* pTxt = GetRunewordTxtById(pItem->pItemData->wPrefix[0]);
+			if (!pTxt)
+				break;
+			stat = GetItemsTxtStatByMod(pTxt->hStats, 7, nStat, nStatParam);
+			if (stat) {
+				int statMin = stat->dwMin;
+				int statMax = stat->dwMax;
+
+				all_stat = GetAllStatModifier(pTxt->hStats, 7, nStat, stat);
+
+				if (all_stat) {
+					statMin += all_stat->dwMin;
+					statMax += all_stat->dwMax;
+				}
+
+				if (stat->dwMin != stat->dwMax) {
+					int	aLen = wcslen(wOut);
+					int leftSpace = 128 - aLen > 0 ? 128 - aLen : 0;
+
+					if (nStat == STAT_LIFEPERLEVEL || nStat == STAT_MANAPERLEVEL || nStat == STAT_MAXENHANCEDDMGPERLEVEL || nStat == STAT_MAXDAMAGEPERLEVEL)
+					{
+						statMin = D2COMMON_GetBaseStatSigned(D2CLIENT_GetPlayerUnit(), STAT_LEVEL, 0) * statMin >> 3;
+						statMax = D2COMMON_GetBaseStatSigned(D2CLIENT_GetPlayerUnit(), STAT_LEVEL, 0) * statMax >> 3;
+					}
+					if (leftSpace)
+						swprintf_s(wOut + aLen, leftSpace, L" %s[%d - %d]%s", GetColorCode(TextColor::Yellow).c_str(), statMin, statMax, GetColorCode(TextColor::Blue).c_str());
+				}
+			}
+		}
+		else if (pItem->pItemData->dwQuality == ITEM_QUALITY_MAGIC || pItem->pItemData->dwQuality == ITEM_QUALITY_RARE || pItem->pItemData->dwQuality == ITEM_QUALITY_CRAFT)
+		{
+			int nAffixes = *p_D2COMMON_AutoMagicTxt - D2COMMON_GetItemMagicalMods(1); // Number of affixes without Automagic
+			int min = 0, max = 0;
+			int type = D2COMMON_GetItemType(pItem);
+			for (int i = 1;; ++i) {
+				if (!pItem->pItemData->wAutoPrefix && i > nAffixes) // Don't include Automagic.txt affixes if item doesn't use them
+					break;
+				AutoMagicTxt* pTxt = D2COMMON_GetItemMagicalMods(i);
+				if (!pTxt)
+					break;
+				//Skip if stat level is > 99 or affix is prelod
+				if (pTxt->dwLevel > 99 || !pTxt->wVersion)
+					continue;
+				//Skip if stat is not spawnable
+				if (pItem->pItemData->dwQuality < ITEM_QUALITY_CRAFT && !pTxt->wSpawnable)
+					continue;
+				//Skip for rares+
+				if (pItem->pItemData->dwQuality >= ITEM_QUALITY_RARE  && !pTxt->nRare)
+					continue;
+				//Firstly check Itemtype
+				bool found_itype = false;
+				bool found_etype = false;
+
+				for (int j = 0; j < 5; ++j)
+				{
+					if (!pTxt->wEType[j] || pTxt->wEType[j] == 0xFFFF)
+						break;
+					if (D2COMMON_IsMatchingType(pItem, pTxt->wEType[j])) {
+						found_etype = true;
+						break;
+					}
+				}
+				if (found_etype) // next if excluded type
+					continue;
+
+				for (int j = 0; j < 7; ++j)
+				{
+					if (!pTxt->wIType[j] || pTxt->wIType[j] == 0xFFFF)
+						break;
+					if (D2COMMON_IsMatchingType(pItem, pTxt->wIType[j])) {
+						found_itype = true;
+						break;
+					}
+				}
+				if (!found_itype)
+					continue;
+
+				stat = GetItemsTxtStatByMod(pTxt->hMods, 3, nStat, nStatParam);
+				if (!stat)
+					continue;
+				min = min == 0 ? stat->dwMin : ((stat->dwMin < min) ? stat->dwMin : min);
+				max = (stat->dwMax > max) ? stat->dwMax : max;
+				//DEBUGMSG(L"%s: update min to %d, and max to %d (record #%d)", wOut, min, max, i)
+			}
+			if (min < max) {
+				int	aLen = wcslen(wOut);
+				int leftSpace = 128 - aLen > 0 ? 128 - aLen : 0;
+				if (nStat == STAT_MAXENHANCEDDMGPERLEVEL || nStat == STAT_MAXDAMAGEPERLEVEL || nStat == STAT_LIFEPERLEVEL || nStat == STAT_MANAPERLEVEL)
+				{
+					min = D2COMMON_GetBaseStatSigned(D2CLIENT_GetPlayerUnit(), STAT_LEVEL, 0) * min >> 3;
+					max = D2COMMON_GetBaseStatSigned(D2CLIENT_GetPlayerUnit(), STAT_LEVEL, 0) * max >> 3;
+				}
+				if (leftSpace)
+					swprintf_s(wOut + aLen, leftSpace, L" %s[%d - %d]%s", GetColorCode(TextColor::Yellow).c_str(), min, max, GetColorCode(TextColor::Blue).c_str());
+			}
+		}
+
+	} break;
+
+	}
+}
+
+/*
+	Search mod used in MagicPrefix.txt, UniqueItemsTxt, RunesTxt, etc. (index from Properties.txt) by ItemStatCost.txt stat index
+	@param nStatParam - param column for property (skill id etc)
+	@param nStat - ItemStatCost.txt record id
+	@param nStats - number of pStats
+	@param pStats - pointer to ItemsTxtStat* array [PropertiesTxt Id, min, max val)
+*/
+ItemsTxtStat* GetItemsTxtStatByMod(ItemsTxtStat* pStats, int nStats, int nStat, int nStatParam)
+{
+	if (nStat == STAT_SKILLONKILL || nStat == STAT_SKILLONHIT || nStat == STAT_SKILLONSTRIKING || nStat == STAT_SKILLONDEATH ||
+		nStat == STAT_SKILLONLEVELUP || nStat == STAT_SKILLWHENSTRUCK || nStat == STAT_CHARGED ||
+		nStat == STAT_MINIMUMCOLDDAMAGE || nStat == STAT_MINIMUMLIGHTNINGDAMAGE || nStat == STAT_MINIMUMFIREDAMAGE || nStat == STAT_MINIMUMPOISONDAMAGE || nStat == STAT_MINIMUMMAGICALDAMAGE) // Skip skills without ranges
+	{
+		return nullptr;
+	}
+	for (int i = 0; i<nStats; ++i) {
+		if (pStats[i].dwProp == 0xffffffff) {
+			break;
+		}
+		PropertiesTxt * pProp = &(*p_D2COMMON_sgptDataTable)->pPropertiesTxt[pStats[i].dwProp];
+		if (pProp == nullptr) {
+			break;
+		}
+		if (pProp->wStat[0] == 0xFFFF && pProp->nFunc[0] == 7 && (nStat == STAT_ENHANCEDDAMAGE || nStat == STAT_ENHANCEDMINIMUMDAMAGE || nStat == STAT_ENHANCEDMAXIMUMDAMAGE ||
+			nStat == STAT_MAXENHANCEDDMGPERTIME || nStat == STAT_MAXENHANCEDDMGPERLEVEL)) {
+			return &pStats[i];
+		}
+		else if (pProp->wStat[0] == 0xFFFF && pProp->nFunc[0] == 6 && (nStat == STAT_MAXIMUMDAMAGE || nStat == STAT_SECONDARYMAXIMUMDAMAGE ||
+			nStat == STAT_MAXDAMAGEPERTIME || nStat == STAT_MAXDAMAGEPERLEVEL)) {
+			return &pStats[i];
+		}
+		else if (pProp->wStat[0] == 0xFFFF && pProp->nFunc[0] == 5 && (nStat == STAT_MINIMUMDAMAGE || nStat == STAT_SECONDARYMINIMUMDAMAGE)) {
+			return &pStats[i];
+		}
+		for (int j = 0; j < 7; ++j)
+		{
+			if (pProp->wStat[j] == 0xFFFF) {
+				break;
+			}
+			if (pProp->wStat[j] == nStat && pStats[i].dwPar == nStatParam) {
+				return &pStats[i];
+			}
+		}
+	}
+	return nullptr;
+}
+
+/*
+	Find other mod that inflates the original
+	@param pOrigin  - original stat
+	@param nStat - ItemStatCost.txt record id
+	@param nStats - number of pStats
+	@param pStats - pointer to ItemsTxtStat* array [PropertiesTxt Id, min, max val)
+*/
+ItemsTxtStat* GetAllStatModifier(ItemsTxtStat* pStats, int nStats, int nStat, ItemsTxtStat* pOrigin)
+{
+	for (int i = 0; i<nStats; ++i) {
+		if (pStats[i].dwProp == 0xffffffff)
+			break;
+		if (pStats[i].dwProp == pOrigin->dwProp)
+			continue;
+
+		PropertiesTxt * pProp = &(*p_D2COMMON_sgptDataTable)->pPropertiesTxt[pStats[i].dwProp];
+		if (pProp == nullptr) {
+			break;
+		}
+
+		for (int j = 0; j < 7; ++j) {
+			if (pProp->wStat[j] == 0xFFFF) {
+				break;
+			}
+			if (pProp->wStat[j] == nStat) {
+				return &pStats[i];
+			}
+		}
+	}
+	return nullptr;
+}
+
+RunesTxt* GetRunewordTxtById(int rwId)
+{
+	int n = *(D2COMMON_GetRunesTxtRecords());
+	for (int i = 1; i < n; ++i)
+	{
+		RunesTxt* pTxt = D2COMMON_GetRunesTxt(i);
+		if (!pTxt)
+			break;
+		if (pTxt->dwRwId == rwId)
+			return pTxt;
+	}
+	return 0;
 }
 
 UnitAny* Item::GetViewUnit ()
@@ -674,7 +948,12 @@ void __declspec(naked) ItemName_Interception()
 	}
 }
 
-void __declspec(naked) ItemStatsRange_Interception()
+/*	Wrapper over D2CLIENT.0x2E04B (1.13d)
+	BOOL __userpurge ITEMS_BuildDamagePropertyDesc@<eax>(DamageStats *pStats@<eax>, int nStat, wchar_t *wOut)
+	Function is pretty simple so I decided to rewrite it.
+	@esp-0x20:	pItem
+*/
+void __declspec(naked) GetItemPropertyStringDamage_Interception()
 {
 	__asm {
 		push[esp + 8]			// wOut
@@ -685,6 +964,48 @@ void __declspec(naked) ItemStatsRange_Interception()
 		call Item::OnDamagePropertyBuild
 
 		ret 8
+	}
+}
+
+/* Wrapper over D2CLIENT.0x2E06D (1.13d)
+	As far I know this: int __userpurge ITEMS_ParseStats_6FADCE40<eax>(signed __int32 nStat<eax>, wchar_t *wOut<esi>, UnitAny *pItem, StatListEx *pStatList, DWORD nStatParam, DWORD nStatValue, int a7)
+	Warning: wOut is 128 words length only!
+	@ebx the nStat value
+	@edi pStatListEx
+	@esp-0x10 seems to always keep pItem *careful*
+*/
+void __declspec(naked) GetItemPropertyString_Interception()
+{
+	static DWORD rtn = 0; // if something is stupid but works then it's not stupid!
+	__asm
+	{
+		pop rtn
+		// Firstly generate string using old function
+		call D2CLIENT_ParseStats_J
+		push rtn
+
+		push [esp - 4] // preserve nStatParam
+
+		push eax // Store result
+		mov eax, [esp - 0x10 + 8 + 4] // pItem
+		push ecx
+		push edx
+
+		// Then pass the output to our func
+		push [esp + 12] // nStatParam
+		push eax // pItem
+		push ebx // nStat
+		push esi // wOut
+
+		call Item::OnPropertyBuild
+
+		pop edx
+		pop ecx
+		pop eax
+
+		add esp, 4 // clean nStatParam
+
+		ret
 	}
 }
 
