@@ -73,19 +73,51 @@ Mustache[stash]: {{#this}}* {{>item}}\n\n{{/this}}
   * PRES for poison resistance
   * Stats can now be combined in a limited pool by adding a + between them:
 	* STR, DEX, LIFE, MANA, FRES, LRES, CRES, PRES
-	* EX: STR+DEX+FRES>40
+	* Example config lines:
+	  * `ItemDisplay[EQ5 RARE FRW>10 CRES+LRES+FRES>79]: %PURPLE%o %YELLOW%%NAME%%MAP% // GG Boots`
+	  * `ItemDisplay[amu !SET FCR>9 (STR+DEX+LIFE>14 OR CRES+LRES+FRES>29)]: %PURPLE%o %YELLOW%%NAME%%MAP% // GG Amulets`
   * FOOLS for Fool's mod. Used without any operators or numbers
+    * Example config line:
+	  * `ItemDisplay[WEAPON RARE FOOLS ED>199 IAS>10]: %RED%o %YELLOW%%NAME%%MAP%`
   * GOODSK for + skills of any of the user defined good classes
   * GOODTBSK for + skills tab of any of the user defined good tab skills
-  * Configuration file has two new lines:
-    * Skills:				True, None
-    * ClassSkills:			True, None
-	* This is followed by a line for each Class skill and Tab skill like so:
-      * SkillsList[6]:			False		// Assassin
-      * ClassSkillsList[2]:		True		// Amazon Javelin
-      * ClassSkillsList[8]:		True		// Sorceress Fire
-	* The numbers in braces corresponds to the internal code for the skill so it is important
 
+* To utilize Good Class/Tab skills add the following to the .cfg
+```
+// GOODSK & GOODTBSK
+Skills:				True, None
+TabSkills:			True, None
+
+SkillsList[0]: 			False		// Amazon
+SkillsList[1]: 			True		// Sorceress
+SkillsList[2]: 			True		// Necromancer
+SkillsList[3]: 			True		// Paladin
+SkillsList[4]: 			True		// Barbarian
+SkillsList[5]: 			True		// Druid
+SkillsList[6]:			True		// Assassin
+TabSkillsList[0]:		False		// Amazon Bow
+TabSkillsList[1]:		False		// Amazon Passive
+TabSkillsList[2]:		True		// Amazon Javelin
+TabSkillsList[8]:		True		// Sorceress Fire
+TabSkillsList[9]:		True		// Sorceress Lightning
+TabSkillsList[10]:		True		// Sorceress Cold
+TabSkillsList[16]:		False		// Necromancer Curses
+TabSkillsList[17]:		True		// Necromancer Poison & Bone
+TabSkillsList[18]:		False		// Necromancer Summoning
+TabSkillsList[24]:		True		// Paladin Combat
+TabSkillsList[25]:		False		// Paladin Offensive
+TabSkillsList[26]:		False		// Paladin Defensive
+TabSkillsList[32]:		False		// Barbarian Combat
+TabSkillsList[33]:		False		// Barbarian Masteries
+TabSkillsList[34]:		True		// Barbarian Warcries
+TabSkillsList[40]:		False		// Druid Summoning
+TabSkillsList[41]:		False		// Druid Shapeshifting
+TabSkillsList[42]:		True		// Druid Elemental
+TabSkillsList[48]:		True		// Assassin Traps
+TabSkillsList[49]:		False		// Assassin Shadow Disciplines
+TabSkillsList[50]:		False		// Assassin Martial Arts
+```
+* The numbers in braces corresponds to the internal code for the skill so it is important
 
 
 # Release Notes for BH Maphack v1.8
