@@ -13,3 +13,4 @@
 #include "Modules\AutoTele\AutoTele.h"
 #include "Modules\Party\Party.h"
 #include "Modules\StashExport\StashExport.h"
+#include "Modules\ChatColor\ChatColor.h"

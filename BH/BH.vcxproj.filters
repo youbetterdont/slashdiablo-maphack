@@ -261,6 +261,9 @@
     <ClCompile Include="D2Version.cpp">
       <Filter>Diablo II\Version</Filter>
     </ClCompile>
+    <ClCompile Include="Modules\ChatColor\ChatColor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="D2Structs.h">
@@ -433,6 +436,9 @@
     </ClInclude>
     <ClInclude Include="D2Version.h">
       <Filter>Diablo II\Version</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\ChatColor\ChatColor.h">
+      <Filter>Diablo II</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
