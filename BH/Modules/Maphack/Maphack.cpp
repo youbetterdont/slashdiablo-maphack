@@ -18,6 +18,7 @@ Patch* weatherPatch = new Patch(Jump, D2COMMON, { 0x6CC56, 0x30C36 }, (int)Weath
 Patch* lightingPatch = new Patch(Call, D2CLIENT, { 0xA9A37, 0x233A7 }, (int)Lighting_Interception, 6);
 Patch* infraPatch = new Patch(Call, D2CLIENT, { 0x66623, 0xB4A23 }, (int)Infravision_Interception, 7);
 Patch* shakePatch = new Patch(Call, D2CLIENT, { 0x442A2, 0x452F2 }, (int)Shake_Interception, 5);
+Patch* monsterNamePatch = new Patch(Call, D2WIN, { 0x13550, 0 }, (int)HoverObject_Interception, 5);
 
 DrawDirective automapDraw(true, 5);
 
@@ -116,6 +117,7 @@ void Maphack::ReadConfig() {
 	Toggles["Infravision"] = BH::config->ReadToggle("Infravision", "None", true);
 	Toggles["Remove Shake"] = BH::config->ReadToggle("Remove Shake", "None", false);
 	Toggles["Display Level Names"] = BH::config->ReadToggle("Display Level Names", "None", true);
+	Toggles["Monster Resistances"] = BH::config->ReadToggle("Monster Resistances", "None", true);
 
 	automapDraw.maxGhost = BH::config->ReadInt("Minimap Max Ghost", 5);
 }
@@ -151,6 +153,11 @@ void Maphack::ResetPatches() {
 		shakePatch->Install();
 	else
 		shakePatch->Remove();
+	//Monster Health Bar Patch
+	if (Toggles["Monster Resistances"].state)
+		monsterNamePatch->Install();
+	else
+		monsterNamePatch->Remove();
 
 }
 
@@ -186,6 +193,9 @@ void Maphack::OnLoad() {
 
 	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Remove Shake"].state, "Remove Shake");
 	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Remove Shake"].toggle, "");
+
+	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Monster Resistances"].state, "Monster Resistances");
+	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Monster Resistances"].toggle, "");
 
 	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Display Level Names"].state, "Level Names");
 	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Display Level Names"].toggle, "");
@@ -783,6 +793,42 @@ Level* Maphack::GetLevel(Act* pAct, int level)
 	return D2COMMON_GetLevel(pAct->pMisc, level);
 }
 
+int HoverMonsterColor(UnitAny *pUnit) {
+	if (pUnit->pMonsterData->fBoss)
+		return Gold;
+	else
+		return White;
+}
+int HoverObjectPatch(UnitAny* pUnit, DWORD tY, DWORD unk1, DWORD unk2, DWORD tX, wchar_t *wTxt)
+{
+	if (!pUnit || pUnit->dwType != UNIT_MONSTER || pUnit->pMonsterData->pMonStatsTxt->bAlign != MONSTAT_ALIGN_ENEMY)
+		return 0;
+	DWORD dwImmunities[] = {
+		STAT_DMGREDUCTIONPCT,
+		STAT_MAGICDMGREDUCTIONPCT,
+		STAT_FIRERESIST,
+		STAT_LIGHTNINGRESIST,
+		STAT_COLDRESIST,
+		STAT_POISONRESIST
+	};
+	int dwResistances[] = {
+		0,0,0,0,0,0
+	};
+	for (int n = 0; n < 6; n++) {
+		dwResistances[n] = D2COMMON_GetUnitStat(pUnit, dwImmunities[n], 0);
+	}
+	double maxhp = (double)(D2COMMON_GetUnitStat(pUnit, STAT_MAXHP, 0) >> 8);
+	double hp = (double)(D2COMMON_GetUnitStat(pUnit, STAT_HP, 0) >> 8);
+	POINT p = Texthook::GetTextSize(wTxt, 1);
+	int center = tX + (p.x / 2);
+	int y = tY - p.y;
+	Texthook::Draw(center, y - 12, Center, 6, White, L"ÿc7%d ÿc8%d ÿc1%d ÿc9%d ÿc3%d ÿc2%d", dwResistances[0], dwResistances[1], dwResistances[2], dwResistances[3], dwResistances[4], dwResistances[5]);
+	Texthook::Draw(center, y, Center, 6, White, L"ÿc%d%s", HoverMonsterColor(pUnit), wTxt);
+	Texthook::Draw(center, y + 8, Center, 6, White, L"%.0f%%", (hp / maxhp) * 100.0);
+	return 1;
+}
+
+
 void __declspec(naked) Weather_Interception()
 {
 	__asm {
@@ -832,5 +878,38 @@ VOID __stdcall Shake_Interception(LPDWORD lpX, LPDWORD lpY)
 	*p_D2CLIENT_yShake = 0;
 
 }
+
+//basically call HoverObjectPatch, if that function returns 0 execute
+//the normal display code used basically for any hovered 
+//object text (stash, merc, akara, etc...). if it returned 1
+//that means we did our custom display text and shouldn't
+//execute the draw method
+void __declspec(naked) HoverObject_Interception()
+{
+	static DWORD rtn = 0;
+	__asm {
+		pop rtn
+		push eax
+		push ecx
+		push edx
+		call D2CLIENT_HoveredUnit_I
+		push[esp + 0x10]
+		push eax
+		call HoverObjectPatch
+		cmp eax, 0
+		je origobjectname
+		push rtn
+		ret 0x28
+		origobjectname:
+		add esp, 0x8
+		pop edx
+		pop ecx
+		pop eax
+		call D2WIN_DrawTextBuffer
+		push rtn
+		ret
+	}
+}
+
 
 #pragma optimize( "", on)

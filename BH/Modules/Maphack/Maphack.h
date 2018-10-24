@@ -69,3 +69,4 @@ void Weather_Interception();
 void Lighting_Interception();
 void Infravision_Interception();
 void __stdcall Shake_Interception(LPDWORD lpX, LPDWORD lpY);
+void HoverObject_Interception();

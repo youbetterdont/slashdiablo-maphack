@@ -6,9 +6,9 @@
 #include <vector>
 #include <ctime>
 
-typedef std::map<const std::string, int> TokenList;
-typedef std::map<const std::string, double> TokenProb;
-typedef std::vector<const std::string> Tokens;
+typedef std::map<std::string, int> TokenList;
+typedef std::map<std::string, double> TokenProb;
+typedef std::vector<std::string> Tokens;
 
 enum BayesTokenType { Spam, Ham };
 
