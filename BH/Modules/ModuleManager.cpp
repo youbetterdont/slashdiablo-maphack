@@ -1,6 +1,7 @@
 #include "ModuleManager.h"
 #include "Module.h"
-
+#include "../D2Helpers.h"
+#include "../BH.h"
 #include <algorithm>
 #include <iterator>
 
@@ -75,9 +76,24 @@ bool ModuleManager::UserInput(wchar_t* module, wchar_t* msg, bool fromGame) {
 	std::string name;
 	std::wstring modname(module);
 	name.assign(modname.begin(), modname.end());
+	transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+	if (name.compare("reload") == 0)
+	{
+		ReloadConfig();
+		Print("ÿc4BH:ÿc0 Successfully reloaded configuration.");
+		return true;
+	}
+
+	if (name.compare("save") == 0) {
+		BH::config->Write();
+		Print("ÿc4BH:ÿc0 Successfully saved configuration.");
+	}
+
 	for (map<string, Module*>::iterator it = moduleList.begin(); it != moduleList.end(); ++it) {
-		if(it->first == name)
+		if (name.compare((*it).first) == 0) {
 			__raise it->second->UserInput(msg, fromGame, &block);
+		}
 	}
 	return block;
 }

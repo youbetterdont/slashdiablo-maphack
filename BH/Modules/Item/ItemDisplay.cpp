@@ -39,6 +39,7 @@ enum Operation {
 };
 
 std::map<std::string, int> UnknownItemCodes;
+vector<pair<string, string>> rules;
 vector<Rule*> RuleList;
 vector<Rule*> MapRuleList;
 vector<Rule*> IgnoreRuleList;
@@ -300,7 +301,7 @@ namespace ItemDisplay {
 		}
 
 		item_display_initialized = true;
-		vector<pair<string, string>> rules = BH::config->ReadMapList("ItemDisplay");
+		BH::config->ReadMapList("ItemDisplay", rules);
 		for (unsigned int i = 0; i < rules.size(); i++) {
 			string buf;
 			stringstream ss(rules[i].first);

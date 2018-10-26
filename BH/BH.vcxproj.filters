@@ -106,9 +106,6 @@
     <Filter Include="BH\Modules\AutoTele\ATIncludes">
       <UniqueIdentifier>{c11d2279-0496-458c-bdf3-a5471ff32db2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="BH\Modules\SpamFilter">
-      <UniqueIdentifier>{e4c4be98-ecd3-4780-bd32-dbba0053421b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="BH\Modules\Party">
       <UniqueIdentifier>{a3450bb5-084b-42dd-b29d-0ef11e7a976d}</UniqueIdentifier>
     </Filter>
@@ -215,12 +212,6 @@
     </ClCompile>
     <ClCompile Include="Modules\AutoTele\AutoTele.cpp">
       <Filter>BH\Modules\AutoTele</Filter>
-    </ClCompile>
-    <ClCompile Include="Modules\SpamFilter\SpamFilter.cpp">
-      <Filter>BH\Modules\SpamFilter</Filter>
-    </ClCompile>
-    <ClCompile Include="Modules\SpamFilter\Bayes.cpp">
-      <Filter>BH\Modules\SpamFilter</Filter>
     </ClCompile>
     <ClCompile Include="Modules\Party\Party.cpp">
       <Filter>BH\Modules\Party</Filter>
@@ -382,12 +373,6 @@
     </ClInclude>
     <ClInclude Include="Modules\AutoTele\ATIncludes\SyncObj.h">
       <Filter>BH\Modules\AutoTele\ATIncludes</Filter>
-    </ClInclude>
-    <ClInclude Include="Modules\SpamFilter\Bayes.h">
-      <Filter>BH\Modules\SpamFilter</Filter>
-    </ClInclude>
-    <ClInclude Include="Modules\SpamFilter\SpamFilter.h">
-      <Filter>BH\Modules\SpamFilter</Filter>
     </ClInclude>
     <ClInclude Include="Modules\Party\Party.h">
       <Filter>BH\Modules\Party</Filter>

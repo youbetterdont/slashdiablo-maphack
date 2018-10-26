@@ -25,11 +25,11 @@ void ScreenInfo::OnLoad() {
 }
 
 void ScreenInfo::LoadConfig() {
-	Toggles["Experience Meter"] = BH::config->ReadToggle("Experience Meter", "VK_NUMPAD7", false);
+	BH::config->ReadToggle("Experience Meter", "VK_NUMPAD7", false, Toggles["Experience Meter"]);
 
-	automapInfo = BH::config->ReadArray("AutomapInfo");
+	BH::config->ReadArray("AutomapInfo", automapInfo);
 
-	map<string, string> SkillWarnings = BH::config->ReadAssoc("Skill Warning");
+	BH::config->ReadAssoc("Skill Warning", SkillWarnings);
 	SkillWarningMap.clear();
 	for (auto it = SkillWarnings.cbegin(); it != SkillWarnings.cend(); it++) {
 		if (StringToBool((*it).second)) {

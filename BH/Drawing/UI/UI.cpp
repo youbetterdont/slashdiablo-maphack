@@ -163,9 +163,10 @@ void UI::SetMinimized(bool newState) {
 	if (newState == minimized) 
 		return; 
 	Lock();  
-	if (newState)
-		Minimized.push_back(this); 
-	else
+	if (newState) {
+		Minimized.push_back(this);
+		BH::config->Write();
+	} else
 		Minimized.remove(this); 
 	minimized = newState; 
 	WritePrivateProfileString(name.c_str(), "Minimized", to_string<bool>(newState).c_str(), string(BH::path + "UI.ini").c_str());
