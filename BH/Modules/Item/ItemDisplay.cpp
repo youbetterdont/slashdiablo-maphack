@@ -301,6 +301,7 @@ namespace ItemDisplay {
 		}
 
 		item_display_initialized = true;
+		rules.clear();
 		BH::config->ReadMapList("ItemDisplay", rules);
 		for (unsigned int i = 0; i < rules.size(); i++) {
 			string buf;

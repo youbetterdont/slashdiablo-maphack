@@ -391,7 +391,6 @@ map<string, unsigned int> Config::ReadAssoc(std::string key, map<string, unsigne
 }
 
 vector<pair<string, string>> Config::ReadMapList(std::string key, vector<pair<string, string>>& values) {
-	vector<pair<string, string>> ret;
 
 	for (vector<pair<string, string>>::iterator it = orderedKeyVals.begin(); it != orderedKeyVals.end(); it++) {
 		if (!(*it).first.find(key + "[")) {
@@ -400,11 +399,11 @@ vector<pair<string, string>> Config::ReadMapList(std::string key, vector<pair<st
 			assoc.first = (*it).first.substr((*it).first.find("[") + 1, (*it).first.length() - (*it).first.find("[") - 2);
 			//Also store the value
 			assoc.second = (*it).second;
-			ret.push_back(assoc);
+			values.push_back(assoc);
 		}
 	}
 
-	return ret;
+	return values;
 }
 
 list<string> Config::GetDefinedKeys() {
