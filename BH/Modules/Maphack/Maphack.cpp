@@ -80,7 +80,7 @@ void Maphack::ReadConfig() {
 
 	
 	BH::config->ReadAssoc("Monster Line", MonsterLines);
-	for (auto it = MonsterLines.cbegin(); it != MonsterLines.cend(); ) {
+	for (auto it = MonsterLines.cbegin(); it != MonsterLines.cend(); it++) {
 		// If the key is a number, it means a monster we've assigned a specific color
 		int monsterId = -1;
 		stringstream ss((*it).first);
@@ -93,7 +93,7 @@ void Maphack::ReadConfig() {
 	}
 
 	BH::config->ReadAssoc("Monster Hide", MonsterHides);
-	for (auto it = MonsterHides.cbegin(); it != MonsterHides.cend(); ) {
+	for (auto it = MonsterHides.cbegin(); it != MonsterHides.cend(); it++) {
 		// If the key is a number, it means do not draw this monster on map
 		int monsterId = -1;
 		stringstream ss((*it).first);
