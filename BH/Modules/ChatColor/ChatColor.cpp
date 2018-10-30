@@ -38,11 +38,7 @@ void ChatColor::OnLoad() {
 void ChatColor::LoadConfig() {
 	whisperColors.clear();
 
-	auto whisperColorConfig = BH::config->ReadAssoc("Whisper Color");
-	for (auto it = whisperColorConfig.cbegin(); it != whisperColorConfig.cend(); it++) {
-		int color = StringToNumber(it->second);
-		whisperColors[it->first] = color;
-	}
+	BH::config->ReadAssoc("Whisper Color", whisperColors);
 }
 
 void ChatColor::OnChatPacketRecv(BYTE* packet, bool* block) {
