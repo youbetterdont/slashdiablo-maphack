@@ -129,6 +129,7 @@ void BH::Initialize()
 	new ItemMover();
 	new StashExport();
 	new Maphack();
+	new ChatColor();
 
 	moduleManager->LoadModules();
 

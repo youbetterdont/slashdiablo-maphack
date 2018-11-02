@@ -143,6 +143,7 @@
     <ClCompile Include="JSONObject.cpp" />
     <ClCompile Include="Modules\AutoTele\AutoTele.cpp" />
     <ClCompile Include="Modules\Bnet\Bnet.cpp" />
+    <ClCompile Include="Modules\ChatColor\ChatColor.cpp" />
     <ClCompile Include="Modules\Gamefilter\Gamefilter.cpp" />
     <ClCompile Include="Modules\Item\Item.cpp" />
     <ClCompile Include="Modules\Item\ItemDisplay.cpp" />
@@ -200,6 +201,7 @@
     <ClInclude Include="Modules\AutoTele\ATIncludes\Vectors.h" />
     <ClInclude Include="Modules\AutoTele\AutoTele.h" />
     <ClInclude Include="Modules\Bnet\Bnet.h" />
+    <ClInclude Include="Modules\ChatColor\ChatColor.h" />
     <ClInclude Include="Modules\Gamefilter\Gamefilter.h" />
     <ClInclude Include="Modules\Item\Item.h" />
     <ClInclude Include="Modules\Item\ItemDisplay.h" />
