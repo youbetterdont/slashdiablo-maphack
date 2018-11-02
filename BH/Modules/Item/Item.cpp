@@ -49,8 +49,11 @@ void Item::LoadConfig() {
 	Toggles["Skills"] = BH::config->ReadToggle("Skills", "None", false);
 	Toggles["TabSkills"] = BH::config->ReadToggle("TabSkills", "None", false);
 
+	// Clear lists
 	goodSkills.clear();
 	goodTabSkills.clear();
+
+	// Build character skills list
 	if (Toggles["Skills"].state == true) {
 		map<string, string> skillList = BH::config->ReadAssoc("SkillsList");
 		for (auto it = skillList.cbegin(); it != skillList.cend(); it++) {
@@ -59,6 +62,8 @@ void Item::LoadConfig() {
 			}
 		}
 	}
+
+	// Build tab skills list
 	if (Toggles["TabSkills"].state == true) {
 		map<string, string> classSkillList = BH::config->ReadAssoc("TabSkillsList");
 		for (auto it = classSkillList.cbegin(); it != classSkillList.cend(); it++) {

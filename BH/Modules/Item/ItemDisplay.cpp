@@ -1,28 +1,16 @@
 #include "ItemDisplay.h"
 #include "Item.h"
 
-const int COMBO_LIST_SIZE = 8;
-const char * COMBO_STAT_KEY[COMBO_LIST_SIZE]{
-	"LIFE",
-	"MANA",
-	"STR",
-	"DEX",
-	"CRES",
-	"FRES",
-	"LRES",
-	"PRES",
-};
-
-int const COMBO_STAT_VALUE[COMBO_LIST_SIZE]{
-	STAT_MAXHP,
-	STAT_MAXMANA,
-	STAT_STRENGTH,
-	STAT_DEXTERITY,
-	STAT_FIRERESIST,
-	STAT_COLDRESIST,
-	STAT_LIGHTNINGRESIST,
-	STAT_POISONRESIST
-};
+// All the types able to be combined with the + operator
+#define COMBO_STATS					\
+	{"LIFE", STAT_MAXHP},			\
+	{"MANA", STAT_MAXMANA},			\
+	{"STR", STAT_STRENGTH},			\
+	{"DEX", STAT_DEXTERITY},		\
+	{"CRES", STAT_COLDRESIST},		\
+	{"FRES", STAT_FIRERESIST},		\
+	{"LRES", STAT_LIGHTNINGRESIST},	\
+	{"PRES", STAT_POISONRESIST}		\
 
 // All colors here must also be defined in MAP_COLOR_REPLACEMENTS
 #define COLOR_REPLACEMENTS	\
@@ -71,6 +59,17 @@ BYTE LastConditionType;
 TrueCondition *trueCondition = new TrueCondition();
 FalseCondition *falseCondition = new FalseCondition();
 
+// Helper function to get a list of strings
+vector<string> split(const string &s, char delim) {
+	vector<string> result;
+	stringstream ss(s);
+	string item;
+	while (getline(ss, item, delim)) {
+		result.push_back(item);
+	}
+	return result;
+}
+
 char* GemLevels[] = {
 	"NONE",
 	"Chipped",
@@ -90,17 +89,6 @@ char* GemTypes[] = {
 	"Topaz",
 	"Skull"
 };
-
-// Helper function to get a list of string
-vector<string> split(const string &s, char delim) {
-	vector<string> result;
-	stringstream ss(s);
-	string item;
-	while (getline(ss, item, delim)) {
-		result.push_back(item);
-	}
-	return result;
-}
 
 bool IsGem(ItemAttributes *attrs) {
 	return (attrs->flags2 & ITEM_GROUP_GEM) > 0;
@@ -1216,26 +1204,33 @@ bool ResistAllCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *a
 			IntegerCompare(pRes, operation, targetStat));
 }
 
-bool AddCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
-	int value = 0;
+void AddCondition::Init() {
+	SkillReplace skills[] = { COMBO_STATS };
+
 	vector<string> codes = split(key, '+');
-	for (unsigned int i = 0; i < codes.size(); i++) {
-		for (unsigned int j = 0; j < COMBO_LIST_SIZE; j++) {
-			if (strcmp(codes[i].c_str(), COMBO_STAT_KEY[j]) == 0) {
-				int tmpVal = D2COMMON_GetUnitStat(uInfo->item, COMBO_STAT_VALUE[j], 0);
-				if (strcmp(codes[i].c_str(), "LIFE") == 0 || strcmp(codes[i].c_str(), "MANA") == 0)
-					tmpVal /= 256;
-				value += tmpVal;
-			}
+	for (int i = 0; i < codes.size(); i++) {
+		for (int j = 0; j < sizeof(skills) / sizeof(skills[0]); j++) {
+			if (codes[i] == skills[j].key)
+				stats.push_back(skills[j].value);
 		}
 	}
+}
+
+bool AddCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
+	int value = 0;
+
+	for (int i = 0; i < stats.size(); i++) {
+		int tmpVal = D2COMMON_GetUnitStat(uInfo->item, stats[i], 0);
+		if (stats[i] == STAT_MAXHP || stats[i] == STAT_MAXMANA)
+			tmpVal /= 256;
+		value += tmpVal;
+	}
+
 	return IntegerCompare(value, operation, targetStat);
 }
 
 bool AddCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2) {
-	// Still not sure what this is for ^^
-
-	return (false);
+	return false;
 }
 
 int GetDefense(ItemInfo *item) {

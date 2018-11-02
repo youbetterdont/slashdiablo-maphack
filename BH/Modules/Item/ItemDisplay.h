@@ -14,7 +14,6 @@
 #define EXCEPTION_INVALID_ITEM_TYPE		5
 #define EXCEPTION_INVALID_GOLD_TYPE		6
 
-
 // Properties that can appear on an item from incoming packets
 struct ItemProperty {
 	unsigned int stat;
@@ -431,11 +430,16 @@ private:
 class AddCondition : public Condition
 {
 public:
-	AddCondition(string& k, BYTE op, unsigned int target) : key(k), operation(op), targetStat(target) { conditionType = CT_Operand; };
+	AddCondition(string& k, BYTE op, unsigned int target) : key(k), operation(op), targetStat(target) { 
+		conditionType = CT_Operand;
+		Init();
+	};
 private:
 	BYTE operation;
+	vector<DWORD> stats;
 	unsigned int targetStat;
 	string key;
+	void Init();
 	bool EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2);
 	bool EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2);
 };
@@ -449,6 +453,11 @@ struct ActionReplace {
 };
 
 struct ColorReplace {
+	string key;
+	int value;
+};
+
+struct SkillReplace {
 	string key;
 	int value;
 };
