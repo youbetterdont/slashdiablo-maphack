@@ -185,9 +185,9 @@ void SubstituteNameVariables(UnitItemInfo *uInfo, string &name, Action *action) 
 	};
 	name.assign(action->name);
 	for (int n = 0; n < sizeof(replacements) / sizeof(replacements[0]); n++) {
-		if (name.find("%" + replacements[n].key + "%") == string::npos)
-			continue;
-		name.replace(name.find("%" + replacements[n].key + "%"), replacements[n].key.length() + 2, replacements[n].value);
+		while (name.find("%" + replacements[n].key + "%") != string::npos) {
+			name.replace(name.find("%" + replacements[n].key + "%"), replacements[n].key.length() + 2, replacements[n].value);
+		}
 	}
 
 	// stat replacements
