@@ -46,8 +46,8 @@ void Item::LoadConfig() {
 	BH::config->ReadToggle("Allow Unknown Items", "None", false, Toggles["Allow Unknown Items"]);
 
 	// To enable good character skills and good skill tab lists
-	Toggles["Skills"] = BH::config->ReadToggle("Skills", "None", false);
-	Toggles["TabSkills"] = BH::config->ReadToggle("TabSkills", "None", false);
+	BH::config->ReadToggle("ClassSkills", "None", false, Toggles["ClassSkills"]);
+	BH::config->ReadToggle("TabSkills", "None", false, Toggles["TabSkills"]);
 
 	// Clear lists
 	goodSkills.clear();
@@ -55,7 +55,8 @@ void Item::LoadConfig() {
 
 	// Build character skills list
 	if (Toggles["Skills"].state == true) {
-		map<string, string> skillList = BH::config->ReadAssoc("SkillsList");
+		map<string, string> skillList;
+		BH::config->ReadAssoc("ClassSkillsList", skillList);
 		for (auto it = skillList.cbegin(); it != skillList.cend(); it++) {
 			if (StringToBool((*it).second)) {
 				goodSkills.push_back(stoi((*it).first));
@@ -65,7 +66,8 @@ void Item::LoadConfig() {
 
 	// Build tab skills list
 	if (Toggles["TabSkills"].state == true) {
-		map<string, string> classSkillList = BH::config->ReadAssoc("TabSkillsList");
+		map<string, string> classSkillList;
+		BH::config->ReadAssoc("TabSkillsList", classSkillList);
 		for (auto it = classSkillList.cbegin(); it != classSkillList.cend(); it++) {
 			if (StringToBool((*it).second)) {
 				goodTabSkills.push_back(stoi((*it).first));
