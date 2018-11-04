@@ -635,9 +635,9 @@ void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 		// For unknown reasons, the game's internal Mana stat is 256 for every 1 displayed on item
 		Condition::AddOperand(conditions, new ItemStatCondition(STAT_MAXMANA, 0, operation, value * 256));
 	} else if (key.compare(0, 6, "GOODSK") == 0) {
-		Condition::AddOperand(conditions, new SkillListCondition(operation, 0, value));
+		Condition::AddOperand(conditions, new SkillListCondition(operation, CLASS_SKILLS, value));
 	}else if (key.compare(0, 8, "GOODTBSK") == 0) {
-		Condition::AddOperand(conditions, new SkillListCondition(operation, 1, value));
+		Condition::AddOperand(conditions, new SkillListCondition(operation, CLASS_TAB_SKILLS, value));
 	} else if (key.compare(0, 5, "FOOLS") == 0) {
 		Condition::AddOperand(conditions, new FoolsCondition());
 	} else if (key.compare(0, 6, "LVLREQ") == 0) {
@@ -1092,12 +1092,12 @@ bool FoolsCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1,
 
 bool SkillListCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
 	int value = 0;
-	if (type == 0) {
+	if (type == CLASS_SKILLS) {
 		for (unsigned int i = 0; i < goodSkills.size(); i++) {
 			value += D2COMMON_GetUnitStat(uInfo->item, STAT_CLASSSKILLS, goodSkills.at(i));
 		}
 	}
-	else if (type == 1) {
+	else if (type == CLASS_TAB_SKILLS) {
 		for (unsigned int i = 0; i < goodTabSkills.size(); i++) {
 			value += D2COMMON_GetUnitStat(uInfo->item, STAT_SKILLTAB, goodTabSkills.at(i));
 		}
