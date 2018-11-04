@@ -51,6 +51,7 @@ enum Operation {
 };
 
 std::map<std::string, int> UnknownItemCodes;
+vector<pair<string, string>> rules;
 vector<Rule*> RuleList;
 vector<Rule*> MapRuleList;
 vector<Rule*> IgnoreRuleList;
@@ -207,9 +208,9 @@ void SubstituteNameVariables(UnitItemInfo *uInfo, string &name, Action *action) 
 	};
 	name.assign(action->name);
 	for (int n = 0; n < sizeof(replacements) / sizeof(replacements[0]); n++) {
-		if (name.find("%" + replacements[n].key + "%") == string::npos)
-			continue;
-		name.replace(name.find("%" + replacements[n].key + "%"), replacements[n].key.length() + 2, replacements[n].value);
+		while (name.find("%" + replacements[n].key + "%") != string::npos) {
+			name.replace(name.find("%" + replacements[n].key + "%"), replacements[n].key.length() + 2, replacements[n].value);
+		}
 	}
 
 	// stat replacements
@@ -325,7 +326,8 @@ namespace ItemDisplay {
 
 
 		item_display_initialized = true;
-		vector<pair<string, string>> rules = BH::config->ReadMapList("ItemDisplay");
+		rules.clear();
+		BH::config->ReadMapList("ItemDisplay", rules);
 		for (unsigned int i = 0; i < rules.size(); i++) {
 			string buf;
 			stringstream ss(rules[i].first);
@@ -780,7 +782,7 @@ void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 		Condition::AddOperand(conditions, new CharStatCondition(num, 0, operation, value));
 	} else if (key.compare(0, 5, "MULTI") == 0) {
 
-		std::regex multi_reg("([0-9]{1,4}),([0-9]{1,4})",
+		std::regex multi_reg("([0-9]{1,10}),([0-9]{1,10})",
 			std::regex_constants::ECMAScript | std::regex_constants::icase);
 		std::smatch multi_match;
 		if (std::regex_search(key, multi_match, multi_reg)) {

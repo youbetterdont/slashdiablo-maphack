@@ -533,6 +533,7 @@ struct Rule {
 extern vector<Rule*> RuleList;
 extern vector<Rule*> MapRuleList;
 extern vector<Rule*> IgnoreRuleList;
+extern vector<pair<string, string>> rules;
 
 namespace ItemDisplay {
 	void InitializeItemRules();

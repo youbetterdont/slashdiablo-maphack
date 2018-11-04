@@ -264,6 +264,9 @@ ASMPTR(D2CLIENT, LoadAct_2, 0x62760, 0x2B420)
 ASMPTR(D2CLIENT, GetUnitFromId_I, 0xA4E20, 0x61480)
 VARPTR(D2CLIENT, pUnitTable, POINT, 0x10A608, 0x1047B8)
 
+ASMPTR(D2CLIENT, HoveredUnit_I, 0x51A80, 0x17280)
+ASMPTR(D2WIN, DrawTextBuffer, 0x12940, 0x134D0)
+
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // D2Common Ordinals
 ////////////////////////////////////////////////////////////////////////////////////////////////

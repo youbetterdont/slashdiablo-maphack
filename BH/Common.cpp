@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 #include <Windows.h>
+#include "BH.h"
 #include "Common.h"
 #include <memory>
 using namespace std;
@@ -90,7 +91,7 @@ void PrintText(DWORD Color, char *szText, ...) {
 }
 
 KeyCode pCodes[] = {
-	{"Unknown", 0, "Not Set"},
+	{"None", 0, "Not Set"},
 	{"VK_BACK", 0x08, "Backspace"},
 	{"VK_TAB", 0x09, "Tab"},
 	{"VK_CLEAR", 0x0C, "Clear"},
@@ -193,4 +194,227 @@ std::string string_format(const std::string fmt_str, ...) {
 			break;
 	}
 	return std::string(formatted.get());
+}
+
+
+VOID *memcpy2(void *dest, const void *src, size_t count)
+{
+	return (char *)memcpy(dest, src, count) + count;
+}
+
+HANDLE OpenFileRead(char *filename)
+{
+	return CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+}
+BYTE *AllocReadFile(char *filename)
+{
+	HANDLE hFile = OpenFileRead(filename);
+	int filesize = GetFileSize(hFile, 0);
+	if (filesize <= 0) return 0;
+	BYTE *buf = new BYTE[filesize];
+	ReadFile(hFile, buf, filesize);
+	CloseHandle(hFile);
+	return buf;
+}
+DWORD ReadFile(HANDLE hFile, void *buf, DWORD len)
+//NOTE :- validates len bytes of buf
+{
+	DWORD numdone = 0;
+	ReadFile(hFile, buf, len, &numdone, NULL);
+	return numdone;
+}
+
+char *GetMyFileNameStrrchr(char *dest, char ch)
+{
+	GetModuleFileName(BH::instance, dest, MAX_PATH);
+	return strrchr(dest, ch) + 1;
+}
+
+#define PI 3.1415926535
+
+long CalculateDistance(const POINT& pt1, const POINT& pt2)
+{
+	return CalculateDistance(pt1.x, pt1.y, pt2.x, pt2.y);
+}
+
+long CalculateAngle(const POINT& pt1, const POINT& pt2)
+{
+	return CalculateAngle(pt1.x, pt1.y, pt2.x, pt2.y);
+}
+
+long CalculateDistance(long x1, long y1, long x2, long y2)
+{
+	return (long)::sqrt((double)((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)));
+}
+
+BOOL PtInCircle(const POINT& pt, const POINT& ptOrigin, int nRadius)
+{
+	return CalculateDistance(pt, ptOrigin) < ::abs(nRadius);
+}
+
+void NormalizeAngle(int& rAngle)
+{
+	if (::abs(rAngle) >= 360)
+		rAngle %= 360;
+
+	if (rAngle < 0)
+		rAngle += 360;
+}
+
+void NormalizeRect(RECT& rRect)
+{
+	NormalizeRect(&rRect);
+}
+
+void NormalizeRect(LPRECT lpRect)
+{
+	if (lpRect == NULL)
+		return;
+
+	long temp;
+	if (lpRect->left > lpRect->right)
+	{
+		temp = lpRect->left;
+		lpRect->left = lpRect->right;
+		lpRect->right = temp;
+	}
+
+	if (lpRect->top > lpRect->bottom)
+	{
+		temp = lpRect->top;
+		lpRect->top = lpRect->bottom;
+		lpRect->bottom = temp;
+	}
+}
+
+long CalculateAngle(long x1, long y1, long x2, long y2)
+{
+	// mathematic stuff, now thanks God I haven't forgot all of them...
+	if (x1 == x2 && y1 == y2)
+		return 0;
+
+	double fAngle = 0.0;
+
+	if (x1 == x2)
+	{
+		// vertical special case
+		fAngle = y2 > y1 ? 270.0 : 90.0;
+	}
+	else if (y1 == y2)
+	{
+		// horizontal special case
+		fAngle = x2 > x1 ? 0.0 : 180.0;
+	}
+	else
+	{
+		// common case
+		fAngle = ::atan(((double)y2 - (double)y1) / ((double)x2 - (double)x1)) * 180.0 / PI;
+
+		// determine the phases (1-4)
+		// Phases allocation figure:
+		/*
+		y
+		|
+		P2     |    P1
+		|
+		-----------+----------->x
+		|
+		P3     |    P4
+		|
+		*/
+		int nPhase = 0;
+		if (y2 < y1)
+			nPhase = x2 > x1 ? 1 : 2;
+		else
+			nPhase = x2 > x1 ? 4 : 3;
+
+		// adjust the angle according to phases
+		switch (nPhase)
+		{
+		case 1:
+			fAngle = -fAngle;
+			break;
+
+		case 2:
+			fAngle = 180.0 - fAngle;
+			break;
+
+		case 3:
+			fAngle = 180.0 - fAngle;
+			break;
+
+		case 4:
+			fAngle = 360.0 - fAngle;
+			break;
+
+		default:
+			fAngle = 0.0;
+			break;
+		}
+	}
+
+	return (long)fAngle;
+}
+
+POINT CalculatePointOnTrack(const POINT& ptOrigin, int nRadius, int nAngle)
+{
+	if (nRadius == 0)
+		return ptOrigin;
+
+	NormalizeAngle(nAngle);
+
+	POINT pt;
+	pt.x = long(double(ptOrigin.x) + ::cos((double)nAngle * PI / 180.0) * (double)nRadius);
+	pt.y = long(double(ptOrigin.y) - ::sin((double)nAngle * PI / 180.0) * (double)nRadius);
+	return pt;
+}
+
+POINT CalculateRandomPosition(const POINT& ptOrigin, int nRadiusMin, int nRadiusMax, int nAngleMin/*=0*/, int nAngleMax/*=360*/)
+{
+	// Data validation
+	nRadiusMin = max(0, nRadiusMin);
+	nRadiusMax = max(0, nRadiusMax);
+
+	NormalizeAngle(nAngleMin);
+	NormalizeAngle(nAngleMax);
+
+	const int R1 = min(nRadiusMin, nRadiusMax);
+	const int R2 = max(nRadiusMin, nRadiusMax);
+	const int A1 = min(nAngleMin, nAngleMax);
+	const int A2 = max(nAngleMin, nAngleMax);
+
+	const int R = (R1 == R2) ? R1 : (R1 + (::rand() % (R2 - R1))); // Final radius
+	const int A = (A1 == A2) ? A1 : (A1 + (::rand() % (A2 - A1))); // Final angle
+
+	return CalculatePointOnTrack(ptOrigin, R, A);
+}
+
+char *commaprint(unsigned long n)
+{
+	int comma = '\0';
+	char retbuf[30];
+	char *p = &retbuf[sizeof(retbuf) - 1];
+	int i = 0;
+
+	if (comma == '\0') {
+		struct lconv *lcp = localeconv();
+		if (lcp != NULL) {
+			if (lcp->thousands_sep != NULL &&
+				*lcp->thousands_sep != '\0')
+				comma = *lcp->thousands_sep;
+			else	comma = ',';
+		}
+	}
+
+	*p = '\0';
+
+	do {
+		if (i % 3 == 0 && i != 0)
+			*--p = comma;
+		*--p = '0' + n % 10;
+		n /= 10;
+		i++;
+	} while (n != 0);
+
+	return p;
 }

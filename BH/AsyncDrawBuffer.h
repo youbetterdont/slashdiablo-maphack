@@ -39,7 +39,7 @@ private:
 	bool synchronous;
 	void drawInternal(fpDirector director);
 public:
-	unsigned char maxGhost;
+	unsigned int maxGhost;
 
 	DrawDirective(bool synchronous, unsigned char _maxGhost);
 	~DrawDirective();

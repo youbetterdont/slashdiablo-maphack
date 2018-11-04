@@ -15,14 +15,18 @@ Patch* ftjPatch = new Patch(Call, D2CLIENT, { 0x4363E, 0x443FE }, (int)FailToJoi
 Patch* removePass = new Patch(Call, D2MULTI, { 0x1250, 0x1AD0 }, (int)RemovePass_Interception, 5);
 
 void Bnet::OnLoad() {
+	showLastGame = true;
+	showLastPass = true;
+	nextInstead = true;
+	failToJoin = 4000;
 	LoadConfig();
 }
 
 void Bnet::LoadConfig() {
-	showLastGame = BH::config->ReadBoolean("Autofill Last Game", true);
-	showLastPass = BH::config->ReadBoolean("Autofill Last Password", true);
-	nextInstead = BH::config->ReadBoolean("Autofill Next Game", true);
-	failToJoin = BH::config->ReadInt("Fail To Join", 4000);
+	BH::config->ReadBoolean("Autofill Last Game", showLastGame);
+	BH::config->ReadBoolean("Autofill Last Password", showLastPass);
+	BH::config->ReadBoolean("Autofill Next Game", nextInstead);
+	BH::config->ReadInt("Fail To Join", failToJoin);
 
 	if (showLastGame) {
 		nextGame1->Install();

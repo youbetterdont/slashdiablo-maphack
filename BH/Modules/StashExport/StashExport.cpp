@@ -32,8 +32,8 @@ void StashExport::OnLoad() {
 	options.clear();
 	options.push_back("json");
 
-	auto mustaches = BH::config->ReadAssoc("Mustache");
-	auto dfltExprt = BH::config->ReadString("Mustache Default", "json");
+	BH::config->ReadAssoc("Mustache", mustaches);
+	BH::config->ReadString("Mustache Default", dfltExprt);
 	int idx = 0;
 
 	for (auto it = mustaches.cbegin(); it != mustaches.cend(); it++){
@@ -52,12 +52,12 @@ void StashExport::OnLoad() {
 }
 
 void StashExport::LoadConfig() {
-	Toggles["Include Equipment"] = BH::config->ReadToggle("Include Equipment", "None", true);
-	Toggles["Include Fixed Stats"] = BH::config->ReadToggle("Include Fixed Stats", "None", false);
-	Toggles["Condense Stats"] = BH::config->ReadToggle("Condense Stats", "None", true);
-	Toggles["Export On Menu"] = BH::config->ReadToggle("Export On Menu", "None", false);
+	BH::config->ReadToggle("Include Equipment", "None", true, Toggles["Include Equipment"]);
+	BH::config->ReadToggle("Include Fixed Stats", "None", false, Toggles["Include Fixed Stats"]);
+	BH::config->ReadToggle("Condense Stats", "None", true, Toggles["Condense Stats"]);
+	BH::config->ReadToggle("Export On Menu", "None", false, Toggles["Export On Menu"]);
 
-	exportGear = BH::config->ReadKey("Export Gear", "VK_NUMPAD5");
+	BH::config->ReadKey("Export Gear", "VK_NUMPAD5", exportGear);
 }
 
 void StashExport::OnUnload() {

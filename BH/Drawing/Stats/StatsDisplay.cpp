@@ -23,7 +23,7 @@ StatsDisplay::StatsDisplay(std::string name) {
 	SetActive(true);
 	SetMinimized(true);
 
-	statsKey = BH::config->ReadKey("Character Stats", "VK_8");
+	BH::config->ReadKey("Character Stats", "VK_8", statsKey);
 	display = this;
 }
 
@@ -41,9 +41,10 @@ void StatsDisplay::LoadConfig(){
 	int height = 342 + 8 * 3 + 16 * 5;
 	customStats.clear();
 
-	Toggles["Stats on Right"] = BH::config->ReadToggle("Stats on Right", "None", false);
+	BH::config->ReadToggle("Stats on Right", "None", false, Toggles["Stats on Right"]);
 
-	vector<pair<string, string>> stats = BH::config->ReadMapList("Stat Screen");
+	vector<pair<string, string>> stats;
+	BH::config->ReadMapList("Stat Screen", stats);
 	for (unsigned int i = 0; i < stats.size(); i++) {
 		std::transform(stats[i].first.begin(), stats[i].first.end(), stats[i].first.begin(), ::tolower);
 		if (StatMap.count(stats[i].first) > 0) {

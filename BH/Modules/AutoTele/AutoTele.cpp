@@ -42,23 +42,22 @@ void AutoTele::OnLoad() {
 }
 
 void AutoTele::LoadConfig() {
-	Toggles["CP to cave"] = BH::config->ReadToggle("CP to cave", "None", false);
-	Toggles["Display Messages"] = BH::config->ReadToggle("Display Messages", "None", true);
-	Toggles["Draw Path"] = BH::config->ReadToggle("Draw Path", "None", true);	
-	Toggles["Draw Destination"] = BH::config->ReadToggle("Draw Destination", "None", true);
-	Toggles["Fast Teleport"] = BH::config->ReadToggle("Fast Teleport", "None", true);
-	Toggles["Quest Drop Warning"] = BH::config->ReadToggle("Quest Drop Warning", "None", false);
+	BH::config->ReadToggle("CP to cave", "None", false, Toggles["CP to cave"]);
+	BH::config->ReadToggle("Display Messages", "None", true, Toggles["Display Messages"]);
+	BH::config->ReadToggle("Draw Path", "None", true, Toggles["Draw Path"]);
+	BH::config->ReadToggle("Draw Destination", "None", true, Toggles["Draw Destination"]);
+	BH::config->ReadToggle("Fast Teleport", "None", true, Toggles["Fast Teleport"]);
+	BH::config->ReadToggle("Quest Drop Warning", "None", false, Toggles["Quest Drop Warning"]);
 
-	NextKey = BH::config->ReadKey("Next Tele", "VK_NUMPAD0");
-	OtherKey = BH::config->ReadKey("Other Tele", "VK_NUMPAD1");
-	WPKey = BH::config->ReadKey("Waypoint Tele", "VK_NUMPAD2");
-	PrevKey = BH::config->ReadKey("Prev Tele", "VK_NUMPAD3");
-	Colors[0] = BH::config->ReadInt("Path Color", 97);
-	Colors[1] = BH::config->ReadInt("Next Color", 0x97);
-	Colors[2] = BH::config->ReadInt("Other Color", 0x0A);
-	Colors[3] = BH::config->ReadInt("WP Color", 0x84);
-	Colors[4] = BH::config->ReadInt("Prev Color", 0x5B);
-	Colors[5] = BH::config->ReadInt("Other Extra Color", 0xA8);
+	BH::config->ReadKey("Next Tele", "VK_NUMPAD0", NextKey);
+	BH::config->ReadKey("Other Tele", "VK_NUMPAD1", OtherKey);
+	BH::config->ReadKey("Waypoint Tele", "VK_NUMPAD2", WPKey);
+	BH::config->ReadKey("Prev Tele", "VK_NUMPAD3", PrevKey);
+	BH::config->ReadInt("Path Color", Colors[0]);
+	BH::config->ReadInt("Next Color", Colors[1]);
+	BH::config->ReadInt("Other Color", Colors[2]);
+	BH::config->ReadInt("WP Color", Colors[3]);
+	BH::config->ReadInt("Prev Color", Colors[4]);
 }
 
 void AutoTele::OnAutomapDraw() {

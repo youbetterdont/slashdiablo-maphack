@@ -1,6 +1,6 @@
 #pragma once
 
-#define BH_VERSION "BH 1.8.12"
+#define BH_VERSION "BH 1.9.0"
 
 enum TextColor {
 	Disabled=-1,
@@ -1062,5 +1062,10 @@ enum QuestFlags {
 
 #define ITEM_GROUP_GEM (ITEM_GROUP_AMETHYST|ITEM_GROUP_DIAMOND|ITEM_GROUP_EMERALD|ITEM_GROUP_RUBY|ITEM_GROUP_SAPPHIRE|ITEM_GROUP_TOPAZ|ITEM_GROUP_SKULL)
 
+#define MONSTAT_ALIGN_ENEMY				0x0
+#define MONSTAT_ALIGN_ALLY				0x1
+#define MONSTAT_ALIGN_NEUTRAL			0x2
+
+// Toggles for GOODSK and GOODCLSK in ItemDisplay
 #define CLASS_SKILLS					0
 #define CLASS_TAB_SKILLS				1

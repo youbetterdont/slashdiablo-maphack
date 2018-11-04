@@ -124,12 +124,12 @@ void BH::Initialize()
 	new Gamefilter();
 	new Bnet();
 	new Item();
-	new SpamFilter();
 	new AutoTele();
 	new Party();
 	new ItemMover();
 	new StashExport();
 	new Maphack();
+	new ChatColor();
 
 	moduleManager->LoadModules();
 

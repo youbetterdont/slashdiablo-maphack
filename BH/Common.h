@@ -39,3 +39,22 @@ KeyCode GetKeyCode(const char* name);
 ULONGLONG BHGetTickCount(void);
 
 std::string string_format(const std::string fmt_str, ...);
+
+
+VOID *memcpy2(void *dest, const void *src, size_t count);
+HANDLE OpenFileRead(char *filename);
+BYTE *AllocReadFile(char *filename);
+DWORD ReadFile(HANDLE hFile, void *buf, DWORD len);
+char *GetMyFileNameStrrchr(char *dest, char ch);
+
+long CalculateDistance(const POINT& pt1, const POINT& pt2);
+long CalculateAngle(const POINT& pt1, const POINT& pt2);
+long CalculateDistance(long x1, long y1, long x2, long y2);
+BOOL PtInCircle(const POINT& pt, const POINT& ptOrigin, int nRadius);
+void NormalizeAngle(int& rAngle);
+void NormalizeRect(RECT& rRect);
+void NormalizeRect(LPRECT lpRect);
+long CalculateAngle(long x1, long y1, long x2, long y2);
+POINT CalculatePointOnTrack(const POINT& ptOrigin, int nRadius, int nAngle);
+POINT CalculateRandomPosition(const POINT& ptOrigin, int nRadiusMin, int nRadiusMax, int nAngleMin/*=0*/, int nAngleMax/*=360*/);
+char *commaprint(unsigned long n);

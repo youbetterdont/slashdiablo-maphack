@@ -143,6 +143,7 @@
     <ClCompile Include="JSONObject.cpp" />
     <ClCompile Include="Modules\AutoTele\AutoTele.cpp" />
     <ClCompile Include="Modules\Bnet\Bnet.cpp" />
+    <ClCompile Include="Modules\ChatColor\ChatColor.cpp" />
     <ClCompile Include="Modules\Gamefilter\Gamefilter.cpp" />
     <ClCompile Include="Modules\Item\Item.cpp" />
     <ClCompile Include="Modules\Item\ItemDisplay.cpp" />
@@ -152,8 +153,6 @@
     <ClCompile Include="Modules\ModuleManager.cpp" />
     <ClCompile Include="Modules\Party\Party.cpp" />
     <ClCompile Include="Modules\ScreenInfo\ScreenInfo.cpp" />
-    <ClCompile Include="Modules\SpamFilter\Bayes.cpp" />
-    <ClCompile Include="Modules\SpamFilter\SpamFilter.cpp" />
     <ClCompile Include="MPQInit.cpp" />
     <ClCompile Include="MPQReader.cpp" />
     <ClCompile Include="Mustache.cpp" />
@@ -202,6 +201,7 @@
     <ClInclude Include="Modules\AutoTele\ATIncludes\Vectors.h" />
     <ClInclude Include="Modules\AutoTele\AutoTele.h" />
     <ClInclude Include="Modules\Bnet\Bnet.h" />
+    <ClInclude Include="Modules\ChatColor\ChatColor.h" />
     <ClInclude Include="Modules\Gamefilter\Gamefilter.h" />
     <ClInclude Include="Modules\Item\Item.h" />
     <ClInclude Include="Modules\Item\ItemDisplay.h" />
@@ -211,8 +211,6 @@
     <ClInclude Include="Modules\ModuleManager.h" />
     <ClInclude Include="Modules\Party\Party.h" />
     <ClInclude Include="Modules\ScreenInfo\ScreenInfo.h" />
-    <ClInclude Include="Modules\SpamFilter\Bayes.h" />
-    <ClInclude Include="Modules\SpamFilter\SpamFilter.h" />
     <ClInclude Include="MPQInit.h" />
     <ClInclude Include="MPQReader.h" />
     <ClInclude Include="Mustache.h" />
