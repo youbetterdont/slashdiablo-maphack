@@ -84,10 +84,6 @@ Mustache[stash]: {{#this}}* {{>item}}\n\n{{/this}}
 
 * To utilize Good Class/Tab skills add the following to the .cfg
 ```
-// GOODSK & GOODTBSK
-Skills:				True, None
-TabSkills:			True, None
-
 SkillsList[0]: 			False		// Amazon
 SkillsList[1]: 			True		// Sorceress
 SkillsList[2]: 			True		// Necromancer
@@ -117,7 +113,8 @@ TabSkillsList[48]:		True		// Assassin Traps
 TabSkillsList[49]:		False		// Assassin Shadow Disciplines
 TabSkillsList[50]:		False		// Assassin Martial Arts
 ```
-* The numbers in braces corresponds to the internal code for the skill so it is important
+* The numbers in braces corresponds to the internal code for the skill so it is important to use this exact list.
+* If you do not put this in your config you will not be able to use GOODSK and GOODCLSK, but nothing with break.
 
 
 # Release Notes for BH Maphack v1.8
