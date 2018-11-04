@@ -13,9 +13,6 @@ Patch* viewInvPatch1 = new Patch(Call, D2CLIENT, { 0x953E2, 0x997B2 }, (int)View
 Patch* viewInvPatch2 = new Patch(Call, D2CLIENT, { 0x94AB4, 0x98E84 }, (int)ViewInventoryPatch2_ASM, 6);
 Patch* viewInvPatch3 = new Patch(Call, D2CLIENT, { 0x93A6F, 0x97E3F }, (int)ViewInventoryPatch3_ASM, 5);
 
-vector<int> goodSkills;
-vector<int> goodTabSkills;
-
 using namespace Drawing;
 
 void Item::OnLoad() {
@@ -44,36 +41,6 @@ void Item::LoadConfig() {
 	BH::config->ReadToggle("Item Drop Notifications", "None", false, Toggles["Item Drop Notifications"]);
 	BH::config->ReadToggle("Item Close Notifications", "None", false, Toggles["Item Close Notifications"]);
 	BH::config->ReadToggle("Allow Unknown Items", "None", false, Toggles["Allow Unknown Items"]);
-
-	// To enable good character skills and good skill tab lists
-	BH::config->ReadToggle("ClassSkills", "None", false, Toggles["ClassSkills"]);
-	BH::config->ReadToggle("TabSkills", "None", false, Toggles["TabSkills"]);
-
-	// Clear lists
-	goodSkills.clear();
-	goodTabSkills.clear();
-
-	// Build character skills list
-	if (Toggles["Skills"].state == true) {
-		map<string, string> skillList;
-		BH::config->ReadAssoc("ClassSkillsList", skillList);
-		for (auto it = skillList.cbegin(); it != skillList.cend(); it++) {
-			if (StringToBool((*it).second)) {
-				goodSkills.push_back(stoi((*it).first));
-			}
-		}
-	}
-
-	// Build tab skills list
-	if (Toggles["TabSkills"].state == true) {
-		map<string, string> classSkillList;
-		BH::config->ReadAssoc("TabSkillsList", classSkillList);
-		for (auto it = classSkillList.cbegin(); it != classSkillList.cend(); it++) {
-			if (StringToBool((*it).second)) {
-				goodTabSkills.push_back(stoi((*it).first));
-			}
-		}
-	}
 
 	ItemDisplay::UninitializeItemRules();
 

@@ -32,9 +32,6 @@ class Item : public Module {
 		static UnitAny* GetViewUnit();
 };
 
-extern vector<int> goodSkills;
-extern vector<int> goodTabSkills;
-
 void ItemName_Interception();
 void ViewInventoryPatch1_ASM();
 void ViewInventoryPatch2_ASM();

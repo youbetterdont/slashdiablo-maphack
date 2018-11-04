@@ -50,6 +50,10 @@ enum Operation {
 	NONE
 };
 
+SkillReplace skills[] = { 
+	COMBO_STATS 
+};
+
 std::map<std::string, int> UnknownItemCodes;
 vector<pair<string, string>> rules;
 vector<Rule*> RuleList;
@@ -1092,11 +1096,35 @@ bool FoolsCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1,
 	return IntegerCompare(value, (BYTE)EQUAL, 3);
 }
 
+void SkillListCondition::Init() {
+	// Clear lists
+	classSkillList.clear();
+	skillList.clear();
+	goodClassSkills.clear();
+	goodTabSkills.clear();
+
+	// Build character skills list
+	BH::config->ReadAssoc("ClassSkillsList", skillList);
+	for (auto it = skillList.cbegin(); it != skillList.cend(); it++) {
+		if (StringToBool((*it).second)) {
+			goodClassSkills.push_back(stoi((*it).first));
+		}
+	}
+
+	// Build tab skills list
+	BH::config->ReadAssoc("TabSkillsList", classSkillList);
+	for (auto it = classSkillList.cbegin(); it != classSkillList.cend(); it++) {
+		if (StringToBool((*it).second)) {
+			goodTabSkills.push_back(stoi((*it).first));
+		}
+	}
+}
+
 bool SkillListCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
 	int value = 0;
 	if (type == CLASS_SKILLS) {
-		for (unsigned int i = 0; i < goodSkills.size(); i++) {
-			value += D2COMMON_GetUnitStat(uInfo->item, STAT_CLASSSKILLS, goodSkills.at(i));
+		for (unsigned int i = 0; i < goodClassSkills.size(); i++) {
+			value += D2COMMON_GetUnitStat(uInfo->item, STAT_CLASSSKILLS, goodClassSkills.at(i));
 		}
 	}
 	else if (type == CLASS_TAB_SKILLS) {
@@ -1207,9 +1235,8 @@ bool ResistAllCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *a
 }
 
 void AddCondition::Init() {
-	SkillReplace skills[] = { COMBO_STATS };
-
-	vector<string> codes = split(key, '+');
+	codes.clear();
+	codes = split(key, '+');
 	for (int i = 0; i < codes.size(); i++) {
 		for (int j = 0; j < sizeof(skills) / sizeof(skills[0]); j++) {
 			if (codes[i] == skills[j].key)

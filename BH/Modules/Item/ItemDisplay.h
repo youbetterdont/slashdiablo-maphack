@@ -367,11 +367,17 @@ class SkillListCondition : public Condition
 public:
 	SkillListCondition(BYTE op, unsigned int t, unsigned int target) : operation(op), type(t), targetStat(target) {
 		conditionType = CT_Operand;
+		Init();
 	};
 private:
 	BYTE operation;
 	unsigned int type;
 	unsigned int targetStat;
+	std::map<string, string> classSkillList;
+	std::map<string, string> skillList;
+	vector<unsigned int> goodClassSkills;
+	vector<unsigned int> goodTabSkills;
+	void Init();
 	bool EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2);
 	bool EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2);
 };
@@ -436,6 +442,7 @@ public:
 	};
 private:
 	BYTE operation;
+	vector<string> codes;
 	vector<DWORD> stats;
 	unsigned int targetStat;
 	string key;
