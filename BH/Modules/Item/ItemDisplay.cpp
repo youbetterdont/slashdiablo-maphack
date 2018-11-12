@@ -1137,9 +1137,8 @@ bool SkillListCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, 
 }
 
 bool SkillListCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2) {
-	// Unecessary ?
-
-	return IntegerCompare(0, operation, 0);
+	// TODO: Implement later
+	return false;
 }
 
 bool CharStatCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
@@ -1259,6 +1258,7 @@ bool AddCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condit
 }
 
 bool AddCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2) {
+	// TODO: Implement later
 	return false;
 }
 
