@@ -64,8 +64,8 @@ Mustache[item]: {{>header}}{{>stats}}{{^isRuneword}}{{#socketed}}\n\n  * {{>>ite
 Mustache[stash]: {{#this}}* {{>item}}\n\n{{/this}}
 ```
 
-# Release Notes for JimmyTheJ's 1.8.12 changes
-* Added several keywords to ItemDisplay
+# Release Notes for 1.9.1
+* Added several new keywords to ItemDisplay
   * MAXDUR for enhanced durability percent
   * FRES for fire resistance
   * CRES for cold resistance
