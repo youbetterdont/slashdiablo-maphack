@@ -688,7 +688,7 @@ void Maphack::RevealRoom(Room2* room) {
 		int cellNo = -1;
 		
 		// Special NPC Check
-		if (preset->dwType == 1)
+		if (preset->dwType == UNIT_MONSTER)
 		{
 			// Izual Check
 			if (preset->dwTxtFileNo == 256)
@@ -697,9 +697,9 @@ void Maphack::RevealRoom(Room2* room) {
 			if (preset->dwTxtFileNo == 745)
 				cellNo = 745;
 		// Special Object Check
-		} else if (preset->dwType == 2) {
+		} else if (preset->dwType == UNIT_OBJECT) {
 			// Uber Chest in Lower Kurast Check
-			if (preset->dwTxtFileNo == 580 && room->pLevel->dwLevelNo == 79)		
+			if (preset->dwTxtFileNo == 580 && room->pLevel->dwLevelNo == MAP_A3_LOWER_KURAST)
 				cellNo = 318;
 
 			// Countess Chest Check
@@ -724,7 +724,7 @@ void Maphack::RevealRoom(Room2* room) {
 				if (obj)
 					cellNo = obj->nAutoMap;//Set the cell number then.
 			}
-		} else if (preset->dwType == 5) {
+		} else if (preset->dwType == UNIT_TILE) {
 			LevelList* level = new LevelList;
 			for (RoomTile* tile = room->pRoomTiles; tile; tile = tile->pNext) {
 				if (*(tile->nNum) == preset->dwTxtFileNo) {
