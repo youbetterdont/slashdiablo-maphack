@@ -1236,9 +1236,9 @@ bool ResistAllCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *a
 void AddCondition::Init() {
 	codes.clear();
 	codes = split(key, '+');
-	for (int i = 0; i < codes.size(); i++) {
+	for (auto code : codes) {
 		for (int j = 0; j < sizeof(skills) / sizeof(skills[0]); j++) {
-			if (codes[i] == skills[j].key)
+			if (code == skills[j].key)
 				stats.push_back(skills[j].value);
 		}
 	}
@@ -1246,8 +1246,7 @@ void AddCondition::Init() {
 
 bool AddCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
 	int value = 0;
-
-	for (int i = 0; i < stats.size(); i++) {
+	for (unsigned int i = 0; i < stats.size(); i++) {
 		int tmpVal = D2COMMON_GetUnitStat(uInfo->item, stats[i], 0);
 		if (stats[i] == STAT_MAXHP || stats[i] == STAT_MAXMANA)
 			tmpVal /= 256;
