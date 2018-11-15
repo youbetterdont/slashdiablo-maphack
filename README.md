@@ -64,9 +64,62 @@ Mustache[item]: {{>header}}{{>stats}}{{^isRuneword}}{{#socketed}}\n\n  * {{>>ite
 Mustache[stash]: {{#this}}* {{>item}}\n\n{{/this}}
 ```
 
+# Release Notes for 1.9.1
+* Added several new keywords to ItemDisplay
+  * MAXDUR for enhanced durability percent
+  * FRES for fire resistance
+  * CRES for cold resistance
+  * LRES for lightning resistance
+  * PRES for poison resistance
+  * Stats can now be combined in a limited pool by adding a + between them:
+	* STR, DEX, LIFE, MANA, FRES, LRES, CRES, PRES
+	* Example config lines:
+	  * `ItemDisplay[EQ5 RARE FRW>10 CRES+LRES+FRES>79]: %PURPLE%o %YELLOW%%NAME%%MAP% // GG Boots`
+	  * `ItemDisplay[amu !SET FCR>9 (STR+DEX+LIFE>14 OR CRES+LRES+FRES>29)]: %PURPLE%o %YELLOW%%NAME%%MAP% // GG Amulets`
+  * FOOLS for Fool's mod. Used without any operators or numbers
+    * Example config line:
+	  * `ItemDisplay[WEAPON RARE FOOLS ED>199 IAS>10]: %RED%o %YELLOW%%NAME%%MAP%`
+  * GOODSK for + skills of any of the user defined good classes
+  * GOODTBSK for + skills tab of any of the user defined good tab skills
+
+* To utilize Good Class/Tab skills add the following to the .cfg
+```
+SkillsList[0]: 			False		// Amazon
+SkillsList[1]: 			True		// Sorceress
+SkillsList[2]: 			True		// Necromancer
+SkillsList[3]: 			True		// Paladin
+SkillsList[4]: 			True		// Barbarian
+SkillsList[5]: 			True		// Druid
+SkillsList[6]:			True		// Assassin
+TabSkillsList[0]:		False		// Amazon Bow
+TabSkillsList[1]:		False		// Amazon Passive
+TabSkillsList[2]:		True		// Amazon Javelin
+TabSkillsList[8]:		True		// Sorceress Fire
+TabSkillsList[9]:		True		// Sorceress Lightning
+TabSkillsList[10]:		True		// Sorceress Cold
+TabSkillsList[16]:		False		// Necromancer Curses
+TabSkillsList[17]:		True		// Necromancer Poison & Bone
+TabSkillsList[18]:		False		// Necromancer Summoning
+TabSkillsList[24]:		True		// Paladin Combat
+TabSkillsList[25]:		False		// Paladin Offensive
+TabSkillsList[26]:		False		// Paladin Defensive
+TabSkillsList[32]:		False		// Barbarian Combat
+TabSkillsList[33]:		False		// Barbarian Masteries
+TabSkillsList[34]:		True		// Barbarian Warcries
+TabSkillsList[40]:		False		// Druid Summoning
+TabSkillsList[41]:		False		// Druid Shapeshifting
+TabSkillsList[42]:		True		// Druid Elemental
+TabSkillsList[48]:		True		// Assassin Traps
+TabSkillsList[49]:		False		// Assassin Shadow Disciplines
+TabSkillsList[50]:		False		// Assassin Martial Arts
+```
+* The numbers in braces corresponds to the internal code for the skill so it is important to use this exact list.
+* If you do not put this in your config you will not be able to use GOODSK and GOODCLSK, but nothing with break.
+
+
 # Release Notes for BH Maphack v1.8
 * Stash export improvements:
-  * Add account name to sash export file name
+  * Add account name to stash export file name
   * Add rare and crafted item names to stash export
 * Map boxes are drawn on top of other things
 * Add four possible box sizes to draw on the map

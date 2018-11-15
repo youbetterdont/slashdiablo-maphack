@@ -1065,3 +1065,7 @@ enum QuestFlags {
 #define MONSTAT_ALIGN_ENEMY				0x0
 #define MONSTAT_ALIGN_ALLY				0x1
 #define MONSTAT_ALIGN_NEUTRAL			0x2
+
+// Toggles for GOODSK and GOODCLSK in ItemDisplay
+#define CLASS_SKILLS					0
+#define CLASS_TAB_SKILLS				1

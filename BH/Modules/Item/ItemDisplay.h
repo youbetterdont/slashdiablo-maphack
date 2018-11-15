@@ -14,7 +14,6 @@
 #define EXCEPTION_INVALID_ITEM_TYPE		5
 #define EXCEPTION_INVALID_GOLD_TYPE		6
 
-
 // Properties that can appear on an item from incoming packets
 struct ItemProperty {
 	unsigned int stat;
@@ -354,6 +353,35 @@ private:
 	bool EvaluateED(unsigned int flags);
 };
 
+class FoolsCondition : public Condition
+{
+public:
+	FoolsCondition() { conditionType = CT_Operand; };
+private:
+	bool EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2);
+	bool EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2);
+};
+
+class SkillListCondition : public Condition
+{
+public:
+	SkillListCondition(BYTE op, unsigned int t, unsigned int target) : operation(op), type(t), targetStat(target) {
+		conditionType = CT_Operand;
+		Init();
+	};
+private:
+	BYTE operation;
+	unsigned int type;
+	unsigned int targetStat;
+	std::map<string, string> classSkillList;
+	std::map<string, string> skillList;
+	vector<unsigned int> goodClassSkills;
+	vector<unsigned int> goodTabSkills;
+	void Init();
+	bool EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2);
+	bool EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2);
+};
+
 class CharStatCondition : public Condition
 {
 public:
@@ -405,6 +433,24 @@ private:
 	bool EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2);
 };
 
+class AddCondition : public Condition
+{
+public:
+	AddCondition(string& k, BYTE op, unsigned int target) : key(k), operation(op), targetStat(target) { 
+		conditionType = CT_Operand;
+		Init();
+	};
+private:
+	BYTE operation;
+	vector<string> codes;
+	vector<DWORD> stats;
+	unsigned int targetStat;
+	string key;
+	void Init();
+	bool EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2);
+	bool EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2);
+};
+
 extern TrueCondition *trueCondition;
 extern FalseCondition *falseCondition;
 
@@ -414,6 +460,11 @@ struct ActionReplace {
 };
 
 struct ColorReplace {
+	string key;
+	int value;
+};
+
+struct SkillReplace {
 	string key;
 	int value;
 };
