@@ -1,6 +1,6 @@
 #pragma once
 
-#define BH_VERSION "BH 1.9.0"
+#define BH_VERSION "BH 1.9.1"
 
 enum TextColor {
 	Disabled=-1,
