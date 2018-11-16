@@ -4,6 +4,7 @@
 #include "../../D2Stubs.h"
 #include "../Item/ItemDisplay.h"
 #include "../../MPQReader.h"
+#include "../../D2Version.h"
 #include <time.h>
 
 using namespace Drawing;
@@ -16,6 +17,11 @@ void ScreenInfo::OnLoad() {
 	bhText = new Texthook(OutOfGame, 795, 6, BH_VERSION " (planqi Resurgence/Slash branch)");
 	bhText->SetAlignment(Right);
 	bhText->SetColor(Gold);
+
+	d2VersionText = new Texthook(OutOfGame, 795, 18, D2Version::GetHumanReadableVersion());
+	d2VersionText->SetAlignment(Right);
+	d2VersionText->SetColor(White);
+	d2VersionText->SetFont(1);
 
 	if (BH::cGuardLoaded) {
 		Texthook* cGuardText = new Texthook(Perm, 790, 23, "ÿc4cGuard Loaded");
@@ -44,8 +50,8 @@ void ScreenInfo::LoadConfig() {
 }
 
 void ScreenInfo::MpqLoaded() {
-	versionText = new Texthook(Perm, 5, 589, MpqVersion);
-	versionText->SetColor(Gold);
+	mpqVersionText = new Texthook(Perm, 5, 589, MpqVersion);
+	mpqVersionText->SetColor(Gold);
 }
 
 void ScreenInfo::OnGameJoin(const string& name, const string& pass, int diff) {

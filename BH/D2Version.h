@@ -16,6 +16,7 @@ namespace D2Version {
     VersionID GetGameVersionID();
     void Init();
     std::string GetGameVersionString();
+    std::string GetHumanReadableVersion();
 };
 
 #endif

@@ -69,3 +69,20 @@ std::string D2Version::GetGameVersionString() {
 	}
 	return returnValue;
 }
+
+std::string D2Version::GetHumanReadableVersion() {
+	std::string returnValue;
+
+	switch (GetGameVersionID()) {
+		case VERSION_113c :
+			returnValue = "1.13c";
+			break;
+		case VERSION_113d :
+			returnValue = "1.13d";
+			break;
+		default:
+			returnValue = "unknown";
+	}
+	
+	return returnValue;
+}
