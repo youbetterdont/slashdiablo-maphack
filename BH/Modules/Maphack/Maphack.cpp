@@ -175,6 +175,12 @@ void Maphack::OnLoad() {
 	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Show Monsters"].state, "Show Monsters");
 	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Show Monsters"].toggle, "");
 
+	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Monster Enchantments"].state, "  Enchantments");
+	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Monster Enchantments"].toggle, "");
+
+	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Monster Resistances"].state, "  Resistances");
+	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Monster Resistances"].toggle, "");
+	
 	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Show Missiles"].state, "Show Missiles");
 	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Show Missiles"].toggle, "");
 
@@ -193,12 +199,6 @@ void Maphack::OnLoad() {
 	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Remove Shake"].state, "Remove Shake");
 	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Remove Shake"].toggle, "");
 
-	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Monster Resistances"].state, "Monster Resistances");
-	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Monster Resistances"].toggle, "");
-	
-	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Monster Enchantments"].state, "Monster Enchantments");
-	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Monster Enchantments"].toggle, "");
-
 	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Display Level Names"].state, "Level Names");
 	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Display Level Names"].toggle, "");
 
@@ -216,7 +216,7 @@ void Maphack::OnLoad() {
 	new Colorhook(settingsTab, 210, 122, &monsterColors["Champion"], "Champion");
 	new Colorhook(settingsTab, 210, 137, &monsterColors["Boss"], "Boss");
 
-	new Texthook(settingsTab, 3, (Y += 15), "Reveal Type:");
+	new Texthook(settingsTab, 6, (Y += 15), "Reveal Type:");
 
 	vector<string> options;
 	options.push_back("Game");
