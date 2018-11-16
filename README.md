@@ -7,7 +7,7 @@ This maphack is based on BH maphack, written by McGod from the blizzhackers
 forum. It was extensively customized for the slashdiablo realm by Deadlock39,
 who created versions 0.1.1 and 0.1.2.
 
-Currently works with client version 1.13C.
+Currently works with client versions 1.13c and 1.13d
 
 Major features include:
 
@@ -65,6 +65,9 @@ Mustache[stash]: {{#this}}* {{>item}}\n\n{{/this}}
 ```
 
 # Release Notes for 1.9.1
+* Show game patch version (1.13c or 1.13d) while out of game
+* Draw lines to LK superchests
+* Show monster enchantments on map
 * Added several new keywords to ItemDisplay
   * MAXDUR for enhanced durability percent
   * FRES for fire resistance
@@ -116,6 +119,16 @@ TabSkillsList[50]:		False		// Assassin Martial Arts
 * The numbers in braces corresponds to the internal code for the skill so it is important to use this exact list.
 * If you do not put this in your config you will not be able to use GOODSK and GOODCLSK, but nothing with break.
 
+
+# Release Notes for 1.9.0
+* Configuration changes in UI are saved on UI close and game
+* Add monster resistances and % health missing feature
+* Add Chat Colors module to color messages from users:
+```
+Whisper Color[*chat]: 10
+Whisper Color[*trade]: 7
+
+```
 
 # Release Notes for BH Maphack v1.8
 * Stash export improvements:
