@@ -33,6 +33,10 @@ Maphack::Maphack() : Module("Maphack") {
 	monsterColors["Minion"] = 0x60;
 	monsterColors["Champion"] = 0x91;
 	monsterColors["Boss"] = 0x84;
+
+	monsterResistanceThreshold = 99;
+	lkLinesColor = 105;
+
 	ReadConfig();
 }
 
