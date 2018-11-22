@@ -797,6 +797,8 @@ void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 			Condition::AddOperand(conditions, new ItemStatCondition(stat1, stat2, operation, value));
 		}
 
+	} else if (key.compare(0, 5, "PRICE") == 0) {
+		Condition::AddOperand(conditions, new ItemPriceCondition(operation, value));
 	}
 
 	for (vector<Condition*>::iterator it = endConditions.begin(); it != endConditions.end(); it++) {
@@ -1201,6 +1203,14 @@ bool ItemStatCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *ar
 		}
 		return IntegerCompare(num, operation, targetStat);
 	}
+	return false;
+}
+
+bool ItemPriceCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
+	return IntegerCompare(D2COMMON_GetItemPrice(D2CLIENT_GetPlayerUnit(), uInfo->item, D2CLIENT_GetDifficulty(), (DWORD)D2CLIENT_GetQuestInfo(), 0x201, 1), operation, targetStat);
+}
+bool ItemPriceCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2) {
+	// TODO: Implement later
 	return false;
 }
 
