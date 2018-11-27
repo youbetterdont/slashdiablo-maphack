@@ -51,38 +51,49 @@ void Item::LoadConfig() {
 
 void Item::DrawSettings() {
 	settingsTab = new UITab("Item", BH::settingsUI);
+	int y = 10;
 
-	new Checkhook(settingsTab, 4, 15, &Toggles["Show Ethereal"].state, "Show Ethereal");
-	new Keyhook(settingsTab, 200, 17, &Toggles["Show Ethereal"].toggle, "");
+	new Checkhook(settingsTab, 4, y, &Toggles["Show Ethereal"].state, "Show Ethereal");
+	new Keyhook(settingsTab, 200, y+2, &Toggles["Show Ethereal"].toggle, "");
+	y += 15;
 
-	new Checkhook(settingsTab, 4, 30, &Toggles["Show Sockets"].state, "Show Sockets");
-	new Keyhook(settingsTab, 200, 32, &Toggles["Show Sockets"].toggle, "");
+	new Checkhook(settingsTab, 4, y, &Toggles["Show Sockets"].state, "Show Sockets");
+	new Keyhook(settingsTab, 200, y+2, &Toggles["Show Sockets"].toggle, "");
+	y += 15;
 
-	new Checkhook(settingsTab, 4, 45, &Toggles["Show iLvl"].state, "Show iLvl");
-	new Keyhook(settingsTab, 200, 47, &Toggles["Show iLvl"].toggle, "");
+	new Checkhook(settingsTab, 4, y, &Toggles["Show iLvl"].state, "Show iLvl");
+	new Keyhook(settingsTab, 200, y+2, &Toggles["Show iLvl"].toggle, "");
+	y += 15;
 
-	new Checkhook(settingsTab, 4, 60, &Toggles["Show Rune Numbers"].state, "Show Rune #");
-	new Keyhook(settingsTab, 200, 62, &Toggles["Show Rune Numbers"].toggle, "");
+	new Checkhook(settingsTab, 4, y, &Toggles["Show Rune Numbers"].state, "Show Rune #");
+	new Keyhook(settingsTab, 200, y+2, &Toggles["Show Rune Numbers"].toggle, "");
+	y += 15;
 
-	new Checkhook(settingsTab, 4, 75, &Toggles["Alt Item Style"].state, "Alt Style");
-	new Keyhook(settingsTab, 200, 77, &Toggles["Alt Item Style"].toggle, "");
+	new Checkhook(settingsTab, 4, y, &Toggles["Alt Item Style"].state, "Alt Style");
+	new Keyhook(settingsTab, 200, y+2, &Toggles["Alt Item Style"].toggle, "");
+	y += 15;
 
-	new Checkhook(settingsTab, 4, 90, &Toggles["Color Mod"].state, "Color Mod");
-	new Keyhook(settingsTab, 200, 92, &Toggles["Color Mod"].toggle, "");
+	new Checkhook(settingsTab, 4, y, &Toggles["Color Mod"].state, "Color Mod");
+	new Keyhook(settingsTab, 200, y+2, &Toggles["Color Mod"].toggle, "");
+	y += 15;
 
-	new Checkhook(settingsTab, 4, 105, &Toggles["Shorten Item Names"].state, "Shorten Names");
-	new Keyhook(settingsTab, 200, 107, &Toggles["Shorten Item Names"].toggle, "");
+	new Checkhook(settingsTab, 4, y, &Toggles["Shorten Item Names"].state, "Shorten Names");
+	new Keyhook(settingsTab, 200, y+2, &Toggles["Shorten Item Names"].toggle, "");
+	y += 15;
 
-	new Checkhook(settingsTab, 4, 120, &Toggles["Advanced Item Display"].state, "Advanced Item Display");
-	new Keyhook(settingsTab, 200, 122, &Toggles["Advanced Item Display"].toggle, "");
+	new Checkhook(settingsTab, 4, y, &Toggles["Advanced Item Display"].state, "Advanced Item Display");
+	new Keyhook(settingsTab, 200, y+2, &Toggles["Advanced Item Display"].toggle, "");
+	y += 15;
 
-	new Checkhook(settingsTab, 4, 135, &Toggles["Item Drop Notifications"].state, "Item Drop Notifications");
-	new Keyhook(settingsTab, 200, 137, &Toggles["Item Drop Notifications"].toggle, "");
+	new Checkhook(settingsTab, 4, y, &Toggles["Item Drop Notifications"].state, "Item Drop Notifications");
+	new Keyhook(settingsTab, 200, y+2, &Toggles["Item Drop Notifications"].toggle, "");
+	y += 15;
 
-	new Checkhook(settingsTab, 4, 150, &Toggles["Item Close Notifications"].state, "Item Close Notifications");
-	new Keyhook(settingsTab, 200, 152, &Toggles["Item Close Notifications"].toggle, "");
+	new Checkhook(settingsTab, 4, y, &Toggles["Item Close Notifications"].state, "Item Close Notifications");
+	new Keyhook(settingsTab, 200, y+2, &Toggles["Item Close Notifications"].toggle, "");
+	y += 15;
 
-	new Keyhook(settingsTab, 4, 167, &showPlayer, "Show Players Gear");
+	new Keyhook(settingsTab, 4, y+2, &showPlayer, "Show Players Gear");
 }
 
 void Item::OnUnload() {
