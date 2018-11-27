@@ -762,7 +762,8 @@ void ParseItem(const unsigned char *data, ItemInfo *item, bool *success) {
 				break;
 			}
 			ItemProperty prop = {};
-			if (!ProcessStat(stat_id, reader, prop)) {
+			if (!ProcessStat(stat_id, reader, prop) &&
+					!(*BH::MiscToggles2)["Suppress Invalid Stats"].state) {
 				PrintText(1, "Invalid stat: %d, %c%c%c", stat_id, item->code[0], item->code[1], item->code[2]);
 				*success = false;
 				break;

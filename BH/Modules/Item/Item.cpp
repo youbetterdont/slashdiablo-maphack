@@ -41,6 +41,7 @@ void Item::LoadConfig() {
 	BH::config->ReadToggle("Item Drop Notifications", "None", false, Toggles["Item Drop Notifications"]);
 	BH::config->ReadToggle("Item Close Notifications", "None", false, Toggles["Item Close Notifications"]);
 	BH::config->ReadToggle("Allow Unknown Items", "None", false, Toggles["Allow Unknown Items"]);
+	BH::config->ReadToggle("Suppress Invalid Stats", "None", false, Toggles["Suppress Invalid Stats"]);
 
 	ItemDisplay::UninitializeItemRules();
 
@@ -91,6 +92,10 @@ void Item::DrawSettings() {
 
 	new Checkhook(settingsTab, 4, y, &Toggles["Item Close Notifications"].state, "Item Close Notifications");
 	new Keyhook(settingsTab, 200, y+2, &Toggles["Item Close Notifications"].toggle, "");
+	y += 15;
+
+	new Checkhook(settingsTab, 4, y, &Toggles["Suppress Invalid Stats"].state, "Suppress Invalid Stats");
+	new Keyhook(settingsTab, 200, y+2, &Toggles["Suppress Invalid Stats"].toggle, "");
 	y += 15;
 
 	new Keyhook(settingsTab, 4, y+2, &showPlayer, "Show Players Gear");
