@@ -166,12 +166,15 @@
     <ClInclude Include="BH.h" />
     <ClInclude Include="BitReader.h" />
     <ClInclude Include="Common.h" />
+    <ClInclude Include="CommonStructs.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="Constants.h" />
+    <ClInclude Include="D2DataTables.h" />
     <ClInclude Include="D2Handlers.h" />
     <ClInclude Include="D2Helpers.h" />
     <ClInclude Include="D2Intercepts.h" />
     <ClInclude Include="D2Ptrs.h" />
+    <ClInclude Include="D2Strings.h" />
     <ClInclude Include="D2Structs.h" />
     <ClInclude Include="D2Stubs.h" />
     <ClInclude Include="D2Version.h" />

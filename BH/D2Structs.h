@@ -1,8 +1,55 @@
+/**
+*
+* D2Structs.h
+* BH: Copyright 2011 (C) McGod
+* SlashDiablo Maphack: Copyright (C) SlashDiablo Community
+*
+*  This file is part of SlashDiablo Maphack.
+*
+*  SlashDiablo Maphack is free software: you can redistribute it and/or modify
+*  it under the terms of the GNU Affero General Public License as published
+*  by the Free Software Foundation, either version 3 of the License, or
+*  (at your option) any later version.
+*
+*  This program is distributed in the hope that it will be useful,
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*  GNU Affero General Public License for more details.
+*
+*  You should have received a copy of the GNU Affero General Public License
+*  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*
+* This file incorporates work covered by the following copyright and
+* permission notice:
+*
+*   ==========================================================
+*   D2Ex2
+*   https://github.com/lolet/D2Ex2
+*   ==========================================================
+*   Copyright (c) 2011-2014 Bartosz Jankowski
+*
+*   Licensed under the Apache License, Version 2.0 (the "License");
+*   you may not use this file except in compliance with the License.
+*   You may obtain a copy of the License at
+*
+*   http://www.apache.org/licenses/LICENSE-2.0
+*
+*   Unless required by applicable law or agreed to in writing, software
+*   distributed under the License is distributed on an "AS IS" BASIS,
+*   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+*   See the License for the specific language governing permissions and
+*   limitations under the License.
+*   ==========================================================
+*
+*/
+
 #pragma once
 #ifndef _D2STRUCTS_H
 #define _D2STRUCTS_H
 
 #include <windows.h>
+#include "CommonStructs.h"
+#include "D2DataTables.h"
 
 #pragma warning ( push )
 #pragma warning ( disable: 4201 )
@@ -66,20 +113,6 @@ struct InteractStruct {
 	DWORD _2;					//0x18
 };
 
-struct CellFile {
-	DWORD dwVersion;				//0x00
-	struct {
-		WORD dwFlags;
-		BYTE mylastcol;
-		BYTE mytabno:1;
-	};								//0x04
-	DWORD eFormat;					//0x08
-	DWORD termination;				//0x0C
-	DWORD numdirs;					//0x10
-	DWORD numcells;					//0x14
-	GfxCell *cells[1];				//0x18
-};
-
 struct CellContext {
 	DWORD nCellNo;					//0x00
 	DWORD _1[12];					//0x04
@@ -120,15 +153,6 @@ struct ControlPreferences
 	// ..
 };
 
-struct ControlText {
-	wchar_t* wText; //0x00
-	wchar_t* wText2;//0x04
-	DWORD _1[3];	//0x08
-	DWORD dwColor;	//0x14
-	DWORD _2;		//0x18
-	ControlText* pNext;//0x1C
-};
-
 struct Control {
    DWORD dwType;					//0x00
    CellFile *pCellFile;				//0x04
@@ -161,264 +185,6 @@ struct Control {
    DWORD dwSelectStart;				//0x58
    wchar_t wText[0x1A];				//0x5C
    Control* pChildControl;			//0x90
-};
-
-struct MonStatsTxt // size 0x1A8
-{
-	WORD	wId;						//0x00
-	WORD	wBaseId;					//0x02
-	WORD	wNextInClass;				//0x04
-	WORD	wNameStr;					//0x06
-	WORD	wDescStr;					//0x08
-	WORD	_1a;						//0x0A
-	struct {
-		BYTE	bisSpawn : 1;						//1
-		BYTE	bisMelee : 1;						//2
-		BYTE	bnoRatio : 1;						//3
-		BYTE	bOpenDoors : 1;					//4
-		BYTE	bSetBoss : 1;						//5
-		BYTE	bBossXfer : 1;					//6
-		BYTE	bBossXfer2 : 1;					//7
-		BYTE	bPrimeEvil : 1;					//8
-		BYTE	bNPC : 1;							//9
-		BYTE	bInteract : 1;					//10
-		BYTE	binTown : 1;						//11
-		BYTE	blUndead : 1;						//12
-		BYTE	bhUndead : 1;						//13
-		BYTE	bDemon : 1;						//14
-		BYTE	bFlying : 1;						//15
-		BYTE	bKillable : 1;					//16
-		BYTE	bSwitchAI : 1;					//17
-		BYTE	bNoMultiShot : 1;					//18
-		BYTE	bNeverCount : 1;					//19
-		BYTE	bPetIgnore : 1;					//20
-		BYTE	bDeathDmg : 1;					//21
-		BYTE	bGenericSpawn : 1;				//22
-		BYTE	bZoo : 1;							//23
-		BYTE	bPlaceSpawn : 1;					//24
-		BYTE	bInventory : 1;					//25
-		BYTE	bEnabled : 1;						//26
-		BYTE	bNoShldBlock : 1;					//27
-		BYTE	bNoAura : 1;						//28
-		BYTE	bRangedType : 1;					//29
-	} dwFlags;							//0x0C
-	DWORD	dwCode;						//0x10
-	WORD	wMonSound;					//0x14
-	WORD	wUMonSound;					//0x16
-	WORD	wMonStatsEx;				//0x18
-	WORD	wMonProp;					//0x1A
-	WORD	wMonType;					//0x1C
-	WORD	wAI;						//0x1E
-	WORD	wSpawn;						//0x20
-	BYTE	bSpawnX;					//0x22
-	BYTE	bSpawnY;					//0x23
-	WORD	bSpawnMode;					//0x24
-	WORD	wMinion1;					//0x26
-	WORD	wMinion2;					//0x28
-	WORD	_1;							//0x2A
-	BYTE	bPartyMin;					//0x2C
-	BYTE	bPartyMax;					//0x2D
-	BYTE	bRarity;					//0x2E
-	BYTE	bMinGrp;					//0x2F
-	BYTE	bMaxGrp;					//0x30
-	BYTE	bSparsePopulate;			//0x31
-	WORD	wVelocity;					//0x32
-	WORD	wRun;						//0x34
-	WORD	_2;							//0x36
-	WORD	_2b;						//0x38
-	WORD	wMissA1;					//0x3A
-	WORD	wMissA2;					//0x3C
-	WORD	wMissS1;					//0x3E
-	WORD	wMissS2;					//0x40
-	WORD	wMissS3;					//0x42
-	WORD	wMissS4;					//0x44
-	WORD	wMissC;						//0x46
-	WORD	wMissSQ;					//0x48
-	WORD	_3;							//0x4A
-	BYTE	bAlign;						//0x4C
-	BYTE	bTransLvl;					//0x4D
-	BYTE	bThreat;					//0x4E
-	BYTE	bAIdel;						//0x4F
-	BYTE	bAIdel_N;					//0x50
-	BYTE	bAIdel_H;					//0x51
-	BYTE	bAiDist;					//0x52
-	BYTE	bAiDist_N;					//0x53
-	WORD	bAiDist_H;					//0x54
-	WORD	wAiP1;						//0x56
-	WORD	wAiP1_N;					//0x58
-	WORD	wAiP1_H;					//0x5A
-	WORD	wAiP2;						//0x5C
-	WORD	wAiP2_N;					//0x5E
-	WORD	wAiP2_H;					//0x60
-	WORD	wAiP3;						//0x62
-	WORD	wAiP3_N;					//0x64
-	WORD	wAiP3_H;					//0x66
-	WORD	wAiP4;						//0x68
-	WORD	wAiP4_N;					//0x6A
-	WORD	wAiP4_H;					//0x6C
-	WORD	wAiP5;						//0x6E
-	WORD	wAiP5_N;					//0x70
-	WORD	wAiP5_H;					//0x72
-	WORD	wAiP6;						//0x74
-	WORD	wAiP6_N;					//0x76
-	WORD	wAiP6_H;					//0x78
-	WORD	wAiP7;						//0x7A
-	WORD	wAiP7_N;					//0x7C
-	WORD	wAiP7_H;					//0x7E
-	WORD	wAiP8;						//0x80
-	WORD	wAiP8_N;					//0x82
-	WORD	wAiP8_H;					//0x84
-	WORD	wTreasureClass1;			//0x86
-	WORD	wTreasureClass2;			//0x88
-	WORD	wTreasureClass3;			//0x8A
-	WORD	wTreasureClass4;			//0x8C
-	WORD	wTreasureClass1_N;			//0x8E
-	WORD	wTreasureClass2_N;			//0x90
-	WORD	wTreasureClass3_N;			//0x92
-	WORD	wTreasureClass4_N;			//0x94
-	WORD	wTreasureClass1_H;			//0x96
-	WORD	wTreasureClass2_H;			//0x98
-	WORD	wTreasureClass3_H;			//0x9A
-	WORD	wTreasureClass4_H;			//0x9C
-	BYTE	bTCQuestId;					//0x9E
-	BYTE	bTCQuestCP;					//0x9F
-	BYTE	bDrain;						//0xA0
-	BYTE	bDrain_N;					//0xA1
-	BYTE	bDrain_H;					//0xA2
-	BYTE	bToBlock;					//0xA3
-	BYTE	bToBlock_N;					//0xA4
-	BYTE	bToBlock_H;					//0xA5
-	WORD	bCrit;						//0xA6
-	WORD	wSkillDamage;				//0xA8
-	WORD	wLevel;						//0xAA
-	WORD	wLevel_N;					//0xAC
-	WORD	wLevel_H;					//0xAE
-	WORD	wMinHP;						//0xB0
-	WORD	wMinHP_N;					//0xB2
-	WORD	wMinHP_H;					//0xB4
-	WORD	wMaxHP;						//0xB6
-	WORD	wMaxHP_N;					//0xB8
-	WORD	wMaxHP_H;					//0xBA
-	WORD	wAC;						//0xBC
-	WORD	wAC_N;						//0xBE
-	WORD	wAC_H;						//0xC0
-	WORD	wA1TH;						//0xC2
-	WORD	wA1TH_N;					//0xC4
-	WORD	wA1TH_H;					//0xC6
-	WORD	wA2TH;						//0xC8
-	WORD	wA2TH_N;					//0xCA
-	WORD	wA2TH_H;					//0xCC
-	WORD	wS1TH;						//0xCE
-	WORD	wS1TH_N;					//0xD0
-	WORD	wS1TH_H;					//0xD2
-	WORD	wExp;						//0xD4
-	WORD	wExp_N;						//0xD6
-	WORD	wExp_H;						//0xD8
-	WORD	wA1MinD;					//0xDA
-	WORD	wA1MinD_N;					//0xDC
-	WORD	wA1MinD_H;					//0xDE
-	WORD	wA1MaxD;					//0xE0
-	WORD	wA1MaxD_N;					//0xE2
-	WORD	wA1MaxD_H;					//0xE4
-	WORD	wA2MinD;					//0xE6
-	WORD	wA2MinD_N;					//0xE8
-	WORD	wA2MinD_H;					//0xEA
-	WORD	wA2MaxD;					//0xEC
-	WORD	wA2MaxD_N;					//0xEE
-	WORD	wA2MaxD_H;					//0xF0
-	WORD	wS1MinD;					//0xF2
-	WORD	wS1MinD_N;					//0xF4
-	WORD	wS1MinD_H;					//0xF6
-	WORD	wS1MaxD;					//0xF8
-	WORD	wS1MaxD_N;					//0xFA
-	WORD	wS1MaxD_H;					//0xFC
-	BYTE	bEl1Mode;					//0xFE
-	BYTE	bEl2Mode;					//0xFF
-	BYTE	bEl3Mode;					//0x100
-	BYTE	bEl1Type;					//0x101
-	BYTE	bEl2Type;					//0x102
-	BYTE	bEl3Type;					//0x103
-	BYTE	bEl1Pct;					//0x104
-	BYTE	bEl1Pct_N;					//0x105
-	BYTE	bEl1Pct_H;					//0x106
-	BYTE	bEl2Pct;					//0x107
-	BYTE	bEl2Pct_N;					//0x108
-	BYTE	bEl2Pct_H;					//0x109
-	BYTE	bEl3Pct;					//0x10A
-	BYTE	bEl3Pct_N;					//0x10B
-	BYTE	bEl3Pct_H;					//0x10C
-	BYTE	_4;							//0x10D
-	WORD	wEl1MinD;					//0x10E
-	WORD	wEl1MinD_N;					//0x110
-	WORD	wEl1MinD_H;					//0x112
-	WORD	wEl2MinD;					//0x114
-	WORD	wEl2MinD_N;					//0x116
-	WORD	wEl2MinD_H;					//0x118
-	WORD	wEl3MinD;					//0x11A
-	WORD	wEl3MinD_N;					//0x11C
-	WORD	wEl3MinD_H;					//0x11E
-	WORD	wEl1MaxD;					//0x120
-	WORD	wEl1MaxD_N;					//0x122
-	WORD	wEl1MaxD_H;					//0x124
-	WORD	wEl2MaxD;					//0x126
-	WORD	wEl2MaxD_N;					//0x128
-	WORD	wEl2MaxD_H;					//0x12A
-	WORD	wEl3MaxD;					//0x12C
-	WORD	wEl3MaxD_N;					//0x12E
-	WORD	wEl3MaxD_H;					//0x130
-	WORD	wEl1Dur;					//0x132
-	WORD	wEl1Dur_N;					//0x134
-	WORD	wEl1Dur_H;					//0x136
-	WORD	wEl2Dur;					//0x138
-	WORD	wEl2Dur_N;					//0x13A
-	WORD	wEl2Dur_H;					//0x13C
-	WORD	wEl3Dur;					//0x13E
-	WORD	wEl3Dur_N;					//0x140
-	WORD	wEl3Dur_H;					//0x142
-	WORD	wResDmg;					//0x144
-	WORD	wResDmg_N;					//0x146
-	WORD	wResDmg_H;					//0x148
-	WORD	wResMagic;					//0x14A
-	WORD	wResMagic_N;				//0x14C
-	WORD	wResMagic_H;				//0x14E
-	WORD	wResFire;					//0x150
-	WORD	wResFire_N;					//0x152
-	WORD	wResFire_H;					//0x154
-	WORD	wResLight;					//0x156
-	WORD	wResLight_N;				//0x158
-	WORD	wResLight_H;				//0x15A
-	WORD	wResCold;					//0x15C
-	WORD	wResCold_N;					//0x15E
-	WORD	wResCold_H;					//0x160
-	WORD	wResPoison;					//0x162
-	WORD	wResPoison_N;				//0x164
-	WORD	wResPoiosn_H;				//0x166
-	BYTE	bColdEffect;				//0x168
-	BYTE	bColdEffect_N;				//0x169
-	WORD	bColdEffect_H;				//0x16A
-	DWORD	dwSendSkills;				//0x16C
-	WORD	wSkill1;					//0x170
-	WORD	wSkill2;					//0x172
-	WORD	wSkill3;					//0x174
-	WORD	wSkill4;					//0x176
-	WORD	wSkill5;					//0x178
-	WORD	wSkill6;					//0x17A
-	WORD	wSkill7;					//0x17C
-	WORD	wSkill8;					//0x17E
-	DWORD   _5[6];						//0x180
-	BYTE	bSk1lvl;					//0x198
-	BYTE	bSk2lvl;					//0x199
-	BYTE	bSk3lvl;					//0x19A
-	BYTE	bSk4lvl;					//0x19B
-	BYTE	bSk5lvl;					//0x19C
-	BYTE	bSk6lvl;					//0x19D
-	BYTE	bSk7lvl;					//0x19E
-	BYTE	bSk8lvl;					//0x19F
-	DWORD	dwDamageRegen;				//0x1A0
-	BYTE	bSplEndDeath;				//0x1A4
-	BYTE	bSplGetModeChart;			//0x1A5
-	BYTE	bSplEndGeneric;				//0x1A6
-	BYTE	bSplClientEnd;				//0x1A7
 };
 
 #pragma pack(push)
@@ -469,19 +235,6 @@ struct PlayerData {
 	Waypoint *pNormalWaypoint;		//0x1c
 	Waypoint *pNightmareWaypoint;	//0x20
 	Waypoint *pHellWaypoint;		//0x24
-};
-
-struct CollMap {
-	DWORD dwPosGameX;				//0x00
-	DWORD dwPosGameY;				//0x04
-	DWORD dwSizeGameX;				//0x08
-	DWORD dwSizeGameY;				//0x0C
-	DWORD dwPosRoomX;				//0x10
-	DWORD dwPosRoomY;				//0x14
-	DWORD dwSizeRoomX;				//0x18
-	DWORD dwSizeRoomY;				//0x1C
-	WORD *pMapStart;				//0x20
-	WORD *pMapEnd;					//0x22
 };
 
 struct PresetUnit {
@@ -692,12 +445,12 @@ struct ItemData {
 	DWORD _2[2];					//0x10
 	DWORD dwFlags;					//0x18
 	DWORD _3[3];					//0x1C
-	DWORD dwQuality2;				//0x28
+	DWORD dwFileIndex;				//0x28
 	DWORD dwItemLevel;				//0x2C
 	WORD wVersion;					//0x30
 	WORD wRarePrefix;				//0x32
 	WORD wRareSuffix;				//0x34
-	WORD _14;						//0x36
+	WORD wAutoPrefix;				//0x36
 	WORD wPrefix[3];				//0x38
 	WORD wSuffix[3];				//0x3E
 	BYTE BodyLocation;				//0x44
@@ -782,24 +535,6 @@ struct MonsterData {
 	struct {
 		wchar_t wName[28];
 	};								//0x2C
-};
-
-struct ObjectTxt {
-	char szName[0x40];				//0x00
-	wchar_t wszName[0x40];			//0x40
-	BYTE _1[4];						//0xC0
-	BYTE nSelectable0;				//0xC4
-	BYTE _2[0x87];					//0xC5
-	BYTE nOrientation;				//0x14C
-	BYTE _2b[0x19];					//0x14D
-	BYTE nSubClass;					//0x166
-	BYTE _3[0x11];					//0x167
-	BYTE nParm0;					//0x178
-	BYTE _4[0x39];					//0x179
-	BYTE nPopulateFn;				//0x1B2
-	BYTE nOperateFn;				//0x1B3
-	BYTE _5[8];						//0x1B4
-	DWORD nAutoMap;					//0x1BB
 };
 
 struct ObjectData {
@@ -981,32 +716,6 @@ struct OverheadMsg {
 struct D2MSG {
 	HWND myHWND;
 	char lpBuf[256];
-};
-
-
-struct InventoryLayout {
-	BYTE SlotWidth;
-	BYTE SlotHeight;
-	BYTE unk1;
-	BYTE unk2;
-	DWORD Left;
-	DWORD Right;
-	DWORD Top;
-	DWORD Bottom;
-	BYTE SlotPixelWidth;
-	BYTE SlotPixelHeight;
-};
-
-struct MpqTable;
-
-struct sgptDataTable {
-	MpqTable*	pPlayerClass;
-	DWORD		dwPlayerClassRecords;
-	MpqTable*	pBodyLocs;
-	DWORD		dwBodyLocsRecords;
-	MpqTable*	pStorePage;
-	DWORD		dwStorePageRecords;
-	MpqTable*	pElemTypes;
 };
 
 #pragma warning ( pop )
