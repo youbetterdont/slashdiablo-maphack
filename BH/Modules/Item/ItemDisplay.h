@@ -422,6 +422,20 @@ private:
 	bool EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2);
 };
 
+class ItemPriceCondition : public Condition
+{
+public:
+	ItemPriceCondition(BYTE op, unsigned int target)
+		: operation(op), targetStat(target) {
+		conditionType = CT_Operand;
+	};
+private:
+	BYTE operation;
+	unsigned int targetStat;
+	bool EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2);
+	bool EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2);
+};
+
 class ResistAllCondition : public Condition
 {
 public:
