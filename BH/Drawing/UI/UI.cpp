@@ -41,6 +41,8 @@ UI::~UI() {
 	WritePrivateProfileString(name.c_str(), "X", to_string<unsigned int>(GetX()).c_str(), string(BH::path + "UI.ini").c_str());
 	WritePrivateProfileString(name.c_str(), "Y", to_string<unsigned int>(GetY()).c_str(), string(BH::path + "UI.ini").c_str());
 	WritePrivateProfileString(name.c_str(), "Minimized", to_string<bool>(IsMinimized()).c_str(), string(BH::path + "UI.ini").c_str());
+	WritePrivateProfileString(name.c_str(), "minimizedX", to_string<unsigned int>(GetMinimizedX()).c_str(), string(BH::path + "UI.ini").c_str());
+	WritePrivateProfileString(name.c_str(), "minimizedY", to_string<unsigned int>(GetMinimizedY()).c_str(), string(BH::path + "UI.ini").c_str());
 
 	while(Tabs.size() > 0) {
 		delete (*Tabs.begin());
@@ -114,8 +116,31 @@ void UI::OnDraw() {
 		for (list<UI*>::iterator it = Minimized.begin(); it != Minimized.end(); it++, n++)
 			if ((*it) == this)
 				break;
-		int yPos = GetMinimizedY() - (n * (TITLE_BAR_HEIGHT + 4));
+
 		int xSize = Texthook::GetTextSize(GetName(), 0).x + 8;
+
+		if (IsDragged()) {
+			int newX = (*p_D2CLIENT_MouseX) - dragX;
+			int newY = (*p_D2CLIENT_MouseY) - dragY;
+
+			if (newX < 0)
+				newX = 0;
+
+			if ((newX + xSize + 2) > (int)Hook::GetScreenWidth())
+				newX = Hook::GetScreenWidth() - xSize - 2;
+
+			if (newY < 2)
+				newY = 2;
+
+			if ((newY + TITLE_BAR_HEIGHT) > (int)Hook::GetScreenHeight())
+				newY = Hook::GetScreenHeight() - TITLE_BAR_HEIGHT;
+
+			*p_D2CLIENT_MouseX = newX + dragX;
+			*p_D2CLIENT_MouseY = newY + dragY;
+			SetMinimizedX(newX);
+			SetMinimizedY(newY);
+		}
+		int yPos = GetMinimizedY() - (n * (TITLE_BAR_HEIGHT + 4));
 		int inPos = InPos((*p_D2CLIENT_MouseX), (*p_D2CLIENT_MouseY), GetMinimizedX(), yPos, xSize, TITLE_BAR_HEIGHT);
 		Framehook::Draw(GetMinimizedX(), yPos, xSize, TITLE_BAR_HEIGHT, 0, BTOneHalf);
 		Texthook::Draw(GetMinimizedX() + 4, yPos + 3, false, 0, (inPos?Silver:White), GetName());
@@ -127,11 +152,11 @@ void UI::OnDraw() {
 			if (newX < 0)
 				newX = 0;
 
-			if ((newX + GetXSize()) > Hook::GetScreenWidth())
-				newX = Hook::GetScreenWidth() - GetXSize();
+			if ((newX + GetXSize() + 2) > Hook::GetScreenWidth())
+				newX = Hook::GetScreenWidth() - GetXSize() - 2;
 
-			if (newY < 0)
-				newY = 0;
+			if (newY < 2)
+				newY = 2;
 
 			if ((newY + GetYSize()) > Hook::GetScreenHeight())
 				newY = Hook::GetScreenHeight() - GetYSize();
@@ -155,6 +180,8 @@ void UI::SetDragged(bool state) {
 	if (!state) {
 		WritePrivateProfileString(name.c_str(), "X", to_string<unsigned int>(GetX()).c_str(), string(BH::path + "UI.ini").c_str());
 		WritePrivateProfileString(name.c_str(), "Y", to_string<unsigned int>(GetY()).c_str(), string(BH::path + "UI.ini").c_str());
+		WritePrivateProfileString(name.c_str(), "minimizedX", to_string<unsigned int>(GetMinimizedX()).c_str(), string(BH::path + "UI.ini").c_str());
+		WritePrivateProfileString(name.c_str(), "minimizedY", to_string<unsigned int>(GetMinimizedY()).c_str(), string(BH::path + "UI.ini").c_str());
 	}
 	Unlock(); 
 }
@@ -192,11 +219,22 @@ bool UI::OnLeftClick(bool up, unsigned int mouseX, unsigned int mouseY) {
 				}
 				return true;
 			}
+			else if (GetAsyncKeyState(VK_SHIFT) && !up) {
+				SetDragged(true);
+				dragX = mouseX - GetMinimizedX();
+				dragY = mouseY - GetMinimizedY();
+				startX = mouseX;
+				startY = mouseY;
+			}
 			else
 			{
-				if(!up)
-					PrintText(1, "Hold CTRL and click Settings to open" );
+				SetDragged(false);
+				if(!up) {
+					PrintText(135, "CTRL-click to open settings" );
+					PrintText(134, "Shift-drag to move" );
+				}
 			}
+			return true;
 		}
 	}
 	if (InTitle(mouseX, mouseY) && !IsMinimized()) {
@@ -213,7 +251,7 @@ bool UI::OnLeftClick(bool up, unsigned int mouseX, unsigned int mouseY) {
 			SetDragged(false);
 			if( startX == mouseX && startY == mouseY && GetAsyncKeyState(VK_CONTROL) )
 			{
-				PrintText(1, "Right Click to Close" );
+				PrintText(135, "Right Click to Close" );
 			}
 		}
 		SetActive(true);
