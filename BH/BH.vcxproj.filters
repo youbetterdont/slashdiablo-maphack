@@ -423,6 +423,13 @@
       <Filter>Diablo II\Version</Filter>
     </ClInclude>
     <ClInclude Include="Modules\ChatColor\ChatColor.h">
+    <ClInclude Include="D2Strings.h">
+      <Filter>Diablo II</Filter>
+    </ClInclude>
+    <ClInclude Include="CommonStructs.h">
+      <Filter>Diablo II</Filter>
+    </ClInclude>
+    <ClInclude Include="D2DataTables.h">
       <Filter>Diablo II</Filter>
     </ClInclude>
   </ItemGroup>
