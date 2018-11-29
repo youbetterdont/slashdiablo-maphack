@@ -74,14 +74,12 @@ void Item::OnLoad() {
 	viewInvPatch2->Install();
 	viewInvPatch3->Install();
 
+	itemPropertyStringDamagePatch->Install();
+	itemPropertyStringPatch->Install();
+
 	if (Toggles["Show Ethereal"].state || Toggles["Show Sockets"].state || Toggles["Show iLvl"].state || Toggles["Color Mod"].state ||
 		Toggles["Show Rune Numbers"].state || Toggles["Alt Item Style"].state || Toggles["Shorten Item Names"].state || Toggles["Advanced Item Display"].state)
 		itemNamePatch->Install();
-
-	if (Toggles["Always Show Item Stat Ranges"].state) {
-		itemPropertyStringDamagePatch->Install();
-		itemPropertyStringPatch->Install();
-	}
 
 	DrawSettings();
 }
