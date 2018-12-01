@@ -59,6 +59,7 @@ map<std::string, Toggle> Item::Toggles;
 UnitAny* Item::viewingUnit;
 
 Patch* itemNamePatch = new Patch(Call, D2CLIENT, { 0x92366, 0x96736 }, (int)ItemName_Interception, 6);
+Patch* itemPropertiesPatch = new Patch(Jump, D2CLIENT, { 0x5612C, 0x2E3FC }, (int)GetProperties_Interception, 6);
 Patch* itemPropertyStringDamagePatch = new Patch(Call, D2CLIENT, { 0x55D7B, 0x2E04B }, (int)GetItemPropertyStringDamage_Interception, 5);
 Patch* itemPropertyStringPatch = new Patch(Call, D2CLIENT, { 0x55D9D, 0x2E06D }, (int) GetItemPropertyString_Interception, 5);
 Patch* viewInvPatch1 = new Patch(Call, D2CLIENT, { 0x953E2, 0x997B2 }, (int)ViewInventoryPatch1_ASM, 6);
@@ -79,6 +80,7 @@ void Item::OnLoad() {
 		itemNamePatch->Install();
 
 	if (Toggles["Always Show Item Stat Ranges"].state) {
+		itemPropertiesPatch->Install();
 		itemPropertyStringDamagePatch->Install();
 		itemPropertyStringPatch->Install();
 	}
@@ -546,6 +548,47 @@ void Item::OrigGetItemName(UnitAny *item, string &itemName, char *code)
 	}
 }
 
+static ItemsTxt* GetArmorText(UnitAny* pItem) {
+	ItemText* itemTxt = D2COMMON_GetItemText(pItem->dwTxtFileNo);
+	int armorTxtRecords = *p_D2COMMON_ArmorTxtRecords;
+	for (int i = 0; i < armorTxtRecords; i++) {
+		ItemsTxt* armorTxt = &(*p_D2COMMON_ArmorTxt)[i];
+		if (strcmp(armorTxt->szcode, itemTxt->szCode) == 0) {
+			return armorTxt;
+		}
+	}
+	return NULL;
+}
+
+void __stdcall Item::OnProperties(wchar_t * wTxt)
+{
+	UnitAny* pItem = *p_D2CLIENT_SelectedInvItem;
+	if (!pItem) return;
+	//Any Armor ItemTypes.txt
+	if (D2COMMON_IsMatchingType(pItem, ITEM_TYPE_ALLARMOR)) {
+		int aLen = 0;
+		aLen = wcslen(wTxt);
+		ItemsTxt* armorTxt = GetArmorText(pItem);
+		DWORD base = D2COMMON_GetBaseStatSigned(pItem, STAT_DEFENSE, 0);
+		BOOL isED = TRUE;
+		//TODO: items with enhanced def mod can roll max def +1. below does not get the stat
+		//isED = D2COMMON_GetBaseStatSigned(pItem, STAT_ENHANCEDDEFENSE, 0) > 0;
+		DWORD min = armorTxt->dwminac;
+		DWORD max = armorTxt->dwmaxac + (isED ? 1 : 0);
+		if (pItem->pItemData->dwFlags & ITEM_ETHEREAL) {
+			min = (DWORD)(min * 1.50);
+			max = (DWORD)(max * 1.50);
+		}
+		//hack... if not in range we assume it is ebugged
+		if (base > max) {
+			swprintf_s(wTxt + aLen, 1024 - aLen, L"%sBase Defense: %d [%d-%d]%s\n", L"ÿc9", base, (DWORD)(armorTxt->dwminac * 2.25), (DWORD)(armorTxt->dwmaxac * 2.25), L"ÿc3");
+		}
+		else {
+			swprintf_s(wTxt + aLen, 1024 - aLen, L"%sBase Defense: %d [%d-%d]%s\n", L"ÿc9", base, min, max, L"ÿc3");
+		}
+	}
+}
+
 BOOL __stdcall Item::OnDamagePropertyBuild(UnitAny* pItem, DamageStats* pDmgStats, int nStat, wchar_t* wOut) {
 	wchar_t newDesc[128];
 
@@ -962,6 +1005,18 @@ void __declspec(naked) ItemName_Interception()
 		call Item::ItemNamePatch
 		mov al, [ebp+0x12a]
 		ret
+	}
+}
+
+
+__declspec(naked) void __fastcall GetProperties_Interception()
+{
+	__asm
+	{
+		push eax
+		call Item::OnProperties
+		add esp, 0x808
+		ret 12
 	}
 }
 
