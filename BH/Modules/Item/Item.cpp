@@ -644,8 +644,6 @@ BOOL __stdcall Item::OnDamagePropertyBuild(UnitAny* pItem, DamageStats* pDmgStat
 		stat_max = pDmgStats->nMaxDmg;
 
 		if (stat_min >= stat_max) {
-			pDmgStats->dword14 = TRUE;
-			pDmgStats->nDmgRange = 0;
 			return FALSE;
 		}
 		else {
