@@ -262,7 +262,7 @@ void __fastcall Item::ItemNamePatch(wchar_t *name, UnitAny *item)
 	//string test3 = test_code;
 	//itemName += " {" + test3 + "}";
 
-	MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, itemName.c_str(), itemName.length(), name, itemName.length());
+	MultiByteToWideChar(CODE_PAGE, MB_PRECOMPOSED, itemName.c_str(), itemName.length(), name, itemName.length());
 	name[itemName.length()] = 0;  // null-terminate the string since MultiByteToWideChar doesn't
 	delete[] szName;
 }
