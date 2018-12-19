@@ -95,6 +95,7 @@ void Item::LoadConfig() {
 	BH::config->ReadToggle("Advanced Item Display", "None", false, Toggles["Advanced Item Display"]);
 	BH::config->ReadToggle("Item Drop Notifications", "None", false, Toggles["Item Drop Notifications"]);
 	BH::config->ReadToggle("Item Close Notifications", "None", false, Toggles["Item Close Notifications"]);
+	BH::config->ReadToggle("Verbose Notifications", "None", false, Toggles["Verbose Notifications"]);
 	BH::config->ReadToggle("Allow Unknown Items", "None", false, Toggles["Allow Unknown Items"]);
 	BH::config->ReadToggle("Suppress Invalid Stats", "None", false, Toggles["Suppress Invalid Stats"]);
 	BH::config->ReadToggle("Always Show Item Stat Ranges", "None", true, Toggles["Always Show Item Stat Ranges"]);
@@ -109,53 +110,58 @@ void Item::LoadConfig() {
 void Item::DrawSettings() {
 	settingsTab = new UITab("Item", BH::settingsUI);
 	int y = 10;
+	int keyhook_x = 230;
 
 	new Checkhook(settingsTab, 4, y, &Toggles["Show Ethereal"].state, "Show Ethereal");
-	new Keyhook(settingsTab, 200, y+2, &Toggles["Show Ethereal"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Show Ethereal"].toggle, "");
 	y += 15;
 
 	new Checkhook(settingsTab, 4, y, &Toggles["Show Sockets"].state, "Show Sockets");
-	new Keyhook(settingsTab, 200, y+2, &Toggles["Show Sockets"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Show Sockets"].toggle, "");
 	y += 15;
 
 	new Checkhook(settingsTab, 4, y, &Toggles["Show iLvl"].state, "Show iLvl");
-	new Keyhook(settingsTab, 200, y+2, &Toggles["Show iLvl"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Show iLvl"].toggle, "");
 	y += 15;
 
 	new Checkhook(settingsTab, 4, y, &Toggles["Show Rune Numbers"].state, "Show Rune #");
-	new Keyhook(settingsTab, 200, y+2, &Toggles["Show Rune Numbers"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Show Rune Numbers"].toggle, "");
 	y += 15;
 
 	new Checkhook(settingsTab, 4, y, &Toggles["Alt Item Style"].state, "Alt Style");
-	new Keyhook(settingsTab, 200, y+2, &Toggles["Alt Item Style"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Alt Item Style"].toggle, "");
 	y += 15;
 
 	new Checkhook(settingsTab, 4, y, &Toggles["Color Mod"].state, "Color Mod");
-	new Keyhook(settingsTab, 200, y+2, &Toggles["Color Mod"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Color Mod"].toggle, "");
 	y += 15;
 
 	new Checkhook(settingsTab, 4, y, &Toggles["Shorten Item Names"].state, "Shorten Names");
-	new Keyhook(settingsTab, 200, y+2, &Toggles["Shorten Item Names"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Shorten Item Names"].toggle, "");
 	y += 15;
 
 	new Checkhook(settingsTab, 4, y, &Toggles["Always Show Item Stat Ranges"].state, "Always Show Item Stat Ranges");
-	new Keyhook(settingsTab, 200, y+2, &Toggles["Always Show Item Stat Ranges"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Always Show Item Stat Ranges"].toggle, "");
 	y += 15;
 
 	new Checkhook(settingsTab, 4, y, &Toggles["Advanced Item Display"].state, "Advanced Item Display");
-	new Keyhook(settingsTab, 200, y+2, &Toggles["Advanced Item Display"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Advanced Item Display"].toggle, "");
 	y += 15;
 
 	new Checkhook(settingsTab, 4, y, &Toggles["Item Drop Notifications"].state, "Item Drop Notifications");
-	new Keyhook(settingsTab, 200, y+2, &Toggles["Item Drop Notifications"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Item Drop Notifications"].toggle, "");
 	y += 15;
 
 	new Checkhook(settingsTab, 4, y, &Toggles["Item Close Notifications"].state, "Item Close Notifications");
-	new Keyhook(settingsTab, 200, y+2, &Toggles["Item Close Notifications"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Item Close Notifications"].toggle, "");
+	y += 15;
+
+	new Checkhook(settingsTab, 4, y, &Toggles["Verbose Notifications"].state, "Verbose Notifications");
+	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Verbose Notifications"].toggle, "");
 	y += 15;
 
 	new Checkhook(settingsTab, 4, y, &Toggles["Suppress Invalid Stats"].state, "Suppress Invalid Stats");
-	new Keyhook(settingsTab, 200, y+2, &Toggles["Suppress Invalid Stats"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Suppress Invalid Stats"].toggle, "");
 	y += 15;
 
 	new Keyhook(settingsTab, 4, y+2, &showPlayer, "Show Players Gear");

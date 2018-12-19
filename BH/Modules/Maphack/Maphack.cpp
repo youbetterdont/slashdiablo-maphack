@@ -463,15 +463,15 @@ void Maphack::OnAutomapDraw() {
 										[color, unit, xPos, yPos, MyPos, borderColor, dotColor, pxColor, lineColor]()->void{
 									POINT automapLoc;
 									Drawing::Hook::ScreenToAutomap(&automapLoc, xPos, yPos);
-									if (borderColor != 0xff)
+									if (borderColor != UNDEFINED_COLOR)
 										Drawing::Boxhook::Draw(automapLoc.x - 4, automapLoc.y - 4, 8, 8, borderColor, Drawing::BTHighlight);
-									if (color != 0xff)
+									if (color != UNDEFINED_COLOR)
 										Drawing::Boxhook::Draw(automapLoc.x - 3, automapLoc.y - 3, 6, 6, color, Drawing::BTHighlight);
-									if (dotColor != 0xff)
+									if (dotColor != UNDEFINED_COLOR)
 										Drawing::Boxhook::Draw(automapLoc.x - 2, automapLoc.y - 2, 4, 4, dotColor, Drawing::BTHighlight);
-									if (pxColor != 0xff)
+									if (pxColor != UNDEFINED_COLOR)
 										Drawing::Boxhook::Draw(automapLoc.x - 1, automapLoc.y - 1, 2, 2, pxColor, Drawing::BTHighlight);
-									if (lineColor != 0xff) {
+									if (lineColor != UNDEFINED_COLOR) {
 										Drawing::Linehook::Draw(MyPos.x, MyPos.y, automapLoc.x, automapLoc.y, lineColor);
 									}
 								});

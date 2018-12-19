@@ -350,11 +350,11 @@ namespace ItemDisplay {
 			BuildAction(&(rules[i].second), &(r->action));
 
 			RuleList.push_back(r);
-			if (r->action.colorOnMap != 0xff ||
-					r->action.borderColor != 0xff ||
-					r->action.dotColor != 0xff ||
-					r->action.pxColor != 0xff ||
-					r->action.lineColor != 0xff) {
+			if (r->action.colorOnMap != UNDEFINED_COLOR ||
+					r->action.borderColor != UNDEFINED_COLOR ||
+					r->action.dotColor != UNDEFINED_COLOR ||
+					r->action.pxColor != UNDEFINED_COLOR ||
+					r->action.lineColor != UNDEFINED_COLOR) {
 				MapRuleList.push_back(r);
 			}
 			else if (r->action.name.length() == 0) {
@@ -396,6 +396,7 @@ void BuildAction(string *str, Action *act) {
 	act->dotColor = ParseMapColor(act, "DOT");
 	act->pxColor = ParseMapColor(act, "PX");
 	act->lineColor = ParseMapColor(act, "LINE");
+	act->notifyColor = ParseMapColor(act, "NOTIFY");
 
 	// legacy support:
 	size_t map = act->name.find("%MAP%");
@@ -415,7 +416,7 @@ void BuildAction(string *str, Action *act) {
 
 		act->name.replace(map, 5, "");
 		act->colorOnMap = mapColor;
-		if (act->borderColor == 0xff)
+		if (act->borderColor == UNDEFINED_COLOR)
 			act->borderColor = act->colorOnMap;
 	}
 
@@ -427,9 +428,9 @@ void BuildAction(string *str, Action *act) {
 }
 
 int ParseMapColor(Action *act, const string& key_string) {
-	std::regex pattern("%" + key_string + "-([a-f0-9]{2})%",
+	std::regex pattern("%" + key_string + "-([a-f0-9]{1,4})%",
 		std::regex_constants::ECMAScript | std::regex_constants::icase);
-	int color = 0xff;
+	int color = UNDEFINED_COLOR;
 	std::smatch the_match;
 
 	if (std::regex_search(act->name, the_match, pattern)) {

@@ -14,6 +14,9 @@
 #define EXCEPTION_INVALID_ITEM_TYPE		5
 #define EXCEPTION_INVALID_GOLD_TYPE		6
 
+#define DEAD_COLOR        0xdead
+#define UNDEFINED_COLOR   0xbeef
+
 // Properties that can appear on an item from incoming packets
 struct ItemProperty {
 	unsigned int stat;
@@ -491,12 +494,14 @@ struct Action {
 	int dotColor;
 	int pxColor;
 	int lineColor;
+	int notifyColor;
 	Action() :
-		colorOnMap(0xff),
-		borderColor(0xff),
-		dotColor(0xff),
-		pxColor(0xff),
-		lineColor(0xff),
+		colorOnMap(UNDEFINED_COLOR),
+		borderColor(UNDEFINED_COLOR),
+		dotColor(UNDEFINED_COLOR),
+		pxColor(UNDEFINED_COLOR),
+		lineColor(UNDEFINED_COLOR),
+		notifyColor(UNDEFINED_COLOR),
 		stopProcessing(true),
 		name("") {}
 };
