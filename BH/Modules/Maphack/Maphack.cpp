@@ -838,10 +838,12 @@ Level* Maphack::GetLevel(Act* pAct, int level)
 }
 
 int HoverMonsterColor(UnitAny *pUnit) {
+	int color = White;
 	if (pUnit->pMonsterData->fBoss)
-		return Gold;
-	else
-		return White;
+		color = Gold;
+	if (pUnit->pMonsterData->fChamp)
+		color = Blue;
+	return color;
 }
 int HoverObjectPatch(UnitAny* pUnit, DWORD tY, DWORD unk1, DWORD unk2, DWORD tX, wchar_t *wTxt)
 {
