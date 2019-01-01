@@ -356,6 +356,17 @@ private:
 	bool EvaluateED(unsigned int flags);
 };
 
+class DurabilityCondition : public Condition
+{
+public:
+	DurabilityCondition(BYTE op, unsigned int target) : operation(op), targetDurability(target) { conditionType = CT_Operand; };
+private:
+	BYTE operation;
+	unsigned int targetDurability;
+	bool EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2);
+	bool EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2);
+};
+
 class FoolsCondition : public Condition
 {
 public:
