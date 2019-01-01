@@ -340,7 +340,10 @@ void Maphack::OnAutomapDraw() {
 					if (unit->pMonsterData->fMinion)
 						color = monsterColors["Minion"];
 					//Cow king pack
-					if (unit->dwTxtFileNo == 391 && unit->pMonsterData->anEnchants[0] == 8 && unit->pMonsterData->anEnchants[1] == 17 && unit->pMonsterData->anEnchants[3] != 0)
+					if (unit->dwTxtFileNo == 391 &&
+							unit->pMonsterData->anEnchants[0] == ENCH_MAGIC_RESISTANT &&
+							unit->pMonsterData->anEnchants[1] == ENCH_LIGHTNING_ENCHANTED &&
+							unit->pMonsterData->anEnchants[3] != 0)
 						color = 0xE1;
 
 					// User can override colors of non-boss monsters
