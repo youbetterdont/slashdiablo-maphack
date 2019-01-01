@@ -1087,3 +1087,5 @@ enum QuestFlags {
 // Toggles for GOODSK and GOODCLSK in ItemDisplay
 #define CLASS_SKILLS					0
 #define CLASS_TAB_SKILLS				1
+
+#define ITEM_TYPE_ALLARMOR 50

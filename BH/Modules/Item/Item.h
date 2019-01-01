@@ -74,6 +74,7 @@ class Item : public Module {
 
 		static void __fastcall ItemNamePatch(wchar_t *name, UnitAny *item);
 		static void OrigGetItemName(UnitAny *item, string &itemName, char *code);
+		static void __stdcall OnProperties(wchar_t *wTxt);
 		static BOOL __stdcall OnDamagePropertyBuild(UnitAny* pItem, DamageStats* pDmgStats, int nStat, wchar_t* wOut);
 		static void __stdcall OnPropertyBuild(wchar_t* wOut, int nStat, UnitAny* pItem, int nStatParam);
 
@@ -81,6 +82,7 @@ class Item : public Module {
 };
 
 void ItemName_Interception();
+void __fastcall GetProperties_Interception();
 void GetItemPropertyStringDamage_Interception();
 void GetItemPropertyString_Interception();
 void ViewInventoryPatch1_ASM();
