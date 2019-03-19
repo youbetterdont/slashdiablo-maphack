@@ -310,6 +310,8 @@ void ItemMover::OnLeftClick(bool up, int x, int y, bool* block) {
 	}
 
 	Init();
+	
+	int xpac = pData->nCharFlags & PLAYER_TYPE_EXPANSION;
 
 	int mouseX,mouseY;
 	UnitAny *item;	
@@ -324,7 +326,11 @@ void ItemMover::OnLeftClick(bool up, int x, int y, bool* block) {
 				mouseY = (*p_D2CLIENT_MouseY - INVENTORY_TOP) / CELL_SIZE;
 			} else if(pItem->pItemData->ItemLocation == STORAGE_STASH) {
 				mouseX = (*p_D2CLIENT_MouseX - STASH_LEFT) / CELL_SIZE;
-				mouseY = (*p_D2CLIENT_MouseY - LOD_STASH_TOP) / CELL_SIZE;
+				if (xpac) {
+					mouseY = (*p_D2CLIENT_MouseY - LOD_STASH_TOP) / CELL_SIZE;
+				} else {
+					mouseY = (*p_D2CLIENT_MouseY - CLASSIC_STASH_TOP) / CELL_SIZE;
+				}
 			} else if(pItem->pItemData->ItemLocation == STORAGE_CUBE) {
 				mouseX = (*p_D2CLIENT_MouseX - CUBE_LEFT) / CELL_SIZE;
 				mouseY = (*p_D2CLIENT_MouseY - CUBE_TOP) / CELL_SIZE;
