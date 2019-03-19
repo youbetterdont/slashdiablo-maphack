@@ -59,6 +59,7 @@ map<std::string, Toggle> Item::Toggles;
 UnitAny* Item::viewingUnit;
 
 Patch* itemNamePatch = new Patch(Call, D2CLIENT, { 0x92366, 0x96736 }, (int)ItemName_Interception, 6);
+Patch* itemPropertiesPatch = new Patch(Jump, D2CLIENT, { 0x5612C, 0x2E3FC }, (int)GetProperties_Interception, 6);
 Patch* itemPropertyStringDamagePatch = new Patch(Call, D2CLIENT, { 0x55D7B, 0x2E04B }, (int)GetItemPropertyStringDamage_Interception, 5);
 Patch* itemPropertyStringPatch = new Patch(Call, D2CLIENT, { 0x55D9D, 0x2E06D }, (int) GetItemPropertyString_Interception, 5);
 Patch* viewInvPatch1 = new Patch(Call, D2CLIENT, { 0x953E2, 0x997B2 }, (int)ViewInventoryPatch1_ASM, 6);
@@ -74,6 +75,7 @@ void Item::OnLoad() {
 	viewInvPatch2->Install();
 	viewInvPatch3->Install();
 
+	itemPropertiesPatch->Install();
 	itemPropertyStringDamagePatch->Install();
 	itemPropertyStringPatch->Install();
 
@@ -169,6 +171,7 @@ void Item::DrawSettings() {
 
 void Item::OnUnload() {
 	itemNamePatch->Remove();
+	itemPropertiesPatch->Remove();
 	itemPropertyStringDamagePatch->Remove();
 	itemPropertyStringPatch->Remove();
 	viewInvPatch1->Remove();
@@ -550,6 +553,68 @@ void Item::OrigGetItemName(UnitAny *item, string &itemName, char *code)
 	}
 }
 
+static ItemsTxt* GetArmorText(UnitAny* pItem) {
+	ItemText* itemTxt = D2COMMON_GetItemText(pItem->dwTxtFileNo);
+	int armorTxtRecords = *p_D2COMMON_ArmorTxtRecords;
+	for (int i = 0; i < armorTxtRecords; i++) {
+		ItemsTxt* armorTxt = &(*p_D2COMMON_ArmorTxt)[i];
+		if (strcmp(armorTxt->szcode, itemTxt->szCode) == 0) {
+			return armorTxt;
+		}
+	}
+	return NULL;
+}
+
+void __stdcall Item::OnProperties(wchar_t * wTxt)
+{
+	UnitAny* pItem = *p_D2CLIENT_SelectedInvItem;
+
+	if (!(Toggles["Always Show Item Stat Ranges"].state ||
+				GetKeyState(VK_CONTROL) & 0x8000) ||
+			pItem == nullptr ||
+			pItem->dwType != UNIT_ITEM) {
+		return;
+	}
+
+	//Any Armor ItemTypes.txt
+	if (D2COMMON_IsMatchingType(pItem, ITEM_TYPE_ALLARMOR)) {
+		int aLen = 0;
+		bool ebugged = false;
+		bool max_plus_one = false;
+		aLen = wcslen(wTxt);
+		ItemsTxt* armorTxt = GetArmorText(pItem);
+		DWORD base = D2COMMON_GetBaseStatSigned(pItem, STAT_DEFENSE, 0);
+		DWORD min = armorTxt->dwminac;
+		DWORD max = armorTxt->dwmaxac;
+		if (pItem->pItemData->dwFlags & ITEM_ETHEREAL) {
+			min = (DWORD)(min * 1.50);
+			max = (DWORD)(max * 1.50);
+			if (base > max + 1) { // assume this is ebugged
+				min = (DWORD)(min * 1.50);
+				max = (DWORD)(max * 1.50);
+				ebugged = true;
+			}
+		}
+
+		if (base == max + 1) {
+			max_plus_one = true;
+		}
+		// Items with enhanced def mod will spawn with base def as max +1.
+		// Don't show range if item spawned with edef and hasn't been upgraded.
+		if (!max_plus_one) {
+			swprintf_s(wTxt + aLen, 1024 - aLen,
+					L"%sBase Defense: %d %s[%d - %d]%s%s\n",
+					GetColorCode(TextColor::White).c_str(),
+					base,
+					GetColorCode(TextColor::DarkGreen).c_str(),
+					min, max,
+					ebugged ? L"\377c5 Ebug" : L"",
+					GetColorCode(TextColor::White).c_str()
+					);
+		}
+	}
+}
+
 BOOL __stdcall Item::OnDamagePropertyBuild(UnitAny* pItem, DamageStats* pDmgStats, int nStat, wchar_t* wOut) {
 	wchar_t newDesc[128];
 
@@ -743,7 +808,12 @@ void __stdcall Item::OnPropertyBuild(wchar_t* wOut, int nStat, UnitAny* pItem, i
 					statMax = D2COMMON_GetBaseStatSigned(D2CLIENT_GetPlayerUnit(), STAT_LEVEL, 0) * statMax >> 3;
 				}
 				if (leftSpace) {
-					swprintf_s(wOut + aLen, leftSpace, L" %s[%d - %d]%s", GetColorCode(TextColor::DarkGreen).c_str(), statMin, statMax, GetColorCode(TextColor::Blue).c_str());
+					swprintf_s(wOut + aLen, leftSpace,
+							L" %s[%d - %d]%s",
+							GetColorCode(TextColor::DarkGreen).c_str(),
+							statMin,
+							statMax,
+							GetColorCode(TextColor::Blue).c_str());
 				}
 			}
 		}
@@ -776,7 +846,12 @@ void __stdcall Item::OnPropertyBuild(wchar_t* wOut, int nStat, UnitAny* pItem, i
 						statMax = D2COMMON_GetBaseStatSigned(D2CLIENT_GetPlayerUnit(), STAT_LEVEL, 0) * statMax >> 3;
 					}
 					if (leftSpace)
-						swprintf_s(wOut + aLen, leftSpace, L" %s[%d - %d]%s", GetColorCode(TextColor::DarkGreen).c_str(), statMin, statMax, GetColorCode(TextColor::Blue).c_str());
+						swprintf_s(wOut + aLen, leftSpace,
+								L" %s[%d - %d]%s",
+								GetColorCode(TextColor::DarkGreen).c_str(),
+								statMin,
+								statMax,
+								GetColorCode(TextColor::Blue).c_str());
 				}
 			}
 		}
@@ -844,7 +919,12 @@ void __stdcall Item::OnPropertyBuild(wchar_t* wOut, int nStat, UnitAny* pItem, i
 					max = D2COMMON_GetBaseStatSigned(D2CLIENT_GetPlayerUnit(), STAT_LEVEL, 0) * max >> 3;
 				}
 				if (leftSpace)
-					swprintf_s(wOut + aLen, leftSpace, L" %s[%d - %d]%s", GetColorCode(TextColor::DarkGreen).c_str(), min, max, GetColorCode(TextColor::Blue).c_str());
+					swprintf_s(wOut + aLen, leftSpace,
+							L" %s[%d - %d]%s",
+							GetColorCode(TextColor::DarkGreen).c_str(),
+							min,
+							max,
+							GetColorCode(TextColor::Blue).c_str());
 			}
 		}
 
@@ -964,6 +1044,18 @@ void __declspec(naked) ItemName_Interception()
 		call Item::ItemNamePatch
 		mov al, [ebp+0x12a]
 		ret
+	}
+}
+
+
+__declspec(naked) void __fastcall GetProperties_Interception()
+{
+	__asm
+	{
+		push eax
+		call Item::OnProperties
+		add esp, 0x808
+		ret 12
 	}
 }
 

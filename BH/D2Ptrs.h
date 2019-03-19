@@ -378,6 +378,9 @@ FUNCPTR(D2COMMON, IsTownByRoom, BOOL __stdcall, (Room1* pRoom1), -10057, -10691)
 VARPTR(D2COMMON, sgptDataTable, sgptDataTable*, 0x99E1C, 0xA33F0)
 VARPTR(D2COMMON, AutoMagicTxt, AutoMagicTxt*, 0x9FBC8, 0xA4CE4)
 
+VARPTR(D2COMMON, ArmorTxt, ItemsTxt*, 0x9FBA4, 0xA4CC0)
+VARPTR(D2COMMON, ArmorTxtRecords, DWORD, 0x9FBA8, 0xA4CC4)
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // D2Common Stubs
