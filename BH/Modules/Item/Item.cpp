@@ -75,18 +75,13 @@ void Item::OnLoad() {
 	viewInvPatch2->Install();
 	viewInvPatch3->Install();
 
+	itemPropertiesPatch->Install();
 	itemPropertyStringDamagePatch->Install();
 	itemPropertyStringPatch->Install();
 
 	if (Toggles["Show Ethereal"].state || Toggles["Show Sockets"].state || Toggles["Show iLvl"].state || Toggles["Color Mod"].state ||
 		Toggles["Show Rune Numbers"].state || Toggles["Alt Item Style"].state || Toggles["Shorten Item Names"].state || Toggles["Advanced Item Display"].state)
 		itemNamePatch->Install();
-
-	if (Toggles["Always Show Item Stat Ranges"].state) {
-		itemPropertiesPatch->Install();
-		itemPropertyStringDamagePatch->Install();
-		itemPropertyStringPatch->Install();
-	}
 
 	DrawSettings();
 }
@@ -176,6 +171,7 @@ void Item::DrawSettings() {
 
 void Item::OnUnload() {
 	itemNamePatch->Remove();
+	itemPropertiesPatch->Remove();
 	itemPropertyStringDamagePatch->Remove();
 	itemPropertyStringPatch->Remove();
 	viewInvPatch1->Remove();
@@ -572,28 +568,49 @@ static ItemsTxt* GetArmorText(UnitAny* pItem) {
 void __stdcall Item::OnProperties(wchar_t * wTxt)
 {
 	UnitAny* pItem = *p_D2CLIENT_SelectedInvItem;
-	if (!pItem) return;
+
+	if (!(Toggles["Always Show Item Stat Ranges"].state ||
+				GetKeyState(VK_CONTROL) & 0x8000) ||
+			pItem == nullptr ||
+			pItem->dwType != UNIT_ITEM) {
+		return;
+	}
+
 	//Any Armor ItemTypes.txt
 	if (D2COMMON_IsMatchingType(pItem, ITEM_TYPE_ALLARMOR)) {
 		int aLen = 0;
+		bool ebugged = false;
+		bool max_plus_one = false;
 		aLen = wcslen(wTxt);
 		ItemsTxt* armorTxt = GetArmorText(pItem);
 		DWORD base = D2COMMON_GetBaseStatSigned(pItem, STAT_DEFENSE, 0);
-		BOOL isED = TRUE;
-		//TODO: items with enhanced def mod can roll max def +1. below does not get the stat
-		//isED = D2COMMON_GetBaseStatSigned(pItem, STAT_ENHANCEDDEFENSE, 0) > 0;
 		DWORD min = armorTxt->dwminac;
-		DWORD max = armorTxt->dwmaxac + (isED ? 1 : 0);
+		DWORD max = armorTxt->dwmaxac;
 		if (pItem->pItemData->dwFlags & ITEM_ETHEREAL) {
 			min = (DWORD)(min * 1.50);
 			max = (DWORD)(max * 1.50);
+			if (base > max + 1) { // assume this is ebugged
+				min = (DWORD)(min * 1.50);
+				max = (DWORD)(max * 1.50);
+				ebugged = true;
+			}
 		}
-		//hack... if not in range we assume it is ebugged
-		if (base > max) {
-			swprintf_s(wTxt + aLen, 1024 - aLen, L"%sBase Defense: %d [%d-%d]%s\n", L"ÿc9", base, (DWORD)(armorTxt->dwminac * 2.25), (DWORD)(armorTxt->dwmaxac * 2.25), L"ÿc3");
+
+		if (base == max + 1) {
+			max_plus_one = true;
 		}
-		else {
-			swprintf_s(wTxt + aLen, 1024 - aLen, L"%sBase Defense: %d [%d-%d]%s\n", L"ÿc9", base, min, max, L"ÿc3");
+		// Items with enhanced def mod will spawn with base def as max +1.
+		// Don't show range if item spawned with edef and hasn't been upgraded.
+		if (!max_plus_one) {
+			swprintf_s(wTxt + aLen, 1024 - aLen,
+					L"%sBase Defense: %d %s[%d - %d]%s%s\n",
+					GetColorCode(TextColor::White).c_str(),
+					base,
+					GetColorCode(TextColor::DarkGreen).c_str(),
+					min, max,
+					ebugged ? L"\377c5 Ebug" : L"",
+					GetColorCode(TextColor::White).c_str()
+					);
 		}
 	}
 }
