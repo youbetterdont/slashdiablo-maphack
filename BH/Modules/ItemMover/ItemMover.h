@@ -39,6 +39,7 @@ private:
 	int *InventoryItemIds;
 	int *StashItemIds;
 	int *CubeItemIds;
+	unsigned int TpKey;
 	unsigned int HealKey;
 	unsigned int ManaKey;
 	ItemPacketData ActivePacket;
@@ -76,6 +77,7 @@ public:
 
 	void OnLoad();
 	void OnKey(bool up, BYTE key, LPARAM lParam, bool* block);
+	void OnLeftClick(bool up, int x, int y, bool* block);
 	void OnRightClick(bool up, int x, int y, bool* block);
 	void OnGamePacketRecv(BYTE* packet, bool *block);
 	void OnGameExit();
