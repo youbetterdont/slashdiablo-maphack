@@ -313,7 +313,7 @@ void ItemMover::OnLeftClick(bool up, int x, int y, bool* block) {
 
 	int mouseX,mouseY;
 	UnitAny *item;	
-	if (shiftState) {
+	if (shiftState && D2CLIENT_GetCursorItem()<=0) {
 		for (UnitAny *pItem = unit->pInventory->pFirstItem; pItem; pItem = pItem->pItemData->pNextInvItem) {
 			int xStart = pItem->pObjectPath->dwPosX;
 			int yStart = pItem->pObjectPath->dwPosY;
@@ -333,17 +333,15 @@ void ItemMover::OnLeftClick(bool up, int x, int y, bool* block) {
 		if (unidItemId>0 && (item->pItemData->dwFlags & ITEM_IDENTIFIED) <= 0) {
 			for (UnitAny *pItem = unit->pInventory->pFirstItem; pItem; pItem = pItem->pItemData->pNextInvItem) {
 				char *code = D2COMMON_GetItemText(pItem->dwTxtFileNo)->szCode;
-				if (code[0] == 'i' && code[1] == 'b' && code[2] == 'k') {
-					if (D2COMMON_GetUnitStat(pItem, STAT_AMMOQUANTITY, 0)>0) {
-						idBookId = pItem->dwUnitId;
-						BYTE PacketData[13] = { 0x20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-						*reinterpret_cast<int*>(PacketData + 1) = idBookId;
-						*reinterpret_cast<WORD*>(PacketData + 5) = (WORD)unit->pPath->xPos;
-						*reinterpret_cast<WORD*>(PacketData + 9) = (WORD)unit->pPath->yPos;
-						D2NET_SendPacket(13, 0, PacketData);
-						*block = true;
-						break;
-					}
+				if (code[0] == 'i' && code[1] == 'b' && code[2] == 'k' && pItem->pItemData->ItemLocation == STORAGE_INVENTORY && D2COMMON_GetUnitStat(pItem, STAT_AMMOQUANTITY, 0)>0) {
+					idBookId = pItem->dwUnitId;
+					BYTE PacketData[13] = { 0x20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+					*reinterpret_cast<int*>(PacketData + 1) = idBookId;
+					*reinterpret_cast<WORD*>(PacketData + 5) = (WORD)unit->pPath->xPos;
+					*reinterpret_cast<WORD*>(PacketData + 9) = (WORD)unit->pPath->yPos;
+					D2NET_SendPacket(13, 0, PacketData);
+					*block = true;
+					break;
 				}
 			}
 		} else {
