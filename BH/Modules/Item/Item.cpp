@@ -808,7 +808,12 @@ void __stdcall Item::OnPropertyBuild(wchar_t* wOut, int nStat, UnitAny* pItem, i
 					statMax = D2COMMON_GetBaseStatSigned(D2CLIENT_GetPlayerUnit(), STAT_LEVEL, 0) * statMax >> 3;
 				}
 				if (leftSpace) {
-					swprintf_s(wOut + aLen, leftSpace, L" %s[%d - %d]%s", GetColorCode(TextColor::DarkGreen).c_str(), statMin, statMax, GetColorCode(TextColor::Blue).c_str());
+					swprintf_s(wOut + aLen, leftSpace,
+							L" %s[%d - %d]%s",
+							GetColorCode(TextColor::DarkGreen).c_str(),
+							statMin,
+							statMax,
+							GetColorCode(TextColor::Blue).c_str());
 				}
 			}
 		}
@@ -841,7 +846,12 @@ void __stdcall Item::OnPropertyBuild(wchar_t* wOut, int nStat, UnitAny* pItem, i
 						statMax = D2COMMON_GetBaseStatSigned(D2CLIENT_GetPlayerUnit(), STAT_LEVEL, 0) * statMax >> 3;
 					}
 					if (leftSpace)
-						swprintf_s(wOut + aLen, leftSpace, L" %s[%d - %d]%s", GetColorCode(TextColor::DarkGreen).c_str(), statMin, statMax, GetColorCode(TextColor::Blue).c_str());
+						swprintf_s(wOut + aLen, leftSpace,
+								L" %s[%d - %d]%s",
+								GetColorCode(TextColor::DarkGreen).c_str(),
+								statMin,
+								statMax,
+								GetColorCode(TextColor::Blue).c_str());
 				}
 			}
 		}
@@ -909,7 +919,12 @@ void __stdcall Item::OnPropertyBuild(wchar_t* wOut, int nStat, UnitAny* pItem, i
 					max = D2COMMON_GetBaseStatSigned(D2CLIENT_GetPlayerUnit(), STAT_LEVEL, 0) * max >> 3;
 				}
 				if (leftSpace)
-					swprintf_s(wOut + aLen, leftSpace, L" %s[%d - %d]%s", GetColorCode(TextColor::DarkGreen).c_str(), min, max, GetColorCode(TextColor::Blue).c_str());
+					swprintf_s(wOut + aLen, leftSpace,
+							L" %s[%d - %d]%s",
+							GetColorCode(TextColor::DarkGreen).c_str(),
+							min,
+							max,
+							GetColorCode(TextColor::Blue).c_str());
 			}
 		}
 
