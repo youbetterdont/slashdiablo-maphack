@@ -485,6 +485,7 @@ void ItemMover::OnGamePacketRecv(BYTE* packet, bool* block) {
 	{
 	case 0x3F:
 		{
+			// We get this packet after our cursor change, packet[1] = 0 guarantees its when it changes from "regular" to "ready to id".
 			if (packet[1] == 0 && idBookId>0) {
 				BYTE PacketData[9] = {0x27,0,0,0,0,0,0,0,0};
 				*reinterpret_cast<int*>(PacketData + 1) = unidItemId;
