@@ -36,6 +36,9 @@ int quality_to_color[] = {
 	Orange // craft
 };
 
+DWORD idBookId = 0;
+DWORD unidItemId = 0;
+
 void ItemMover::Init() {
 	// We should be able to get the layout from *p_D2CLIENT_StashLayout and friends,
 	// but doesn't seem to be working at the moment so use the mpq data.
@@ -297,6 +300,59 @@ void ItemMover::PutItemOnGround() {
 	D2NET_SendPacket(5, 1, PacketData);
 }
 
+void ItemMover::OnLeftClick(bool up, int x, int y, bool* block) {
+	BnetData* pData = (*p_D2LAUNCH_BnData);
+	UnitAny *unit = D2CLIENT_GetPlayerUnit();
+	bool shiftState = ((GetKeyState(VK_LSHIFT) & 0x80) || (GetKeyState(VK_RSHIFT) & 0x80));
+	
+	if (up || !pData || !unit || !shiftState) {
+		return;
+	}
+
+	Init();
+
+	int mouseX,mouseY;
+	UnitAny *item;
+	if (shiftState) {
+		for (UnitAny *pItem = unit->pInventory->pFirstItem; pItem; pItem = pItem->pItemData->pNextInvItem) {
+			int xStart = pItem->pObjectPath->dwPosX;
+			int yStart = pItem->pObjectPath->dwPosY;
+			BYTE xSize = D2COMMON_GetItemText(pItem->dwTxtFileNo)->xSize;
+			BYTE ySize = D2COMMON_GetItemText(pItem->dwTxtFileNo)->ySize;
+			mouseX = (*p_D2CLIENT_MouseX - INVENTORY_LEFT) / CELL_SIZE;
+			mouseY = (*p_D2CLIENT_MouseY - INVENTORY_TOP) / CELL_SIZE;			
+			for (int x = xStart; x < xStart + xSize; x++) {
+				for (int y = yStart; y < yStart + ySize; y++) {
+					if (x == mouseX && y == mouseY) {
+						item = pItem;
+						unidItemId = pItem->dwUnitId;
+						break;
+					}
+				}
+			}
+		}
+		if (unidItemId>0 && (item->pItemData->dwFlags & ITEM_IDENTIFIED) <= 0) {
+			for (UnitAny *pItem = unit->pInventory->pFirstItem; pItem; pItem = pItem->pItemData->pNextInvItem) {
+				char *code = D2COMMON_GetItemText(pItem->dwTxtFileNo)->szCode;
+				if (code[0] == 'i' && code[1] == 'b' && code[2] == 'k') {
+					idBookId = pItem->dwUnitId;
+					BYTE PacketData[13] = { 0x20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+					*reinterpret_cast<int*>(PacketData + 1) = idBookId;
+					*reinterpret_cast<WORD*>(PacketData + 5) = (WORD)unit->pPath->xPos;
+					*reinterpret_cast<WORD*>(PacketData + 9) = (WORD)unit->pPath->yPos;
+					D2NET_SendPacket(13, 0, PacketData);
+					*block = true;
+					break;
+				}
+			}
+		} else {
+			item = 0;
+			unidItemId = 0;
+			idBookId = 0;
+		}
+	}
+}
+
 void ItemMover::OnRightClick(bool up, int x, int y, bool* block) {
 	BnetData* pData = (*p_D2LAUNCH_BnData);
 	UnitAny *unit = D2CLIENT_GetPlayerUnit();
@@ -347,6 +403,7 @@ void ItemMover::OnRightClick(bool up, int x, int y, bool* block) {
 }
 
 void ItemMover::LoadConfig() {
+	BH::config->ReadKey("Use Tp Tome", "VK_NUMPADADD", TpKey);
 	BH::config->ReadKey("Use Healing Potion", "VK_NUMPADMULTIPLY", HealKey);
 	BH::config->ReadKey("Use Mana Potion", "VK_NUMPADSUBTRACT", ManaKey);
 }
@@ -401,11 +458,43 @@ void ItemMover::OnKey(bool up, BYTE key, LPARAM lParam, bool* block)  {
 			*block = true;
 		}
 	}
+	if (!up && (key == TpKey)) {
+		DWORD tpId = 0;
+		for (UnitAny *pItem = unit->pInventory->pFirstItem; pItem; pItem = pItem->pItemData->pNextInvItem) {
+			if (pItem->pItemData->ItemLocation == STORAGE_INVENTORY) {
+				char* code = D2COMMON_GetItemText(pItem->dwTxtFileNo)->szCode;
+				if (code[0] == 't' && code[1] == 'b' && code[2] =='k') {
+					tpId = pItem->dwUnitId;
+				}
+			}
+		}
+		if (tpId > 0) {
+			BYTE PacketData[13] = { 0x20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+			*reinterpret_cast<int*>(PacketData + 1) = tpId;
+			*reinterpret_cast<WORD*>(PacketData + 5) = (WORD)unit->pPath->xPos;
+			*reinterpret_cast<WORD*>(PacketData + 9) = (WORD)unit->pPath->yPos;
+			D2NET_SendPacket(13, 0, PacketData);
+			*block = true;
+		}
+	}
 }
 
 void ItemMover::OnGamePacketRecv(BYTE* packet, bool* block) {
 	switch (packet[0])
 	{
+	case 0x3F:
+		{
+			if (packet[1] == 0 && idBookId>0) {
+				BYTE PacketData[9] = {0x27,0,0,0,0,0,0,0,0};
+				*reinterpret_cast<int*>(PacketData + 1) = unidItemId;
+				*reinterpret_cast<int*>(PacketData + 5) = idBookId;
+				D2NET_SendPacket(9, 0, PacketData);
+				*block = true;
+				unidItemId = 0;
+				idBookId = 0;
+			}
+			break;
+		}
 	case 0x9c:
 		{
 			// We get this packet after placing an item in a container or on the ground
