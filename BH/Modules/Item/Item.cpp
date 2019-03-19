@@ -166,7 +166,7 @@ void Item::DrawSettings() {
 	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Suppress Invalid Stats"].toggle, "");
 	y += 15;
 
-	new Keyhook(settingsTab, 4, y+2, &showPlayer, "Show Players Gear");
+	new Keyhook(settingsTab, 4, y+2, &showPlayer, "Show Player's Gear:   ");
 }
 
 void Item::OnUnload() {

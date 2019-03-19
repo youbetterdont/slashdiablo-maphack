@@ -423,15 +423,37 @@ void ItemMover::LoadConfig() {
 
 void ItemMover::OnLoad() {
 	LoadConfig();
+	Drawing::Texthook* colored_text;
 
 	settingsTab = new Drawing::UITab("Interaction", BH::settingsUI);
 
-	unsigned int x = 9;
+	unsigned int x = 8;
 	unsigned int y = 7;
 	new Drawing::Texthook(settingsTab, x, y, "Keys (esc to clear)");
-	new Drawing::Keyhook(settingsTab, x, (y += 15), &TpKey , "Quick TP");
-	new Drawing::Keyhook(settingsTab, x, (y += 15), &HealKey, "Use Healing Potion");
-	new Drawing::Keyhook(settingsTab, x, (y += 15), &ManaKey, "Use Mana Potion");
+	new Drawing::Keyhook(settingsTab, x, (y += 15), &TpKey ,  "Quick Town Portal:     ");
+	new Drawing::Keyhook(settingsTab, x, (y += 15), &HealKey, "Use Healing Potion:    ");
+	new Drawing::Keyhook(settingsTab, x, (y += 15), &ManaKey, "Use Mana Potion:       ");
+
+	y += 7;
+
+	new Drawing::Texthook(settingsTab, x, (y += 15), "QoL features");
+	colored_text = new Drawing::Texthook(settingsTab, x, (y += 15),
+			"Shift-leftclick IDs an item if an ID tome is in inventory");
+	colored_text->SetColor(Gold);
+	colored_text = new Drawing::Texthook(settingsTab, x, (y += 15),
+			"Shift-rightclick moves between stash/open cube and inventory");
+	colored_text->SetColor(Gold);
+	colored_text = new Drawing::Texthook(settingsTab, x, (y += 15),
+			"Ctrl-rightclick moves item to ground");
+	colored_text->SetColor(Gold);
+	colored_text = new Drawing::Texthook(settingsTab, x, (y += 15),
+			"Ctrl-shift-rightclick moves item into closed cube");
+	colored_text->SetColor(Gold);
+
+	colored_text = new Drawing::Texthook(settingsTab, x, (y += 15),
+			"");
+	colored_text->SetColor(Gold);
+
 }
 
 void ItemMover::OnKey(bool up, BYTE key, LPARAM lParam, bool* block)  {
