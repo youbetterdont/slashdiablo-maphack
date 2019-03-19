@@ -15,7 +15,7 @@ using namespace Drawing;
 void AutoTele::OnLoad() {
 	LoadConfig();
 
-	settingsTab = new UITab("Miscellaneous", BH::settingsUI);
+	settingsTab = new UITab("Misc", BH::settingsUI);
 
 	new Texthook(settingsTab, 60, 12, "Toggles");
 

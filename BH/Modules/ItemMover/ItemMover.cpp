@@ -423,6 +423,15 @@ void ItemMover::LoadConfig() {
 
 void ItemMover::OnLoad() {
 	LoadConfig();
+
+	settingsTab = new Drawing::UITab("Interaction", BH::settingsUI);
+
+	unsigned int x = 9;
+	unsigned int y = 7;
+	new Drawing::Texthook(settingsTab, x, y, "Keys (esc to clear)");
+	new Drawing::Keyhook(settingsTab, x, (y += 15), &TpKey , "Quick TP");
+	new Drawing::Keyhook(settingsTab, x, (y += 15), &HealKey, "Use Healing Potion");
+	new Drawing::Keyhook(settingsTab, x, (y += 15), &ManaKey, "Use Mana Potion");
 }
 
 void ItemMover::OnKey(bool up, BYTE key, LPARAM lParam, bool* block)  {

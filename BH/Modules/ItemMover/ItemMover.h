@@ -1,5 +1,6 @@
 #pragma once
 #include "../../D2Structs.h"
+#include "../../Drawing.h"
 #include "../Module.h"
 #include "../../Config.h"
 #include "../../Common.h"
@@ -44,6 +45,7 @@ private:
 	unsigned int ManaKey;
 	ItemPacketData ActivePacket;
 	CRITICAL_SECTION crit;
+	Drawing::UITab* settingsTab;
 public:
 	ItemMover() : Module("Item Mover"), ActivePacket(), FirstInit(false), InventoryItemIds(NULL), StashItemIds(NULL), CubeItemIds(NULL) {
 		InitializeCriticalSection(&crit);
