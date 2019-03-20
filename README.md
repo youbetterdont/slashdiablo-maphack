@@ -64,6 +64,20 @@ Mustache[item]: {{>header}}{{>stats}}{{^isRuneword}}{{#socketed}}\n\n  * {{>>ite
 Mustache[stash]: {{#this}}* {{>item}}\n\n{{/this}}
 ```
 
+# Release Notes for 1.9.2
+* Add custom notification colors `%notify-1%`
+  * The number is the same as 'chat color' and is represented in Hex
+  * The item needs to be on the map to send a notification (it won't notify with just the `%notify-xx%` setting)
+  * Disable notifications for something on the map with `%notify-dead%`
+* Add sell price condition to item filter `PRICE`
+* Add `Suppress Invalid Stats` option
+* Move minimized settings UI with shift-drag
+* Add variable stats display for items
+* Add quick TP hotkey
+* Add TP tome quantity warning
+* Add quick ID ability (shift-leftclick)
+* Add MINDMG and MAXDMG to the `+` condition pool
+
 # Release Notes for 1.9.1
 * Show game patch version (1.13c or 1.13d) while out of game
 * Draw lines to LK superchests
