@@ -40,6 +40,7 @@ private:
 	int *InventoryItemIds;
 	int *StashItemIds;
 	int *CubeItemIds;
+	int tp_warn_quantity;
 	unsigned int TpKey;
 	unsigned int HealKey;
 	unsigned int ManaKey;
@@ -47,7 +48,14 @@ private:
 	CRITICAL_SECTION crit;
 	Drawing::UITab* settingsTab;
 public:
-	ItemMover() : Module("Item Mover"), ActivePacket(), FirstInit(false), InventoryItemIds(NULL), StashItemIds(NULL), CubeItemIds(NULL) {
+	ItemMover() : Module("Item Mover"),
+		ActivePacket(),
+		FirstInit(false),
+		InventoryItemIds(NULL),
+		StashItemIds(NULL),
+		CubeItemIds(NULL),
+	  tp_warn_quantity(3){
+
 		InitializeCriticalSection(&crit);
 	};
 

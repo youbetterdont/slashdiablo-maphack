@@ -416,9 +416,11 @@ void ItemMover::OnRightClick(bool up, int x, int y, bool* block) {
 }
 
 void ItemMover::LoadConfig() {
-	BH::config->ReadKey("Use Tp Tome", "VK_NUMPADADD", TpKey);
+	BH::config->ReadKey("Use TP Tome", "VK_NUMPADADD", TpKey);
 	BH::config->ReadKey("Use Healing Potion", "VK_NUMPADMULTIPLY", HealKey);
 	BH::config->ReadKey("Use Mana Potion", "VK_NUMPADSUBTRACT", ManaKey);
+
+	BH::config->ReadInt("Low TP Warning", tp_warn_quantity);
 }
 
 void ItemMover::OnLoad() {
@@ -504,11 +506,16 @@ void ItemMover::OnKey(bool up, BYTE key, LPARAM lParam, bool* block)  {
 	}
 	if (!up && (key == TpKey)) {
 		DWORD tpId = 0;
+		int tp_quantity = 0;
 		for (UnitAny *pItem = unit->pInventory->pFirstItem; pItem; pItem = pItem->pItemData->pNextInvItem) {
 			if (pItem->pItemData->ItemLocation == STORAGE_INVENTORY) {
 				char* code = D2COMMON_GetItemText(pItem->dwTxtFileNo)->szCode;
 				if (code[0] == 't' && code[1] == 'b' && code[2] =='k') {
-					tpId = pItem->dwUnitId;
+					tp_quantity = D2COMMON_GetUnitStat(pItem, STAT_AMMOQUANTITY, 0);
+					if (tp_quantity > 0) {
+						tpId = pItem->dwUnitId;
+						break;
+					}
 				}
 			}
 		}
@@ -517,6 +524,9 @@ void ItemMover::OnKey(bool up, BYTE key, LPARAM lParam, bool* block)  {
 			*reinterpret_cast<int*>(PacketData + 1) = tpId;
 			*reinterpret_cast<WORD*>(PacketData + 5) = (WORD)unit->pPath->xPos;
 			*reinterpret_cast<WORD*>(PacketData + 9) = (WORD)unit->pPath->yPos;
+			if (tp_quantity < tp_warn_quantity) {
+				PrintText(Red, "TP tome is running low!");
+			}
 			D2NET_SendPacket(13, 0, PacketData);
 			*block = true;
 		}
