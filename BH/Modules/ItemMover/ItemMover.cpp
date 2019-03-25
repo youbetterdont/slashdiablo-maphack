@@ -38,6 +38,7 @@ int quality_to_color[] = {
 
 DWORD idBookId = 0;
 DWORD unidItemId = 0;
+UnitAny *item = 0;	
 
 void ItemMover::Init() {
 	// We should be able to get the layout from *p_D2CLIENT_StashLayout and friends,
@@ -305,7 +306,7 @@ void ItemMover::OnLeftClick(bool up, int x, int y, bool* block) {
 	UnitAny *unit = D2CLIENT_GetPlayerUnit();
 	bool shiftState = ((GetKeyState(VK_LSHIFT) & 0x80) || (GetKeyState(VK_RSHIFT) & 0x80));
 	
-	if (up || !pData || !unit || !shiftState) {
+	if (up || !pData || !unit || !shiftState || (!D2CLIENT_GetUIState(UI_INVENTORY) && !D2CLIENT_GetUIState(UI_STASH) && !D2CLIENT_GetUIState(UI_CUBE))) {
 		return;
 	}
 
@@ -313,9 +314,8 @@ void ItemMover::OnLeftClick(bool up, int x, int y, bool* block) {
 	
 	int xpac = pData->nCharFlags & PLAYER_TYPE_EXPANSION;
 
-	int mouseX,mouseY;
-	UnitAny *item;	
-	if (shiftState && D2CLIENT_GetCursorItem()<=0) {
+	int mouseX,mouseY;	
+	if (D2CLIENT_GetCursorItem()<=0) {
 		for (UnitAny *pItem = unit->pInventory->pFirstItem; pItem; pItem = pItem->pItemData->pNextInvItem) {
 			int xStart = pItem->pObjectPath->dwPosX;
 			int yStart = pItem->pObjectPath->dwPosY;
@@ -344,7 +344,7 @@ void ItemMover::OnLeftClick(bool up, int x, int y, bool* block) {
 				}
 			}
 		}
-		if (unidItemId>0 && (item->pItemData->dwFlags & ITEM_IDENTIFIED) <= 0) {
+		if (unidItemId > 0 && (item->pItemData->dwFlags & ITEM_IDENTIFIED) <= 0) {
 			for (UnitAny *pItem = unit->pInventory->pFirstItem; pItem; pItem = pItem->pItemData->pNextInvItem) {
 				char *code = D2COMMON_GetItemText(pItem->dwTxtFileNo)->szCode;
 				if (code[0] == 'i' && code[1] == 'b' && code[2] == 'k' && pItem->pItemData->ItemLocation == STORAGE_INVENTORY && D2COMMON_GetUnitStat(pItem, STAT_AMMOQUANTITY, 0)>0) {
@@ -546,6 +546,7 @@ void ItemMover::OnGamePacketRecv(BYTE* packet, bool* block) {
 				D2NET_SendPacket(9, 0, PacketData);
 				*block = true;
 				unidItemId = 0;
+				item = 0;
 				idBookId = 0;
 			}
 			break;
