@@ -309,8 +309,12 @@ void ItemMover::OnLeftClick(bool up, int x, int y, bool* block) {
 	if (up || !pData || !unit || !shiftState || (!D2CLIENT_GetUIState(UI_INVENTORY) && !D2CLIENT_GetUIState(UI_STASH) && !D2CLIENT_GetUIState(UI_CUBE) && !D2CLIENT_GetUIState(UI_NPCSHOP))) {
 		return;
 	}
-
+	
 	Init();
+	
+	item = 0;
+	unidItemId = 0;
+	idBookId = 0;
 	
 	int xpac = pData->nCharFlags & PLAYER_TYPE_EXPANSION;
 
@@ -358,10 +362,6 @@ void ItemMover::OnLeftClick(bool up, int x, int y, bool* block) {
 					break;
 				}
 			}
-		} else {
-			item = 0;
-			unidItemId = 0;
-			idBookId = 0;
 		}
 	}
 }
@@ -545,9 +545,6 @@ void ItemMover::OnGamePacketRecv(BYTE* packet, bool* block) {
 				*reinterpret_cast<int*>(PacketData + 5) = idBookId;
 				D2NET_SendPacket(9, 0, PacketData);
 				*block = true;
-				unidItemId = 0;
-				item = 0;
-				idBookId = 0;
 			}
 			break;
 		}
