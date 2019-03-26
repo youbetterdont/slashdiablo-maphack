@@ -38,7 +38,6 @@ int quality_to_color[] = {
 
 DWORD idBookId = 0;
 DWORD unidItemId = 0;
-UnitAny *item = 0;	
 
 void ItemMover::Init() {
 	// We should be able to get the layout from *p_D2CLIENT_StashLayout and friends,
@@ -310,9 +309,8 @@ void ItemMover::OnLeftClick(bool up, int x, int y, bool* block) {
 		return;
 	}
 	
-	Init();
-	
-	item = 0;
+	Init();	
+
 	unidItemId = 0;
 	idBookId = 0;
 	
@@ -321,48 +319,47 @@ void ItemMover::OnLeftClick(bool up, int x, int y, bool* block) {
 	int mouseX,mouseY;	
 	if (D2CLIENT_GetCursorItem()<=0) {
 		for (UnitAny *pItem = unit->pInventory->pFirstItem; pItem; pItem = pItem->pItemData->pNextInvItem) {
-			int xStart = pItem->pObjectPath->dwPosX;
-			int yStart = pItem->pObjectPath->dwPosY;
-			BYTE xSize = D2COMMON_GetItemText(pItem->dwTxtFileNo)->xSize;
-			BYTE ySize = D2COMMON_GetItemText(pItem->dwTxtFileNo)->ySize;
-			if (pItem->pItemData->ItemLocation == STORAGE_INVENTORY) {
-				mouseX = (*p_D2CLIENT_MouseX - INVENTORY_LEFT) / CELL_SIZE;
-				mouseY = (*p_D2CLIENT_MouseY - INVENTORY_TOP) / CELL_SIZE;
-			} else if(pItem->pItemData->ItemLocation == STORAGE_STASH) {
-				mouseX = (*p_D2CLIENT_MouseX - STASH_LEFT) / CELL_SIZE;
-				if (xpac) {
-					mouseY = (*p_D2CLIENT_MouseY - LOD_STASH_TOP) / CELL_SIZE;
-				} else {
-					mouseY = (*p_D2CLIENT_MouseY - CLASSIC_STASH_TOP) / CELL_SIZE;
-				}
-			} else if(pItem->pItemData->ItemLocation == STORAGE_CUBE) {
-				mouseX = (*p_D2CLIENT_MouseX - CUBE_LEFT) / CELL_SIZE;
-				mouseY = (*p_D2CLIENT_MouseY - CUBE_TOP) / CELL_SIZE;
-			}				
-			for (int x = xStart; x < xStart + xSize; x++) {
-				for (int y = yStart; y < yStart + ySize; y++) {
-					if (x == mouseX && y == mouseY) {
-						item = pItem;
-						unidItemId = pItem->dwUnitId;						
+			char *code = D2COMMON_GetItemText(pItem->dwTxtFileNo)->szCode;
+			if ((pItem->pItemData->dwFlags & ITEM_IDENTIFIED) <= 0) {
+				int xStart = pItem->pObjectPath->dwPosX;
+				int yStart = pItem->pObjectPath->dwPosY;
+				BYTE xSize = D2COMMON_GetItemText(pItem->dwTxtFileNo)->xSize;
+				BYTE ySize = D2COMMON_GetItemText(pItem->dwTxtFileNo)->ySize;			
+				if (pItem->pItemData->ItemLocation == STORAGE_INVENTORY) {
+					mouseX = (*p_D2CLIENT_MouseX - INVENTORY_LEFT) / CELL_SIZE;
+					mouseY = (*p_D2CLIENT_MouseY - INVENTORY_TOP) / CELL_SIZE;
+				} else if(pItem->pItemData->ItemLocation == STORAGE_STASH) {
+					mouseX = (*p_D2CLIENT_MouseX - STASH_LEFT) / CELL_SIZE;
+					if (xpac) {
+						mouseY = (*p_D2CLIENT_MouseY - LOD_STASH_TOP) / CELL_SIZE;
+					} else {
+						mouseY = (*p_D2CLIENT_MouseY - CLASSIC_STASH_TOP) / CELL_SIZE;
+					}
+				} else if(pItem->pItemData->ItemLocation == STORAGE_CUBE) {
+					mouseX = (*p_D2CLIENT_MouseX - CUBE_LEFT) / CELL_SIZE;
+					mouseY = (*p_D2CLIENT_MouseY - CUBE_TOP) / CELL_SIZE;
+				}				
+				for (int x = xStart; x < xStart + xSize; x++) {
+					for (int y = yStart; y < yStart + ySize; y++) {
+						if (x == mouseX && y == mouseY) {							
+							unidItemId = pItem->dwUnitId;								
+						}
 					}
 				}
 			}
-		}
-		if (unidItemId > 0 && (item->pItemData->dwFlags & ITEM_IDENTIFIED) <= 0) {
-			for (UnitAny *pItem = unit->pInventory->pFirstItem; pItem; pItem = pItem->pItemData->pNextInvItem) {
-				char *code = D2COMMON_GetItemText(pItem->dwTxtFileNo)->szCode;
-				if (code[0] == 'i' && code[1] == 'b' && code[2] == 'k' && pItem->pItemData->ItemLocation == STORAGE_INVENTORY && D2COMMON_GetUnitStat(pItem, STAT_AMMOQUANTITY, 0)>0) {
-					idBookId = pItem->dwUnitId;
-					BYTE PacketData[13] = { 0x20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-					*reinterpret_cast<int*>(PacketData + 1) = idBookId;
-					*reinterpret_cast<WORD*>(PacketData + 5) = (WORD)unit->pPath->xPos;
-					*reinterpret_cast<WORD*>(PacketData + 9) = (WORD)unit->pPath->yPos;
-					D2NET_SendPacket(13, 0, PacketData);
-					*block = true;
-					break;
-				}
+			if (code[0] == 'i' && code[1] == 'b' && code[2] == 'k' && pItem->pItemData->ItemLocation == STORAGE_INVENTORY && D2COMMON_GetUnitStat(pItem, STAT_AMMOQUANTITY, 0)>0) {
+				idBookId = pItem->dwUnitId;
 			}
-		}
+			if (unidItemId > 0 && idBookId > 0) {
+				BYTE PacketData[13] = { 0x20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+				*reinterpret_cast<int*>(PacketData + 1) = idBookId;
+				*reinterpret_cast<WORD*>(PacketData + 5) = (WORD)unit->pPath->xPos;
+				*reinterpret_cast<WORD*>(PacketData + 9) = (WORD)unit->pPath->yPos;
+				D2NET_SendPacket(13, 0, PacketData);
+				*block = true;
+				return;
+			}
+		}		
 	}
 }
 
@@ -546,6 +543,9 @@ void ItemMover::OnGamePacketRecv(BYTE* packet, bool* block) {
 				D2NET_SendPacket(9, 0, PacketData);
 				*block = true;
 			}
+			// Reseting variables after we ID an item so the next ID works.
+			unidItemId = 0;
+			idBookId = 0;
 			break;
 		}
 	case 0x9c:
