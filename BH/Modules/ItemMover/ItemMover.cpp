@@ -324,7 +324,7 @@ void ItemMover::OnLeftClick(bool up, int x, int y, bool* block) {
 			int xStart = pItem->pObjectPath->dwPosX;
 			int yStart = pItem->pObjectPath->dwPosY;
 			BYTE xSize = D2COMMON_GetItemText(pItem->dwTxtFileNo)->xSize;
-			BYTE ySize = D2COMMON_GetItemText(pItem->dwTxtFileNo)->ySize;			
+			BYTE ySize = D2COMMON_GetItemText(pItem->dwTxtFileNo)->ySize;
 			if (pItem->pItemData->ItemLocation == STORAGE_INVENTORY) {
 				mouseX = (*p_D2CLIENT_MouseX - INVENTORY_LEFT) / CELL_SIZE;
 				mouseY = (*p_D2CLIENT_MouseY - INVENTORY_TOP) / CELL_SIZE;
