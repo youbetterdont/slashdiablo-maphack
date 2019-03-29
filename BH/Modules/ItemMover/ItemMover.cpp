@@ -342,6 +342,9 @@ void ItemMover::OnLeftClick(bool up, int x, int y, bool* block) {
 			for (int x = xStart; x < xStart + xSize; x++) {
 				for (int y = yStart; y < yStart + ySize; y++) {
 					if (x == mouseX && y == mouseY) {
+						if ((pItem->pItemData->ItemLocation == STORAGE_STASH && !D2CLIENT_GetUIState(UI_STASH)) || (pItem->pItemData->ItemLocation == STORAGE_CUBE && !D2CLIENT_GetUIState(UI_CUBE))) {
+							return;
+						}
 						unidItemId = pItem->dwUnitId;								
 					}
 				}
