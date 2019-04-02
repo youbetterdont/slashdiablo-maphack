@@ -171,6 +171,10 @@ void Bnet::RemovePassPatch() {
 
 void __declspec(naked) FailToJoin_Interception()
 {
+	/*
+	Changes the amount of time, in milliseconds, that we wait for the loading
+	door to open before the client confirms that it failed to join the game.
+	*/
 	__asm
 	{
 		cmp esi, Bnet::failToJoin;
