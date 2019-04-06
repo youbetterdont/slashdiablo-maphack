@@ -24,6 +24,7 @@ class Maphack : public Module {
 	private:
 		int monsterResistanceThreshold;
 		int lkLinesColor;
+		int mbMonColor;
 		unsigned int revealType;
 		unsigned int maxGhostSelection;
 		unsigned int reloadConfig;

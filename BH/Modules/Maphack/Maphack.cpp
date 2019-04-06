@@ -36,6 +36,7 @@ Maphack::Maphack() : Module("Maphack") {
 
 	monsterResistanceThreshold = 99;
 	lkLinesColor = 105;
+	mbMonColor = 0;
 
 	ReadConfig();
 }
@@ -52,6 +53,7 @@ void Maphack::ReadConfig() {
 	BH::config->ReadInt("Reveal Mode", revealType);
 	BH::config->ReadInt("Show Monster Resistance", monsterResistanceThreshold);
 	BH::config->ReadInt("LK Chest Lines", lkLinesColor);
+	BH::config->ReadInt("Manaburn Monster Color", mbMonColor);
 
 	BH::config->ReadKey("Reload Config", "VK_NUMPAD0", reloadConfig);
 
@@ -385,18 +387,22 @@ void Maphack::OnAutomapDraw() {
 					
 					//Determine Enchantments
 					string enchantText;
-					if (unit->pMonsterData->fBoss && Toggles["Monster Enchantments"].state) {
-						string szEnchantments[] = {"ÿc3m", "ÿc1e", "ÿc9e", "ÿc3e"};
+					if (Toggles["Monster Enchantments"].state) {
+						string szEnchantments[] = {"ÿc3m", "ÿc1e", "ÿc9e", "ÿc3e"};						
 						
 						for (int n = 0; n < 9; n++) {
-							if (unit->pMonsterData->anEnchants[n] == ENCH_MANA_BURN)
-								enchantText += szEnchantments[0];
-							if (unit->pMonsterData->anEnchants[n] == ENCH_FIRE_ENCHANTED)
-								enchantText += szEnchantments[1];
-							if (unit->pMonsterData->anEnchants[n] == ENCH_LIGHTNING_ENCHANTED)
-								enchantText += szEnchantments[2];
-							if (unit->pMonsterData->anEnchants[n] == ENCH_COLD_ENCHANTED)
-								enchantText += szEnchantments[3];
+							if (unit->pMonsterData->fBoss) {
+								if (unit->pMonsterData->anEnchants[n] == ENCH_MANA_BURN)
+									enchantText += szEnchantments[0];
+								if (unit->pMonsterData->anEnchants[n] == ENCH_FIRE_ENCHANTED)
+									enchantText += szEnchantments[1];
+								if (unit->pMonsterData->anEnchants[n] == ENCH_LIGHTNING_ENCHANTED)
+									enchantText += szEnchantments[2];
+								if (unit->pMonsterData->anEnchants[n] == ENCH_COLD_ENCHANTED)
+									enchantText += szEnchantments[3];
+							}
+							if (unit->pMonsterData->anEnchants[n] == ENCH_MANA_BURN && mbMonColor > 0)
+								color = mbMonColor;
 						}
 					}
 
