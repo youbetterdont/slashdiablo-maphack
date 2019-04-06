@@ -282,7 +282,7 @@ ASMPTR(D2CLIENT, AssignPlayer_I, 0xA7630, 0x63C70)
 //ASMPTR(D2CLIENT, TestPvpFlag_I, 0x4FCE0)
 ASMPTR(D2CLIENT, TestPvpFlag_I, 0x4FD90, 0x6A720)
 
-//ASMPTR(D2CLIENT, PlaySound_I, 0x88A70)
+ASMPTR(D2CLIENT, PlaySound_I, 0x88A70, 0x26270)
 
 ASMPTR(D2CLIENT, InputCall_I, 0x147A0, 0xB6890)
 
@@ -415,6 +415,7 @@ VARPTR(D2NET, CriticalPacketSection, CRITICAL_SECTION, 0xB400, 0xB400) // unused
 FUNCPTR(D2GFX, DrawLine, void __stdcall, (int X1, int Y1, int X2, int Y2, DWORD dwColor, DWORD dwUnk), -10010, -10013)
 FUNCPTR(D2GFX, DrawRectangle, void __stdcall, (int X1, int Y1, int X2, int Y2, DWORD dwColor, DWORD dwTrans), -10014, -10028)
 FUNCPTR(D2GFX, DrawAutomapCell2, void __stdcall, (CellContext* context, DWORD xpos, DWORD ypos, DWORD bright2, DWORD bright, BYTE *coltab), -10041, -10042)
+FUNCPTR(D2GFX, DrawCellContextEx, void __stdcall, (CellContext *context, int Xpos, int Ypos, int dwl, int nTransLvl, BYTE Color), -10019, -10067)
 
 FUNCPTR(D2GFX, GetScreenSize, DWORD __stdcall, (void), -10031, -10012) 
 
@@ -483,6 +484,8 @@ VARPTR(D2LAUNCH, BnData, BnetData *, 0x25ABC, 0x25B30)
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 FUNCPTR(D2WIN, DrawSprites, void __fastcall, (void), 0x18750, 0xEAA0)
+FUNCPTR(D2WIN, LoadCellFile, CellFile* __fastcall, (const char* szFile, int Type), -10111, -10023)
+FUNCPTR(D2WIN, DrawCellFile, void __fastcall, (CellFile * pCellFile, int xPos, int yPos, int div, int trans, int Color), -10138, -10172)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
