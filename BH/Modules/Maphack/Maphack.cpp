@@ -401,7 +401,7 @@ void Maphack::OnAutomapDraw() {
 								if (unit->pMonsterData->anEnchants[n] == ENCH_COLD_ENCHANTED)
 									enchantText += szEnchantments[3];
 							}
-							if (unit->pMonsterData->anEnchants[n] == ENCH_MANA_BURN && mbMonColor > 0)
+							if (unit->pMonsterData->anEnchants[n] == ENCH_MANA_BURN && mbMonColor > 0 && !unit->pMonsterData->fBoss)
 								color = mbMonColor;
 						}
 					}
