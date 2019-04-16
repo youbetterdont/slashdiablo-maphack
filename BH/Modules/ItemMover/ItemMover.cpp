@@ -586,32 +586,7 @@ void ItemMover::OnGamePacketRecv(BYTE* packet, bool* block) {
 							/* break; */
 						}
 					}
-
-					//PrintText(1, "Item on ground: %s, %s, %s, %X", item.name.c_str(), item.code, item.attrs->category.c_str(), item.attrs->flags);
-					if(showOnMap) {
-						if (color == UNDEFINED_COLOR) {
-							color = quality_to_color[item.quality];
-						}
-						if ((*BH::MiscToggles2)["Item Drop Notifications"].state &&
-								item.action == ITEM_ACTION_NEW_GROUND &&
-								color != DEAD_COLOR
-							 ) {
-							PrintText(color, "%s%s",
-									item.name.c_str(),
-									(*BH::MiscToggles2)["Verbose Notifications"].state ? " \377c5drop" : ""
-									);
-						}
-						if ((*BH::MiscToggles2)["Item Close Notifications"].state &&
-								item.action == ITEM_ACTION_OLD_GROUND &&
-								color != DEAD_COLOR
-							 ) {
-							PrintText(color, "%s%s",
-									item.name.c_str(),
-									(*BH::MiscToggles2)["Verbose Notifications"].state ? " \377c5close" : ""
-									);
-						}
-					}
-					else {
+					if(!showOnMap) {
 						for (vector<Rule*>::iterator it = IgnoreRuleList.begin(); it != IgnoreRuleList.end(); it++) {
 							if ((*it)->Evaluate(NULL, &item)) {
 								*block = true;

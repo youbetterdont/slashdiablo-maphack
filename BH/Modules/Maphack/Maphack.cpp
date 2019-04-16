@@ -459,7 +459,13 @@ void Maphack::OnAutomapDraw() {
 								auto dotColor = (*it)->action.dotColor;
 								auto pxColor = (*it)->action.pxColor;
 								auto lineColor = (*it)->action.lineColor;
-								
+								//use an unused bit to set a flag that we announced the drop
+								//this bit will get cleared when we go out of range of the item
+								//and the item is deleted client side
+								if ((unit->dwFlags2 & UNITFLAGEX_UNUSED1_DROP_NOTIFICATION) == 0x0) {
+									PrintText(White, "Item Dropped: %s", GetItemName(unit).c_str());
+									unit->dwFlags2 |= UNITFLAGEX_UNUSED1_DROP_NOTIFICATION;
+								}
 								xPos = unit->pItemPath->dwPosX;
 								yPos = unit->pItemPath->dwPosY;
 								automapBuffer.push_top_layer(

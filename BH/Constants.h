@@ -1080,6 +1080,68 @@ enum QuestFlags {
 
 #define ITEM_GROUP_GEM (ITEM_GROUP_AMETHYST|ITEM_GROUP_DIAMOND|ITEM_GROUP_EMERALD|ITEM_GROUP_RUBY|ITEM_GROUP_SAPPHIRE|ITEM_GROUP_TOPAZ|ITEM_GROUP_SKULL)
 
+//https://d2mods.info/forum/viewtopic.php?p=487011#p487011
+//UnitAny 0xC4
+enum UNITFLAG
+{
+	UNITFLAG_MODE = 0x00000001,       // Sends mode updates via D2GAME.6FC4C520.
+	UNITFLAG_SELECTABLE = 0x00000002,       // Unit is selectable.
+	UNITFLAG_ATTACKABLE = 0x00000004,       // Unit is attackable.
+	UNITFLAG_SEARCHABLE = 0x00000008,       // Unit can be seen by target searching functions (aura, curse).
+	UNITFLAG_NEW = 0x00000010,       // Sends entire unit to the client.
+	UNITFLAG_NO_SHADOW = 0x00000020,       // Unit doesn't have a shadow.
+	UNITFLAG_FINISHED = 0x00000040,       // Unit has executed the current skill's 'do' function.
+	UNITFLAG_PREOPERATED = 0x00000080,       // Tells the game that this object has been pre-operated (that is, it should not change its mode again during initialization).
+	UNITFLAG_CHATMESSAGE = 0x00000100,       // Sends pUnit->pChatMessage (overlay text).
+	UNITFLAG_HIRELING = 0x00000200,       // Unit is a hireling.
+	UNITFLAG_SOUND = 0x00000400,       // Sends pUnit->eSoundMessage.
+	UNITFLAG_UMOD = 0x00000800,       // Sends the monster's UMods to the client if MONSTERUPDATE_UMOD is set in pMonsterData->dwUpdateMask.
+	UNITFLAG_FLIPPY = 0x00001000,       // When adding an item to a room this tells the game to send ITEMMODE_DROP instead of ITEMMODE_ROOM.
+	UNITFLAG_UPDATE = 0x00002000,       // Set for units that're inside the pRoom->pUnitUpdateList update queue (which is the core controller for updates).
+	UNITFLAG_SEQUENCE_TRANSITION = 0x00004000,       // Set when a animation sequence transitions from one mode to the next.
+	UNITFLAG_SOFTHIT = 0x00008000,       // Sends the unit's current HP percent and hitclass (pUnit->dwHitClass) to the client.
+	UNITFLAG_DEAD = 0x00010000,       // The unit is to be considered dead even if its mode is not DD or DT.
+	UNITFLAG_NO_TREASURE = 0x00020000,       // This unit never drops items, even if it has a treasure class.
+	UNITFLAG_MONSTERMODE = 0x00080000,       // Set when SMONSTER_SetMode successfully changes the monster's mode.
+	UNITFLAG_PREDRAW = 0x00100000,       // Draw this unit as if it were a ground tile.
+	UNITFLAG_ASYNC = 0x00200000,       // This unit exists only on the client (critters).
+	UNITFLAG_CLIENT = 0x00400000,       // This is set for all units created on the client.
+	UNITFLAG_DELETE = 0x00800000,       // When this is set CUNIT_DoFrame will not process this unit and delete it if it is an async unit.
+	UNITFLAG_PRESET = 0x01000000,       // Set for units that're created through GAME_SpawnPresets. Some other places also set this, usually related to quest units.
+	UNITFLAG_RESTORE = 0x02000000,       // Unit will always be saved by SUNIT_Deactivate even if it is a corpse or opened object.
+	UNITFLAG_NO_EXPERIENCE = 0x04000000,       // This unit doesn't give experience when slain.
+	UNITFLAG_SEEN = 0x10000000,       // This unit was drawn.
+	UNITFLAG_REVEALED = 0x20000000,       // This unit was added to the automap (shrines).
+	UNITFLAG_PETIGNORE = 0x40000000,       // This unit is ignored by pets.
+	UNITFLAG_PET = 0x80000000        // This unit is a pet.
+};
+
+//UnitAny 0xC8
+enum UNITFLAGEX
+{
+	UNITFLAGEX_INVENTORY = 0x00000001,       // Dispatches hInventory->hUpdates. Objects also check this which will lead to undefined behavior when set because they don't have an inventory.
+	UNITFLAGEX_2 = 0x00000002,       // Set by D2SetInventoryUpdateMessage alongside UNITFLAGEX_INVENTORY if the unit is a player.
+	UNITFLAGEX_MERCHANT_INVENTORY_PUT = 0x00000004,       // Adds the item to an NPC's trade inventory (sell to NPC).
+	UNITFLAGEX_DISGUISED = 0x00000008,       // This unit is using another unit's graphics (shapechange).
+	UNITFLAGEX_MERCHANT_INVENTORY_TAKE = 0x00000010,       // Removes an item from an NPC's trade inventory (buy from NPC).
+	UNITFLAGEX_REMOVE = 0x00000020,       // If this is set alongside UNITFLAG_DELETE the client will send CMESSAGE_TELEPORT which instructs the server to set UNITFLAGEX_TELEPORTED. Must be some legacy junk.
+	UNITFLAGEX_CONVERTING = 0x00000040,       // Set while the cursor is in conversion mode (legacy).
+	UNITFLAGEX_VISIBLE = 0x00000080,       // Unit is within line of sight of the player.
+	UNITFLAGEX_DEACTIVATED = 0x00000100,       // Set for units that have been deactivated by SUNIT_Deactivate.
+	UNITFLAGEX_REACTIVATED = 0x00000200,       // Set for units that have been reactivated by SUNIT_Reactivate.    
+	UNITFLAGEX_OWNED = 0x00000400,       // This unit has an owner stored at pUnit->dwOwnerID and pUnit->eOwnerTOU (usually used by missile, but also set for pets).
+	UNITFLAGEX_POSITIONED = 0x00000800,       // SMESSAGE_SETUNITPOS, bFadeOutScreen = FALSE.
+	UNITFLAGEX_MOVING = 0x00002000,       // Set for critters while they're moving on the client.
+	UNITFLAGEX_TEMPORARY = 0x00008000,       // Items with this bit set are not saved to the D2S.
+	UNITFLAGEX_TELEPORTED = 0x00010000,       // SMESSAGE_SETUNITPOS, bFadeOutScreen = TRUE.
+	UNITFLAGEX_ATTACKED = 0x00020000,       // The unit has been attacked and is storing details of the attacker in pUnit->dwAttackerID and pUnit->eAttackerTOU.
+	UNITFLAGEX_INVISIBLE = 0x00040000,       // The unit is invisible and will be ignored by the drawing code completely.
+	UNITFLAGEX_EXPANSION = 0x02000000,       // This is a unit in an expansion game.
+	UNITFLAGEX_SERVER = 0x04000000,       // This is set for all units created on the server.
+	//everything above 0x08000000 unuused
+	UNITFLAGEX_UNUSED1_DROP_NOTIFICATION = 0x08000000,
+};
+
 #define MONSTAT_ALIGN_ENEMY				0x0
 #define MONSTAT_ALIGN_ALLY				0x1
 #define MONSTAT_ALIGN_NEUTRAL			0x2
