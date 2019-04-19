@@ -1138,8 +1138,6 @@ enum UNITFLAGEX
 	UNITFLAGEX_INVISIBLE = 0x00040000,       // The unit is invisible and will be ignored by the drawing code completely.
 	UNITFLAGEX_EXPANSION = 0x02000000,       // This is a unit in an expansion game.
 	UNITFLAGEX_SERVER = 0x04000000,       // This is set for all units created on the server.
-	//everything above 0x08000000 unuused
-	UNITFLAGEX_UNUSED1_DROP_NOTIFICATION = 0x08000000,
 };
 
 #define MONSTAT_ALIGN_ENEMY				0x0

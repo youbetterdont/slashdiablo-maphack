@@ -462,9 +462,9 @@ void Maphack::OnAutomapDraw() {
 								//use an unused bit to set a flag that we announced the drop
 								//this bit will get cleared when we go out of range of the item
 								//and the item is deleted client side
-								if ((unit->dwFlags2 & UNITFLAGEX_UNUSED1_DROP_NOTIFICATION) == 0x0) {
+								if ((unit->dwFlags & UNITFLAG_REVEALED) == 0x0) {
 									PrintText(White, "Item Dropped: %s", GetItemName(unit).c_str());
-									unit->dwFlags2 |= UNITFLAGEX_UNUSED1_DROP_NOTIFICATION;
+									unit->dwFlags |= UNITFLAG_REVEALED;
 								}
 								xPos = unit->pItemPath->dwPosX;
 								yPos = unit->pItemPath->dwPosY;
