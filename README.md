@@ -64,7 +64,7 @@ Mustache[item]: {{>header}}{{>stats}}{{^isRuneword}}{{#socketed}}\n\n  * {{>>ite
 Mustache[stash]: {{#this}}* {{>item}}\n\n{{/this}}
 ```
 
-# Release Notes for 1.9.2 (WIP)
+# Release Notes for 1.9.3 (WIP)
 * Add class item specific keywords 
   * `BAR` `DRU` `DIN` `NEC` `SIN` `SOR` `ZON`
   * They have the same functionality as `CL1` style selectors
