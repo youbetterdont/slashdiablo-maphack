@@ -308,12 +308,16 @@ Act* lastAct = NULL;
 void Maphack::OnDraw() {
 	UnitAny* player = D2CLIENT_GetPlayerUnit();
 
+	if (!(*BH::MiscToggles2)["Item Detailed Notifications"].state) {
+		return;
+	}
+
 	if (!player || !player->pAct || player->pPath->pRoom1->pRoom2->pLevel->dwLevelNo == 0)
 		return;
 
 	for (Room1* room1 = player->pAct->pRoom1; room1; room1 = room1->pRoomNext) {
 		for (UnitAny* unit = room1->pUnitFirst; unit; unit = unit->pListNext) {
-			if (unit->dwType == UNIT_ITEM) {
+			if (unit->dwType == UNIT_ITEM && (unit->dwFlags & UNITFLAG_REVEALED) == 0x0) {
 				UnitItemInfo uInfo;
 				uInfo.item = unit;
 				uInfo.itemCode[0] = D2COMMON_GetItemText(unit->dwTxtFileNo)->szCode[0];
@@ -334,7 +338,7 @@ void Maphack::OnDraw() {
 									itemName.replace(start_pos, 1, " - ");
 									start_pos += 3;
 								}
-								PrintText(White, "Item Dropped: %s", itemName.c_str());
+								PrintText(White, "%s", itemName.c_str());
 								unit->dwFlags |= UNITFLAG_REVEALED;
 							}
 							break;
