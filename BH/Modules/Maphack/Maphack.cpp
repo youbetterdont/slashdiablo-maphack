@@ -304,6 +304,48 @@ BYTE nChestClosedColour = 0x09;
 BYTE nChestLockedColour = 0x09;
 
 Act* lastAct = NULL;
+
+void Maphack::OnDraw() {
+	UnitAny* player = D2CLIENT_GetPlayerUnit();
+
+	if (!player || !player->pAct || player->pPath->pRoom1->pRoom2->pLevel->dwLevelNo == 0)
+		return;
+
+	for (Room1* room1 = player->pAct->pRoom1; room1; room1 = room1->pRoomNext) {
+		for (UnitAny* unit = room1->pUnitFirst; unit; unit = unit->pListNext) {
+			if (unit->dwType == UNIT_ITEM) {
+				UnitItemInfo uInfo;
+				uInfo.item = unit;
+				uInfo.itemCode[0] = D2COMMON_GetItemText(unit->dwTxtFileNo)->szCode[0];
+				uInfo.itemCode[1] = D2COMMON_GetItemText(unit->dwTxtFileNo)->szCode[1];
+				uInfo.itemCode[2] = D2COMMON_GetItemText(unit->dwTxtFileNo)->szCode[2];
+				uInfo.itemCode[3] = 0;
+				if (ItemAttributeMap.find(uInfo.itemCode) != ItemAttributeMap.end()) {
+					uInfo.attrs = ItemAttributeMap[uInfo.itemCode];
+					for (vector<Rule*>::iterator it = MapRuleList.begin(); it != MapRuleList.end(); it++) {
+						if ((*it)->Evaluate(&uInfo, NULL)) {
+							//use an unused bit to set a flag that we announced the drop
+							//this bit will get cleared when we go out of range of the item
+							//and the item is deleted client side
+							if ((unit->dwFlags & UNITFLAG_REVEALED) == 0x0) {
+								std::string itemName = GetItemName(unit);
+								size_t start_pos = 0;
+								while ((start_pos = itemName.find('\n', start_pos)) != std::string::npos) {
+									itemName.replace(start_pos, 1, " - ");
+									start_pos += 3;
+								}
+								PrintText(White, "Item Dropped: %s", itemName.c_str());
+								unit->dwFlags |= UNITFLAG_REVEALED;
+							}
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
 void Maphack::OnAutomapDraw() {
 	UnitAny* player = D2CLIENT_GetPlayerUnit();
 	
@@ -459,13 +501,6 @@ void Maphack::OnAutomapDraw() {
 								auto dotColor = (*it)->action.dotColor;
 								auto pxColor = (*it)->action.pxColor;
 								auto lineColor = (*it)->action.lineColor;
-								//use an unused bit to set a flag that we announced the drop
-								//this bit will get cleared when we go out of range of the item
-								//and the item is deleted client side
-								if ((unit->dwFlags & UNITFLAG_REVEALED) == 0x0) {
-									PrintText(White, "Item Dropped: %s", GetItemName(unit).c_str());
-									unit->dwFlags |= UNITFLAG_REVEALED;
-								}
 								xPos = unit->pItemPath->dwPosX;
 								yPos = unit->pItemPath->dwPosY;
 								automapBuffer.push_top_layer(
