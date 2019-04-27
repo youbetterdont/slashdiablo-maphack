@@ -73,3 +73,19 @@ DWORD __declspec(naked) __fastcall D2CLIENT_ClickParty_ASM(RosterUnit* RosterUni
 		jmp D2CLIENT_ClickParty_I
 	}
 }
+
+void __declspec(naked) __fastcall D2CLIENT_PlaySound(int SoundNo)
+{
+	__asm
+	{
+		push ebx
+		mov ebx, ecx
+		push 0
+		push 0
+		push 0
+		push 0
+		call D2CLIENT_PlaySound_I
+		pop ebx;
+		ret
+	}
+}

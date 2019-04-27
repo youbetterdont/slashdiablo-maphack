@@ -681,6 +681,63 @@ void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 		Condition::AddOperand(conditions, new ItemStatCondition(STAT_REPAIRSDURABILITY, 0, operation, value));
 	} else if (key.compare(0, 5, "ARMOR") == 0) {
 		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_ALLARMOR));
+	} else if (key.compare(0, 4, "BELT") == 0) {
+		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_BELT));
+	} else if (key.compare(0, 5, "CHEST") == 0) {
+		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_ARMOR));
+	} else if (key.compare(0, 4, "HELM") == 0) {
+		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_HELM));
+	} else if (key.compare(0, 6, "SHIELD") == 0) {
+		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_SHIELD));
+	} else if (key.compare(0, 6, "GLOVES") == 0) {
+		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_GLOVES));
+	} else if (key.compare(0, 5, "BOOTS") == 0) {
+		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_BOOTS));
+	} else if (key.compare(0, 4, "CIRC") == 0) {
+		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_CIRCLET));
+	} else if (key.compare(0, 3, "DRU") == 0) {
+		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_DRUID_PELT));
+	} else if (key.compare(0, 3, "BAR") == 0) {
+		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_BARBARIAN_HELM));
+	} else if (key.compare(0, 3, "DIN") == 0) {
+		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_PALADIN_SHIELD));
+	} else if (key.compare(0, 3, "NEC") == 0) {
+		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_NECROMANCER_SHIELD));
+	} else if (key.compare(0, 3, "SIN") == 0) {
+		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_ASSASSIN_KATAR));
+	} else if (key.compare(0, 3, "SOR") == 0) {
+		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_SORCERESS_ORB));
+	} else if (key.compare(0, 3, "ZON") == 0) {
+		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_AMAZON_WEAPON));
+	} else if (key.compare(0, 3, "AXE") == 0) {
+		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_AXE));
+	} else if (key.compare(0, 4, "MACE") == 0) {
+		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_MACE));
+	} else if (key.compare(0, 5, "SWORD") == 0) {
+		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_SWORD));
+	} else if (key.compare(0, 6, "DAGGER") == 0) {
+		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_DAGGER));
+	} else if (key.compare(0, 8, "THROWING") == 0) {
+		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_THROWING));
+	} else if (key.compare(0, 3, "JAV") == 0) {
+		// Javelins don't seem to have ITEM_GROUP_JAVELIN set
+		// they are however, throwing spears
+		Condition::AddOperand(conditions,
+			new ItemGroupCondition(ITEM_GROUP_THROWING | ITEM_GROUP_SPEAR));
+	} else if (key.compare(0, 5, "SPEAR") == 0) {
+		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_SPEAR));
+	} else if (key.compare(0, 7, "POLEARM") == 0) {
+		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_POLEARM));
+	} else if (key.compare(0, 3, "BOW") == 0) {
+		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_BOOTS));
+	} else if (key.compare(0, 4, "XBOW") == 0) {
+		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_CROSSBOW));
+	} else if (key.compare(0, 5, "STAFF") == 0) {
+		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_STAFF));
+	} else if (key.compare(0, 4, "WAND") == 0) {
+		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_WAND));
+	} else if (key.compare(0, 5, "SCEPTER") == 0) {
+		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_SCEPTER));
 	} else if (key.compare(0, 2, "EQ") == 0 && keylen == 3) {
 		if (key[2] == '1') {
 			Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_HELM));
@@ -738,7 +795,10 @@ void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 			} else if (key[2] == '5') {
 				Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_THROWING));
 			} else if (key[2] == '6') {
-				Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_JAVELIN));
+				// Javelins don't seem to have ITEM_GROUP_JAVELIN set
+				// they are however, throwing spears
+				Condition::AddOperand(conditions,
+					new ItemGroupCondition(ITEM_GROUP_THROWING | ITEM_GROUP_SPEAR));
 			} else if (key[2] == '7') {
 				Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_SPEAR));
 			} else if (key[2] == '8') {
