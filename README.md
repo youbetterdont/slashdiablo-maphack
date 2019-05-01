@@ -69,8 +69,9 @@ Mustache[stash]: {{#this}}* {{>item}}\n\n{{/this}}
   * `BAR` `DRU` `DIN` `NEC` `SIN` `SOR` `ZON`
   * They have the same functionality as `CL1` style selectors
 * Add item type specific keywords
-  *
-  * They have the same functionality as `WP1` style selectors
+  * `BELT` `CHEST` `HELM` `SHIELD` `GLOVES` `BOOTS` `CIRC`
+  * `AXE` `MACE` `SWORD` `DAGGER` `THROWING` `JAV` `SPEAR` `POLEARM` `BOW` `XBOW` `STAFF` `WAND` `SCEPTER`
+  * They have the same functionality as `WP1` and `EQ1` style selectors
 * Fixed `JAV`/`WP6` selectors
 
 # Release Notes for 1.9.2
