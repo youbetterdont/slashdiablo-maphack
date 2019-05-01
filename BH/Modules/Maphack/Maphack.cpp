@@ -341,13 +341,13 @@ void Maphack::OnDraw() {
 									start_pos += 3;
 								}
 								PrintText(White, "%s", itemName.c_str());
-								unit->dwFlags |= UNITFLAG_REVEALED;
 							}
 							break;
 						}
 					}
 				}
 			}
+			unit->dwFlags |= UNITFLAG_REVEALED;
 		}
 	}
 }
