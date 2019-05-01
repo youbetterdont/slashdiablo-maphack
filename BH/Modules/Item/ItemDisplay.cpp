@@ -667,7 +667,7 @@ void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 		Condition::AddOperand(conditions, new ItemStatCondition(STAT_MINIMUMDAMAGE, 0, operation, value));
 	} else if (key.compare(0, 6, "MAXDMG") == 0) {
 		Condition::AddOperand(conditions, new ItemStatCondition(STAT_MAXIMUMDAMAGE, 0, operation, value));
-	} else if (key.compare(0, 2, "AR") == 0) {
+	} else if (key.compare(0, 2, "AR") == 0 && keylen == 2) {
 		Condition::AddOperand(conditions, new ItemStatCondition(STAT_ATTACKRATING, 0, operation, value));
 	} else if (key.compare(0, 3, "DTM") == 0) {
 		Condition::AddOperand(conditions, new ItemStatCondition(STAT_DAMAGETOMANA, 0, operation, value));
