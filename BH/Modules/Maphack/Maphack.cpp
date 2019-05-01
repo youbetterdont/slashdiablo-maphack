@@ -310,16 +310,15 @@ Act* lastAct = NULL;
 void Maphack::OnDraw() {
 	UnitAny* player = D2CLIENT_GetPlayerUnit();
 
-	if (!(*BH::MiscToggles2)["Item Detailed Notifications"].state) {
-		return;
-	}
-
 	if (!player || !player->pAct || player->pPath->pRoom1->pRoom2->pLevel->dwLevelNo == 0)
 		return;
-
+	// We're looping over all items and setting 2 flags:
+	// UNITFLAG_NO_EXPERIENCE - Whether the item has been checked for a drop notification (to prevent checking it again)
+	// UNITFLAG_REVEALED      - Whether the item should be notified and drawn on the automap
+	// To my knowledge these flags arent typically used on items. So we can abuse them for our own use.
 	for (Room1* room1 = player->pAct->pRoom1; room1; room1 = room1->pRoomNext) {
 		for (UnitAny* unit = room1->pUnitFirst; unit; unit = unit->pListNext) {
-			if (unit->dwType == UNIT_ITEM && (unit->dwFlags & UNITFLAG_REVEALED) == 0x0) {
+			if (unit->dwType == UNIT_ITEM && (unit->dwFlags & UNITFLAG_NO_EXPERIENCE) == 0x0) {
 				UnitItemInfo uInfo;
 				uInfo.item = unit;
 				uInfo.itemCode[0] = D2COMMON_GetItemText(unit->dwTxtFileNo)->szCode[0];
@@ -330,24 +329,23 @@ void Maphack::OnDraw() {
 					uInfo.attrs = ItemAttributeMap[uInfo.itemCode];
 					for (vector<Rule*>::iterator it = MapRuleList.begin(); it != MapRuleList.end(); it++) {
 						if ((*it)->Evaluate(&uInfo, NULL)) {
-							//use an unused bit to set a flag that we announced the drop
-							//this bit will get cleared when we go out of range of the item
-							//and the item is deleted client side
-							if ((unit->dwFlags & UNITFLAG_REVEALED) == 0x0) {
-								std::string itemName = GetItemName(unit);
-								size_t start_pos = 0;
-								while ((start_pos = itemName.find('\n', start_pos)) != std::string::npos) {
-									itemName.replace(start_pos, 1, " - ");
-									start_pos += 3;
-								}
-								PrintText(White, "%s", itemName.c_str());
+							if ((unit->dwFlags & UNITFLAG_REVEALED) == 0x0
+								 && (*BH::MiscToggles2)["Item Detailed Notifications"].state) {
+									std::string itemName = GetItemName(unit);
+									size_t start_pos = 0;
+									while ((start_pos = itemName.find('\n', start_pos)) != std::string::npos) {
+										itemName.replace(start_pos, 1, " - ");
+										start_pos += 3;
+									}
+									PrintText(White, "%s", itemName.c_str());
 							}
+							unit->dwFlags |= UNITFLAG_REVEALED;
 							break;
 						}
 					}
 				}
 			}
-			unit->dwFlags |= UNITFLAG_REVEALED;
+			unit->dwFlags |= UNITFLAG_NO_EXPERIENCE;
 		}
 	}
 }
@@ -495,7 +493,7 @@ void Maphack::OnAutomapDraw() {
 						Drawing::Boxhook::Draw(automapLoc.x - 1, automapLoc.y - 1, 2, 2, color, Drawing::BTHighlight);
 					});
 				}
-				else if (unit->dwType == UNIT_ITEM) {
+				else if (unit->dwType == UNIT_ITEM && (unit->dwFlags & UNITFLAG_REVEALED) == UNITFLAG_REVEALED) {
 					UnitItemInfo uInfo;
 					uInfo.item = unit;
 					uInfo.itemCode[0] = D2COMMON_GetItemText(unit->dwTxtFileNo)->szCode[0];
