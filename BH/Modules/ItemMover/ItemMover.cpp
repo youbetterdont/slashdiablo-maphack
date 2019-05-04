@@ -231,6 +231,7 @@ bool ItemMover::FindDestination(int xpac, int destination, unsigned int itemId, 
 	bool found = false;
 	int destX = 0, destY = 0;
 	if (width) {
+		bool first_y = true;
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
 				bool abort = false;
@@ -255,11 +256,28 @@ bool ItemMover::FindDestination(int xpac, int destination, unsigned int itemId, 
 					destY = y;
 					break;
 				}
-			}
+				if (xSize == 1) {
+					if (first_y) {
+						if (x + 1 < width) {
+							x++;
+							y--;
+							first_y = false;
+						}
+					} else {
+						first_y = true;
+						x--;
+					}
+				}
+			} // end y loop
 			if (found) {
 				break;
 			}
-		}
+			if (xSize == 2 && x % 2 == 0 && x + 2 >= width) {
+				x = 0;
+			} else {
+				x++;
+			}
+		} // end x loop
 	} else {
 		found = true;
 	}

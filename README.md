@@ -65,7 +65,8 @@ Mustache[stash]: {{#this}}* {{>item}}\n\n{{/this}}
 ```
 
 # Release Notes for 1.9.3 (WIP)
-* Add class item specific keywords 
+* Try to keep items inside columns of a width of two when moving items around
+* Add class item specific keywords
   * `BAR` `DRU` `DIN` `NEC` `SIN` `SOR` `ZON`
   * They have the same functionality as `CL1` style selectors
 * Add item type specific keywords
