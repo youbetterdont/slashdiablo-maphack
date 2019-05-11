@@ -337,7 +337,7 @@ void Maphack::OnDraw() {
 										itemName.replace(start_pos, 1, " - ");
 										start_pos += 3;
 									}
-									PrintText(White, "%s", itemName.c_str());
+									PrintText(ItemColorFromQuality(unit->pItemData->dwQuality), "%s", itemName.c_str());
 							}
 							unit->dwFlags |= UNITFLAG_REVEALED;
 							break;
