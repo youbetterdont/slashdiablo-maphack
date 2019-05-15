@@ -4,6 +4,23 @@
 #include "Common.h"
 #include "Constants.h"
 
+int quality_to_color[] = {
+	White, // none
+	White, // inferior
+	White, // normal
+	White, // superior
+	Blue, // magic
+	Green, // set
+	Yellow, // rare
+	Gold, // unique
+	Orange // craft
+};
+
+int ItemColorFromQuality(unsigned int quality) {
+	return quality_to_color[quality];
+}
+
+
 RosterUnit* FindPlayerRoster(DWORD unitId) {
 	for (RosterUnit* roster = (*p_D2CLIENT_PlayerUnitList); roster; roster = roster->pNext) {
 		if (roster->dwUnitId == unitId)

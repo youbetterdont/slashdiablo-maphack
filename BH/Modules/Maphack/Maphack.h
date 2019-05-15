@@ -53,6 +53,7 @@ class Maphack : public Module {
 	void LoadConfig();
 
 	void OnLoop();
+	void OnDraw();
 	void OnAutomapDraw();
 	void OnGameJoin(const string& name, const string& pass, int diff);
 	void OnGamePacketRecv(BYTE* packet, bool *block);

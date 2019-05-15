@@ -2,6 +2,7 @@
 #include "../../BH.h"
 #include "../../D2Ptrs.h"
 #include "../../D2Stubs.h"
+#include "../../D2Helpers.h"
 
 // This module was inspired by the RedVex plugin "Item Mover", written by kaiks.
 // Thanks to kaiks for sharing his code.
@@ -23,18 +24,6 @@ int CLASSIC_STASH_TOP = 334;
 int CUBE_LEFT = 197;
 int CUBE_TOP = 199;
 int CELL_SIZE = 29;
-
-int quality_to_color[] = {
-	White, // none
-	White, // inferior
-	White, // normal
-	White, // superior
-	Blue, // magic
-	Green, // set
-	Yellow, // rare
-	Gold, // unique
-	Orange // craft
-};
 
 DWORD idBookId;
 DWORD unidItemId;
@@ -604,11 +593,10 @@ void ItemMover::OnGamePacketRecv(BYTE* packet, bool* block) {
 							/* break; */
 						}
 					}
-
 					//PrintText(1, "Item on ground: %s, %s, %s, %X", item.name.c_str(), item.code, item.attrs->category.c_str(), item.attrs->flags);
-					if(showOnMap) {
+					if(showOnMap && !(*BH::MiscToggles2)["Item Detailed Notifications"].state) {
 						if (color == UNDEFINED_COLOR) {
-							color = quality_to_color[item.quality];
+							color = ItemColorFromQuality(item.quality);
 						}
 						if ((*BH::MiscToggles2)["Item Drop Notifications"].state &&
 								item.action == ITEM_ACTION_NEW_GROUND &&
