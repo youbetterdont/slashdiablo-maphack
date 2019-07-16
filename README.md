@@ -64,7 +64,8 @@ Mustache[item]: {{>header}}{{>stats}}{{^isRuneword}}{{#socketed}}\n\n  * {{>>ite
 Mustache[stash]: {{#this}}* {{>item}}\n\n{{/this}}
 ```
 
-# Release Notes for 1.9.3 (WIP)
+# Release Notes for 1.9.3
+* Add option to use item name/color from BH.cfg when showing the drop notification `Item Detailed Notifications`
 * Try to keep items inside columns of a width of two when moving items around
 * Add class item specific keywords
   * `BAR` `DRU` `DIN` `NEC` `SIN` `SOR` `ZON`
