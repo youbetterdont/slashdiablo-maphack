@@ -617,7 +617,7 @@ void ItemMover::OnGamePacketRecv(BYTE* packet, bool* block) {
 									);
 						}
 					}
-					else {
+					else if (!showOnMap) {
 						for (vector<Rule*>::iterator it = IgnoreRuleList.begin(); it != IgnoreRuleList.end(); it++) {
 							if ((*it)->Evaluate(NULL, &item)) {
 								*block = true;
