@@ -1137,11 +1137,11 @@ void InitializeMPQData() {
 			unsigned int flags = ITEM_GROUP_ALLARMOR, flags2 = 0;
 			FindAncestorTypes((*d)["type"], ancestorTypes, parentMap1, parentMap2);
 
-			if ((*d)["code"].compare((*d)["ubercode"]) == 0) {
-				flags |= ITEM_GROUP_EXCEPTIONAL;
-			}
-			else if ((*d)["code"].compare((*d)["ultracode"]) == 0) {
+			if ((*d)["code"].compare((*d)["ultracode"]) == 0) {
 				flags |= ITEM_GROUP_ELITE;
+			}
+			else if ((*d)["code"].compare((*d)["ubercode"]) == 0) {
+				flags |= ITEM_GROUP_EXCEPTIONAL;
 			}
 			else {
 				flags |= ITEM_GROUP_NORMAL;
@@ -1199,11 +1199,11 @@ void InitializeMPQData() {
 				unsigned int flags = ITEM_GROUP_ALLWEAPON, flags2 = 0;
 				FindAncestorTypes((*d)["type"], ancestorTypes, parentMap1, parentMap2);
 
-				if ((*d)["code"].compare((*d)["ubercode"]) == 0) {
-					flags |= ITEM_GROUP_EXCEPTIONAL;
-				}
-				else if ((*d)["code"].compare((*d)["ultracode"]) == 0) {
+				if ((*d)["code"].compare((*d)["ultracode"]) == 0) {
 					flags |= ITEM_GROUP_ELITE;
+				}
+				else if ((*d)["code"].compare((*d)["ubercode"]) == 0) {
+					flags |= ITEM_GROUP_EXCEPTIONAL;
 				}
 				else {
 					flags |= ITEM_GROUP_NORMAL;
