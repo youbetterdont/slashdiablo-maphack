@@ -21,6 +21,7 @@ void Gamefilter::OnLoad() {
 		destoryGameList->Install();
 		listRefresh->Install();
 	}
+	refreshTime = 1500;
 	BH::config->ReadInt("GameListRefresh", refreshTime);
 }
 
