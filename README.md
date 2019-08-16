@@ -63,6 +63,12 @@ Mustache[header]: {{>header-unique}}{{>header-magic}}{{>header-else}}{{#count}} 
 Mustache[item]: {{>header}}{{>stats}}{{^isRuneword}}{{#socketed}}\n\n  * {{>>item}}{{/socketed}}{{/isRuneword}}\n
 Mustache[stash]: {{#this}}* {{>item}}\n\n{{/this}}
 ```
+# Release Notes for 1.9.4
+* Fix connecting to a realm with a 1.13d client
+* Show messagebox if no config found on load
+* Fix possible hang when loading game list
+* Don't hide items that are on the map when detailed notifications are on
+* Set elite flag before exceptional and normal
 
 # Release Notes for 1.9.3
 * Add option to use item name/color from BH.cfg when showing the drop notification `Item Detailed Notifications`
