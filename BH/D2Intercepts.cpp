@@ -80,24 +80,23 @@ OldCode:
 
 VOID __declspec(naked) ChatPacketRecv_Interception()
 {
-   __asm
-   {
-      pushad;
-      call ChatPacketRecv;
-      TEST EAX,EAX;
+	__asm
+	{
+		LEA EDX, [EBP - 4]
+		LEA ECX, [ESI + 4]
+		pushad
+		call ChatPacketRecv
+		TEST EAX,EAX;
 
-      popad;
-      jnz oldCall;
+		popad;
+		jnz oldCall;
 
-        MOV EAX,0;
-      MOV DWORD PTR DS:[EBX+0x6FF3ED58],1
-      ret;
+		MOV EAX,0;
+		ret;
 oldCall:
-        CALL eax;
-        MOV DWORD PTR DS:[EBX+0x6FF3ED58],1
-        ret;
-
-   }
+		CALL eax
+		ret;
+	}
 }
 
 VOID __declspec(naked) RealmPacketRecv_Interception()
