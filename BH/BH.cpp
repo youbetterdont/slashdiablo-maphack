@@ -94,7 +94,12 @@ void BH::Initialize()
 	config = new Config("BH.cfg");
 	if(!config->Parse()) {
 		config->SetConfigName("BH_Default.cfg");
-		config->Parse();
+		if(!config->Parse()) {
+			string msg = "Could not find BH config.\nAttempted to load " +
+				path + "BH.cfg (failed).\nAttempted to load "+
+				path + "BH_Default.cfg (failed).\n\nDefaults loaded.";
+			MessageBox(NULL, msg.c_str(), "Failed to load BH config", MB_OK);
+		}
 	}
 
 	// Do this asynchronously because D2GFX_GetHwnd() will be null if
