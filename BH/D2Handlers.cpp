@@ -34,7 +34,7 @@ DWORD WINAPI GameThread(VOID* lpvoid) {
 			BH::oogDraw->Install();
 		} else if (D2CLIENT_GetPlayerUnit() && !inGame) {
 			inGame = true;
-			__raise BH::moduleManager->OnGameJoin((*p_D2LAUNCH_BnData)->szGameName, (*p_D2LAUNCH_BnData)->szGamePass, D2CLIENT_GetDifficulty());
+			__raise BH::moduleManager->OnGameJoin();
 			BH::oogDraw->Remove();
 		}
 		Sleep(10);

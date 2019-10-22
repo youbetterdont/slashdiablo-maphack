@@ -31,7 +31,7 @@ class Module {
 		virtual void OnLoop() {};
 
 		// Game Events
-		virtual void OnGameJoin(const string& name, const string& pass, int diff) {}
+		virtual void OnGameJoin() {}
 		virtual void OnGameExit() {};
 
 		// Drawing Events

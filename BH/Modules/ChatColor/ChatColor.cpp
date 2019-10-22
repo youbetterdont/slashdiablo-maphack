@@ -23,7 +23,7 @@ void Print(DWORD color, char* format, ...) {
 	delete[] str;
 }
 
-void ChatColor::OnGameJoin(const string& name, const string& pass, int diff) {
+void ChatColor::OnGameJoin() {
 	inGame = true;
 }
 

@@ -30,7 +30,7 @@ class ModuleManager {
 
 		__event void OnLoop();
 
-		__event void OnGameJoin(const string& name, const string& pass, int diff);
+		__event void OnGameJoin();
 		__event void OnGameExit();
 
 		__event void OnDraw();

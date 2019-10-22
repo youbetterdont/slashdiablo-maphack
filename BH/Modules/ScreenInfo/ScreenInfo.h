@@ -56,7 +56,7 @@ class ScreenInfo : public Module {
 		void LoadConfig();
 		void MpqLoaded();
 		void OnKey(bool up, BYTE key, LPARAM lParam, bool* block);
-		void OnGameJoin(const string& name, const string& pass, int diff);
+		void OnGameJoin();
 		void OnGameExit();
 
 		void OnRightClick(bool up, int x, int y, bool* block);

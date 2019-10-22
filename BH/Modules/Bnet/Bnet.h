@@ -24,7 +24,7 @@ class Bnet : public Module {
 		void OnUnload();
 		void LoadConfig();
 
-		void OnGameJoin(const string& name, const string& pass, int diff);
+		void OnGameJoin();
 		void OnGameExit();
 
 		static VOID __fastcall NextGamePatch(Control* box, BOOL (__stdcall *FunCallBack)(Control*, DWORD, DWORD));

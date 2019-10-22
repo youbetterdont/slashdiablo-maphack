@@ -66,7 +66,7 @@ void Bnet::OnUnload() {
 	removePass->Remove();
 }
 
-void Bnet::OnGameJoin(const string& name, const string& pass, int diff) {
+void Bnet::OnGameJoin() {
 	if ( strlen((*p_D2LAUNCH_BnData)->szGameName) > 0)
 		lastName = (*p_D2LAUNCH_BnData)->szGameName;
 

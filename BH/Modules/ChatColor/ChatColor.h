@@ -15,7 +15,7 @@ public:
 
 	void OnLoad();
 	void LoadConfig();
-	void OnGameJoin(const string& name, const string& pass, int diff);
+	void OnGameJoin();
 	void OnGameExit();
 	void OnChatPacketRecv(BYTE* packet, bool *block);
 };

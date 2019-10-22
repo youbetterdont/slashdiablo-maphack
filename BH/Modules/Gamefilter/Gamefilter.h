@@ -25,7 +25,7 @@ class Gamefilter : public Module {
 		void OnLoad();
 		void OnUnload();
 
-		void OnGameJoin(const string& name, const string& pass, int diff);
+		void OnGameJoin();
 		void OnGameExit();
 
 		void OnRealmPacketRecv(BYTE* pPacket, bool* blockPacket);

@@ -581,7 +581,7 @@ void Maphack::OnAutomapDraw() {
 	});
 }
 
-void Maphack::OnGameJoin(const string& name, const string& pass, int diff) {
+void Maphack::OnGameJoin() {
 	ResetRevealed();
 	automapLevels.clear();
 }

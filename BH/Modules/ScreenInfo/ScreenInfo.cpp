@@ -54,7 +54,7 @@ void ScreenInfo::MpqLoaded() {
 	mpqVersionText->SetColor(Gold);
 }
 
-void ScreenInfo::OnGameJoin(const string& name, const string& pass, int diff) {
+void ScreenInfo::OnGameJoin() {
 	BnetData* pInfo = (*p_D2LAUNCH_BnData);
 	UnitAny *unit = D2CLIENT_GetPlayerUnit();
 	if (unit) {

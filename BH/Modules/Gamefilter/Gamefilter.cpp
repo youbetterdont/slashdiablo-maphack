@@ -31,7 +31,7 @@ void Gamefilter::OnUnload() {
 	listRefresh->Remove();
 }
 
-void Gamefilter::OnGameJoin(const string& name, const string& pass, int diff) {
+void Gamefilter::OnGameJoin() {
 	createGameBox->Remove();
 	destoryGameList->Remove();
 	listRefresh->Remove();

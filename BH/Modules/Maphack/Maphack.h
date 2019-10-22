@@ -55,7 +55,7 @@ class Maphack : public Module {
 	void OnLoop();
 	void OnDraw();
 	void OnAutomapDraw();
-	void OnGameJoin(const string& name, const string& pass, int diff);
+	void OnGameJoin();
 	void OnGamePacketRecv(BYTE* packet, bool *block);
 
 	void ResetRevealed();
