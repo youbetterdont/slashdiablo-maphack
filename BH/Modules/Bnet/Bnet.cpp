@@ -55,11 +55,11 @@ void Bnet::OnUnload() {
 }
 
 void Bnet::OnGameJoin(const string& name, const string& pass, int diff) {
-	if (name.length() > 0)
-		lastName = name;
+	if ( strlen((*p_D2LAUNCH_BnData)->szGameName) > 0)
+		lastName = (*p_D2LAUNCH_BnData)->szGameName;
 
-	if (pass.length() > 0)
-		lastPass = pass;
+	if ( strlen((*p_D2LAUNCH_BnData)->szGamePass) > 0)
+		lastPass = (*p_D2LAUNCH_BnData)->szGamePass;
 	else
 		lastPass = "";
 	
