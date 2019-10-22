@@ -5,12 +5,16 @@
 unsigned int Bnet::failToJoin;
 std::string Bnet::lastName;
 std::string Bnet::lastPass;
+std::string Bnet::lastDesc;
 std::regex Bnet::reg = std::regex("^(.*?)(\\d+)$");
 
 Patch* nextGame1 = new Patch(Call, D2MULTI, { 0x14D29, 0xADAB }, (int)Bnet::NextGamePatch, 5);
 Patch* nextGame2 = new Patch(Call, D2MULTI, { 0x14A0B, 0xB5E9 }, (int)Bnet::NextGamePatch, 5);
 Patch* nextPass1 = new Patch(Call, D2MULTI, { 0x14D64, 0xADE6 }, (int)Bnet::NextPassPatch, 5);
 Patch* nextPass2 = new Patch(Call, D2MULTI, { 0x14A46, 0xB624 }, (int)Bnet::NextPassPatch, 5);
+
+Patch* gameDesc = new Patch(Call, D2MULTI, { 0x14D8F, 0xB64F }, (int)Bnet::GameDescPatch, 5);
+
 Patch* ftjPatch = new Patch(Call, D2CLIENT, { 0x4363E, 0x443FE }, (int)FailToJoin_Interception, 6);
 Patch* removePass = new Patch(Call, D2MULTI, { 0x1250, 0x1AD0 }, (int)RemovePass_Interception, 5);
 
@@ -18,6 +22,7 @@ void Bnet::OnLoad() {
 	showLastGame = true;
 	showLastPass = true;
 	nextInstead = true;
+	keepDesc = true;
 	failToJoin = 4000;
 	LoadConfig();
 }
@@ -26,6 +31,7 @@ void Bnet::LoadConfig() {
 	BH::config->ReadBoolean("Autofill Last Game", showLastGame);
 	BH::config->ReadBoolean("Autofill Last Password", showLastPass);
 	BH::config->ReadBoolean("Autofill Next Game", nextInstead);
+	BH::config->ReadBoolean("Autofill Description", keepDesc);
 	BH::config->ReadInt("Fail To Join", failToJoin);
 
 	if (showLastGame) {
@@ -39,6 +45,10 @@ void Bnet::LoadConfig() {
 		removePass->Install();
 	}
 
+	if (keepDesc) {
+		gameDesc->Install();
+	}
+
 	if (failToJoin > 0 && !D2CLIENT_GetPlayerUnit())
 		ftjPatch->Install();
 }
@@ -49,6 +59,8 @@ void Bnet::OnUnload() {
 
 	nextPass1->Remove();
 	nextPass2->Remove();
+
+	gameDesc->Remove();
 
 	ftjPatch->Remove();
 	removePass->Remove();
@@ -63,6 +75,11 @@ void Bnet::OnGameJoin(const string& name, const string& pass, int diff) {
 	else
 		lastPass = "";
 	
+	if ( strlen((*p_D2LAUNCH_BnData)->szGameDesc) > 0)
+		lastDesc = (*p_D2LAUNCH_BnData)->szGameDesc;
+	else
+		lastDesc = "";
+
 	if (nextInstead) {
 		std::smatch match;
 		if (std::regex_search(Bnet::lastName, match, Bnet::reg) && match.size() == 3) {
@@ -99,6 +116,8 @@ void Bnet::OnGameJoin(const string& name, const string& pass, int diff) {
 	nextGame1->Remove();
 	nextGame2->Remove();
 
+	gameDesc->Remove();
+
 	removePass->Remove();
 }
 
@@ -116,6 +135,11 @@ void Bnet::OnGameExit() {
 		nextPass2->Install();
 		removePass->Install();
 	}
+
+	if (keepDesc) {
+		gameDesc->Install();
+	}
+
 }
 
 VOID __fastcall Bnet::NextGamePatch(Control* box, BOOL (__stdcall *FunCallBack)(Control*, DWORD, DWORD)) {
@@ -142,6 +166,18 @@ VOID __fastcall Bnet::NextPassPatch(Control* box, BOOL(__stdcall *FunCallBack)(C
 	// original code
 	D2WIN_SetEditBoxProc(box, FunCallBack);
 	delete[] wszLastPass;
+}
+
+VOID __fastcall Bnet::GameDescPatch(Control* box, BOOL(__stdcall *FunCallBack)(Control*, DWORD, DWORD)) {
+	if (Bnet::lastDesc.size() == 0)
+		return;
+	wchar_t *wszLastDesc = AnsiToUnicode(Bnet::lastDesc.c_str());
+	
+	D2WIN_SetControlText(box, wszLastDesc);
+	
+	// original code
+	D2WIN_SetEditBoxProc(box, FunCallBack);
+	delete[] wszLastDesc;
 }
 
 void __declspec(naked) RemovePass_Interception() {

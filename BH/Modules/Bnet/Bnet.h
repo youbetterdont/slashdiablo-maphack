@@ -9,9 +9,11 @@ class Bnet : public Module {
 		bool showLastGame;
 		bool showLastPass;
 		bool nextInstead;
+		bool keepDesc;
 		static unsigned int failToJoin;
 		static std::string lastName;
 		static std::string lastPass;
+		static std::string lastDesc;
 		static std::regex reg;
 
 	public:
@@ -27,6 +29,7 @@ class Bnet : public Module {
 
 		static VOID __fastcall NextGamePatch(Control* box, BOOL (__stdcall *FunCallBack)(Control*, DWORD, DWORD));
 		static VOID __fastcall NextPassPatch(Control* box, BOOL(__stdcall *FunCallBack)(Control*, DWORD, DWORD));
+		static VOID __fastcall GameDescPatch(Control* box, BOOL(__stdcall *FunCallBack)(Control*, DWORD, DWORD));
 		static void RemovePassPatch();
 };
 
