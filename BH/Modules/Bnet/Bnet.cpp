@@ -19,33 +19,45 @@ Patch* ftjPatch = new Patch(Call, D2CLIENT, { 0x4363E, 0x443FE }, (int)FailToJoi
 Patch* removePass = new Patch(Call, D2MULTI, { 0x1250, 0x1AD0 }, (int)RemovePass_Interception, 5);
 
 void Bnet::OnLoad() {
-	showLastGame = true;
-	showLastPass = true;
-	nextInstead = true;
-	keepDesc = true;
+	showLastGame = &bools["Autofill Last Game"];
+	*showLastGame = true;
+	
+	showLastPass = &bools["Autofill Last Password"];
+	*showLastPass = true;
+
+	nextInstead = &bools["Autofill Next Game"];
+	*nextInstead = true;
+
+	keepDesc = &bools["Autofill Description"];
+	*keepDesc = true;
+
 	failToJoin = 4000;
 	LoadConfig();
 }
 
 void Bnet::LoadConfig() {
-	BH::config->ReadBoolean("Autofill Last Game", showLastGame);
-	BH::config->ReadBoolean("Autofill Last Password", showLastPass);
-	BH::config->ReadBoolean("Autofill Next Game", nextInstead);
-	BH::config->ReadBoolean("Autofill Description", keepDesc);
+	BH::config->ReadBoolean("Autofill Last Game", *showLastGame);
+	BH::config->ReadBoolean("Autofill Last Password", *showLastPass);
+	BH::config->ReadBoolean("Autofill Next Game", *nextInstead);
+	BH::config->ReadBoolean("Autofill Description", *keepDesc);
 	BH::config->ReadInt("Fail To Join", failToJoin);
 
-	if (showLastGame) {
+	InstallPatches();
+}
+
+void Bnet::InstallPatches() {
+	if (*showLastGame || *nextInstead) {
 		nextGame1->Install();
 		nextGame2->Install();
 	}
 
-	if (showLastPass) {
+	if (*showLastPass) {
 		nextPass1->Install();
 		nextPass2->Install();
 		removePass->Install();
 	}
 
-	if (keepDesc) {
+	if (*keepDesc) {
 		gameDesc->Install();
 	}
 
@@ -53,7 +65,7 @@ void Bnet::LoadConfig() {
 		ftjPatch->Install();
 }
 
-void Bnet::OnUnload() {
+void Bnet::RemovePatches() {
 	nextGame1->Remove();
 	nextGame2->Remove();
 
@@ -64,6 +76,10 @@ void Bnet::OnUnload() {
 
 	ftjPatch->Remove();
 	removePass->Remove();
+}
+
+void Bnet::OnUnload() {
+	RemovePatches();
 }
 
 void Bnet::OnGameJoin() {
@@ -80,7 +96,11 @@ void Bnet::OnGameJoin() {
 	else
 		lastDesc = "";
 
-	if (nextInstead) {
+	RemovePatches();
+}
+
+void Bnet::OnGameExit() {
+	if (*nextInstead) {
 		std::smatch match;
 		if (std::regex_search(Bnet::lastName, match, Bnet::reg) && match.size() == 3) {
 			std::string name = match.format("$1");
@@ -111,35 +131,7 @@ void Bnet::OnGameJoin() {
 		}
 	}
 
-	ftjPatch->Remove();
-
-	nextGame1->Remove();
-	nextGame2->Remove();
-
-	gameDesc->Remove();
-
-	removePass->Remove();
-}
-
-void Bnet::OnGameExit() {
-	if (failToJoin > 0)
-		ftjPatch->Install();
-
-	if (showLastGame) {
-		nextGame1->Install();
-		nextGame2->Install();
-	}
-
-	if (showLastPass) {
-		nextPass1->Install();
-		nextPass2->Install();
-		removePass->Install();
-	}
-
-	if (keepDesc) {
-		gameDesc->Install();
-	}
-
+	InstallPatches();
 }
 
 VOID __fastcall Bnet::NextGamePatch(Control* box, BOOL (__stdcall *FunCallBack)(Control*, DWORD, DWORD)) {

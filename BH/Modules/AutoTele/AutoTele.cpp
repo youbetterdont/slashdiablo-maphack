@@ -15,13 +15,29 @@ using namespace Drawing;
 void AutoTele::OnLoad() {
 	LoadConfig();
 
+	std::map<string, bool>* bnetBools (BH::BnetBools);
+
 	settingsTab = new UITab("Misc", BH::settingsUI);
+	unsigned int Y = 12;
+	unsigned int col = 40;
 
-	new Texthook(settingsTab, 60, 12, "Toggles");
+	new Texthook(settingsTab, col+20, Y, "Toggles");
 
-	new Checkhook(settingsTab, 40, 27, &Toggles["Draw Destination"].state, "Draw Paths");
+	new Checkhook(settingsTab, col, (Y += 15),
+			&Toggles["Draw Destination"].state, "Draw Paths");
 
-	new Checkhook(settingsTab, 40, 57, &Toggles["Quest Drop Warning"].state, "Quest Drop Warning");
+	new Checkhook(settingsTab, col, (Y += 15),
+			&Toggles["Quest Drop Warning"].state, "Quest Drop Warning");
+
+	new Texthook(settingsTab, col+20, (Y += 22), "Game creation");
+	new Checkhook(settingsTab, col, (Y += 15),
+			&(*bnetBools)["Autofill Last Game"], "Autofill Last Game");
+	new Checkhook(settingsTab, col, (Y += 15),
+			&(*bnetBools)["Autofill Next Game"], "Autofill Next Game");
+	new Checkhook(settingsTab, col, (Y += 15),
+			&(*bnetBools)["Autofill Last Password"], "Autofill Last Password");
+	new Checkhook(settingsTab, col, (Y += 15),
+			&(*bnetBools)["Autofill Description"], "Autofill Description");
 
 	//this doesn't change the path.  I can't figure out how to make it work either.
 	//new Checkhook(settingsTab, 40, 42, &Toggles["CP to cave"].state, "CP to cave");

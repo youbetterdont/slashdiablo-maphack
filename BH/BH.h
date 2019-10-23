@@ -30,6 +30,7 @@ namespace BH {
 	extern WNDPROC OldWNDPROC;
 	extern map<string, Toggle>* MiscToggles;
 	extern map<string, Toggle>* MiscToggles2;
+	extern map<string, bool>* BnetBools;
 	extern bool cGuardLoaded;
 	extern bool initialized;
 	extern Patch* oogDraw;

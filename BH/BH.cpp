@@ -22,6 +22,7 @@ bool BH::cGuardLoaded;
 WNDPROC BH::OldWNDPROC;
 map<string, Toggle>* BH::MiscToggles;
 map<string, Toggle>* BH::MiscToggles2;
+map<string, bool>* BH::BnetBools;
 
 Patch* patches[] = {
 	new Patch(Call, D2CLIENT, { 0x44230, 0x45280 }, (int)GameLoop_Interception, 7),
@@ -134,6 +135,8 @@ void BH::Initialize()
 	new StashExport();
 	new Maphack();
 	new ChatColor();
+
+	BnetBools = ((Bnet*)moduleManager->Get("bnet"))->GetBools();
 
 	moduleManager->LoadModules();
 
