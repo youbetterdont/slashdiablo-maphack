@@ -19,6 +19,7 @@ Patch* lightingPatch = new Patch(Call, D2CLIENT, { 0xA9A37, 0x233A7 }, (int)Ligh
 Patch* infraPatch = new Patch(Call, D2CLIENT, { 0x66623, 0xB4A23 }, (int)Infravision_Interception, 7);
 Patch* shakePatch = new Patch(Call, D2CLIENT, { 0x442A2, 0x452F2 }, (int)Shake_Interception, 5);
 Patch* monsterNamePatch = new Patch(Call, D2WIN, { 0x13550, 0x140E0 }, (int)HoverObject_Interception, 5);
+Patch* cpuPatch = new Patch(NOP, D2CLIENT, { 0x3CB7C, 0x2770C }, 0, 9);
 
 DrawDirective automapDraw(true, 5);
 
@@ -164,6 +165,11 @@ void Maphack::ResetPatches() {
 	else
 		monsterNamePatch->Remove();
 
+	// patch for cpu-overutilization fix
+	if (Toggles["Apply CPU Patch"].state)
+		cpuPatch->Install();
+	else
+		cpuPatch->Remove();
 }
 
 void Maphack::OnLoad() {
@@ -207,6 +213,9 @@ void Maphack::OnLoad() {
 
 	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Display Level Names"].state, "Level Names");
 	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Display Level Names"].toggle, "");
+
+	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Apply CPU Patch"].state, "CPU Patch");
+	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Apply CPU Patch"].toggle, "");
 
 	new Texthook(settingsTab, 215, 3, "Missile Colors");
 
