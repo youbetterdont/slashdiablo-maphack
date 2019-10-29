@@ -63,6 +63,11 @@ Mustache[header]: {{>header-unique}}{{>header-magic}}{{>header-else}}{{#count}} 
 Mustache[item]: {{>header}}{{>stats}}{{^isRuneword}}{{#socketed}}\n\n  * {{>>item}}{{/socketed}}{{/isRuneword}}\n
 Mustache[stash]: {{#this}}* {{>item}}\n\n{{/this}}
 ```
+# Release Notes for 1.9.5
+* add autofill game description option
+* add game creation config items to bh settings in game
+* make patch for cpu-overutilization optional
+
 # Release Notes for 1.9.4
 * Fix connecting to a realm with a 1.13d client
 * Show messagebox if no config found on load
