@@ -124,6 +124,7 @@ void Maphack::ReadConfig() {
 	BH::config->ReadToggle("Display Level Names", "None", true, Toggles["Display Level Names"]);
 	BH::config->ReadToggle("Monster Resistances", "None", true, Toggles["Monster Resistances"]);
 	BH::config->ReadToggle("Monster Enchantments", "None", true, Toggles["Monster Enchantments"]);
+	BH::config->ReadToggle("Apply CPU Patch", "None", true, Toggles["Apply CPU Patch"]);
 
 	BH::config->ReadInt("Minimap Max Ghost", automapDraw.maxGhost);
 }
