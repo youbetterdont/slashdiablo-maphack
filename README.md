@@ -63,6 +63,9 @@ Mustache[header]: {{>header-unique}}{{>header-magic}}{{>header-else}}{{#count}} 
 Mustache[item]: {{>header}}{{>stats}}{{^isRuneword}}{{#socketed}}\n\n  * {{>>item}}{{/socketed}}{{/isRuneword}}\n
 Mustache[stash]: {{#this}}* {{>item}}\n\n{{/this}}
 ```
+# Release Notes for 1.9.6
+* Fix cpu-overutilization toggle issue
+
 # Release Notes for 1.9.5
 * add autofill game description option
 * add game creation config items to bh settings in game
