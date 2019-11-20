@@ -23,6 +23,7 @@ WNDPROC BH::OldWNDPROC;
 map<string, Toggle>* BH::MiscToggles;
 map<string, Toggle>* BH::MiscToggles2;
 map<string, bool>* BH::BnetBools;
+map<string, bool>* BH::GamefilterBools;
 
 Patch* patches[] = {
 	new Patch(Call, D2CLIENT, { 0x44230, 0x45280 }, (int)GameLoop_Interception, 7),
@@ -137,6 +138,7 @@ void BH::Initialize()
 	new ChatColor();
 
 	BnetBools = ((Bnet*)moduleManager->Get("bnet"))->GetBools();
+	GamefilterBools = ((Gamefilter*)moduleManager->Get("gamefilter"))->GetBools();
 
 	moduleManager->LoadModules();
 

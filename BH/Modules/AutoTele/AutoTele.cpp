@@ -16,6 +16,7 @@ void AutoTele::OnLoad() {
 	LoadConfig();
 
 	std::map<string, bool>* bnetBools (BH::BnetBools);
+	std::map<string, bool>* gamefilterBools(BH::GamefilterBools);
 
 	settingsTab = new UITab("Misc", BH::settingsUI);
 	unsigned int Y = 12;
@@ -38,6 +39,10 @@ void AutoTele::OnLoad() {
 			&(*bnetBools)["Autofill Last Password"], "Autofill Last Password");
 	new Checkhook(settingsTab, col, (Y += 15),
 			&(*bnetBools)["Autofill Description"], "Autofill Description");
+	new Checkhook(settingsTab, col, (Y += 15),
+			&(*gamefilterBools)["Show Difficulty"], "Show Difficulty");
+	new Checkhook(settingsTab, col, (Y += 15),
+			&(*gamefilterBools)["Show Gameserver"], "Show Gameserver");
 
 	//this doesn't change the path.  I can't figure out how to make it work either.
 	//new Checkhook(settingsTab, 40, 42, &Toggles["CP to cave"].state, "CP to cave");

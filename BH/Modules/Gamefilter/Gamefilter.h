@@ -15,8 +15,18 @@ struct GameListEntry
 struct Control;
 
 class Gamefilter : public Module {
+	private:
+		std::map<string, bool> bools;
+		bool* showDiff;
+		bool* showGs;		
+
 	public:
 		static std::list<GameListEntry*> gameList;
+<<<<<<< Updated upstream
+=======
+		static std::vector<GameListEntry*> filterVector;
+		static std::vector<wchar_t*> gServerVector;
+>>>>>>> Stashed changes
 		static Control* filterBox;
 		static int refreshTime;
 	
@@ -24,12 +34,15 @@ class Gamefilter : public Module {
 
 		void OnLoad();
 		void OnUnload();
+		void LoadConfig();
 
 		void OnGameJoin();
 		void OnGameExit();
 
 		void OnRealmPacketRecv(BYTE* pPacket, bool* blockPacket);
 		void OnOOGDraw();
+
+		std::map<string, bool>* GetBools() { return &bools; }
 
 		static void CreateGamelist();
 		static void __stdcall DestroyGamelist(Control* pControl);
