@@ -22,11 +22,8 @@ class Gamefilter : public Module {
 
 	public:
 		static std::list<GameListEntry*> gameList;
-<<<<<<< Updated upstream
-=======
 		static std::vector<GameListEntry*> filterVector;
 		static std::vector<wchar_t*> gServerVector;
->>>>>>> Stashed changes
 		static Control* filterBox;
 		static int refreshTime;
 	

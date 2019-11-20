@@ -8,11 +8,9 @@
 using namespace std;
 
 list<GameListEntry*> Gamefilter::gameList;
-<<<<<<< Updated upstream
-=======
+
 vector<GameListEntry*> Gamefilter::filterVector;
 vector<wchar_t*> Gamefilter::gServerVector;
->>>>>>> Stashed changes
 Control* Gamefilter::filterBox;
 int Gamefilter::refreshTime;
 
@@ -129,10 +127,8 @@ void Gamefilter::OnRealmPacketRecv(BYTE* pPacket, bool* blockPacket) {
 				(*p_D2MULTI_GameListControl)->pSelectedText = pText;
 			}
 
-<<<<<<< Updated upstream
 			(*p_D2MULTI_GameListControl)->dwSelectEnd+=1;
-			(*p_D2MULTI_GameListControl)->pChildControl->dwScrollEntries = (*p_D2MULTI_GameListControl)->dwSelectEnd > 10 ? (*p_D2MULTI_GameListControl)->dwSelectEnd - 10 : 0;			
-=======
+			(*p_D2MULTI_GameListControl)->pChildControl->dwScrollEntries = (*p_D2MULTI_GameListControl)->dwSelectEnd > 10 ? (*p_D2MULTI_GameListControl)->dwSelectEnd - 10 : 0;	
 			(*p_D2MULTI_GameListControl)->dwSelectEnd += 1;
 			(*p_D2MULTI_GameListControl)->pChildControl->dwScrollEntries = (*p_D2MULTI_GameListControl)->dwSelectEnd > 9 ? (*p_D2MULTI_GameListControl)->dwSelectEnd - 9 : 0;
 			filterVector.push_back(pEntry);
@@ -162,7 +158,6 @@ void Gamefilter::OnRealmPacketRecv(BYTE* pPacket, bool* blockPacket) {
 			{
 				gServerVector.push_back(L"gs1");
 			}
->>>>>>> Stashed changes
 		}
 
 		gameList.push_back(pEntry);
@@ -204,11 +199,9 @@ VOID Gamefilter::CreateGamelist(VOID)
 			delete (*ListEntry);
 
 		gameList.clear();
-<<<<<<< Updated upstream
-=======
 		filterVector.clear();
 		gServerVector.clear();
->>>>>>> Stashed changes
+
 	}
 
 	filterBox = D2WIN_CreateEditBox(599, 185, 145, 41, 7, NULL, NULL, Gamefilter::Filterbox_ReturnHandler, NULL, NULL, (ControlPreferences*)p_D2MULTI_EditboxPreferences);
@@ -230,11 +223,8 @@ VOID __stdcall Gamefilter::DestroyGamelist(Control* pControl)
 					delete (*ListEntry);
 
 				gameList.clear();
-<<<<<<< Updated upstream
-=======
 				filterVector.clear();
 				gServerVector.clear();
->>>>>>> Stashed changes
 			}
 
 			D2WIN_DestroyEditBox(filterBox);
@@ -264,8 +254,6 @@ void Gamefilter::OnOOGDraw() {
 		DWORD dwOldSize = D2WIN_SetTextSize(1);
 		D2WIN_DrawText(L"Filter", 549, 170, 4, -1);
 		D2WIN_DrawText(wFilterString.c_str(), 424, 190, 4, -1);
-<<<<<<< Updated upstream
-=======
 
 		if(*showDiff || *showGs) {
 			D2WIN_SetTextSize(6);
@@ -290,7 +278,6 @@ void Gamefilter::OnOOGDraw() {
 				}
 			}
 		}
->>>>>>> Stashed changes
 		D2WIN_SetTextSize(dwOldSize);
 	}
 }
@@ -299,11 +286,8 @@ void Gamefilter::BuildGameList(string sFilter)
 {
 	if(!gameList.empty() && (*p_D2MULTI_GameListControl))
 	{
-<<<<<<< Updated upstream
-=======
 		filterVector.clear();
 		gServerVector.clear();
->>>>>>> Stashed changes
 		ControlText* pText = (*p_D2MULTI_GameListControl)->pFirstText;
 
 		(*p_D2MULTI_GameListControl)->pFirstText = NULL;
@@ -362,11 +346,10 @@ void Gamefilter::BuildGameList(string sFilter)
 					(*p_D2MULTI_GameListControl)->pLastText = pText;
 					(*p_D2MULTI_GameListControl)->pSelectedText = pText;
 				}
-
-<<<<<<< Updated upstream
+				
 				(*p_D2MULTI_GameListControl)->dwSelectEnd+=1;
 				(*p_D2MULTI_GameListControl)->pChildControl->dwScrollEntries = (*p_D2MULTI_GameListControl)->dwSelectEnd > 10 ? (*p_D2MULTI_GameListControl)->dwSelectEnd - 10 : 0;
-=======
+
 				(*p_D2MULTI_GameListControl)->dwSelectEnd += 1;
 				(*p_D2MULTI_GameListControl)->pChildControl->dwScrollEntries = (*p_D2MULTI_GameListControl)->dwSelectEnd > 9 ? (*p_D2MULTI_GameListControl)->dwSelectEnd - 9 : 0;
 				filterVector.push_back(*ListEntry);
@@ -397,7 +380,6 @@ void Gamefilter::BuildGameList(string sFilter)
 					gServerVector.push_back(L"gs1");
 				}
 
->>>>>>> Stashed changes
 			}
 		}
 	}
