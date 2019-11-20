@@ -127,8 +127,6 @@ void Gamefilter::OnRealmPacketRecv(BYTE* pPacket, bool* blockPacket) {
 				(*p_D2MULTI_GameListControl)->pSelectedText = pText;
 			}
 
-			(*p_D2MULTI_GameListControl)->dwSelectEnd+=1;
-			(*p_D2MULTI_GameListControl)->pChildControl->dwScrollEntries = (*p_D2MULTI_GameListControl)->dwSelectEnd > 10 ? (*p_D2MULTI_GameListControl)->dwSelectEnd - 10 : 0;	
 			(*p_D2MULTI_GameListControl)->dwSelectEnd += 1;
 			(*p_D2MULTI_GameListControl)->pChildControl->dwScrollEntries = (*p_D2MULTI_GameListControl)->dwSelectEnd > 9 ? (*p_D2MULTI_GameListControl)->dwSelectEnd - 9 : 0;
 			filterVector.push_back(pEntry);
@@ -347,8 +345,6 @@ void Gamefilter::BuildGameList(string sFilter)
 					(*p_D2MULTI_GameListControl)->pSelectedText = pText;
 				}
 				
-				(*p_D2MULTI_GameListControl)->dwSelectEnd+=1;
-				(*p_D2MULTI_GameListControl)->pChildControl->dwScrollEntries = (*p_D2MULTI_GameListControl)->dwSelectEnd > 10 ? (*p_D2MULTI_GameListControl)->dwSelectEnd - 10 : 0;
 
 				(*p_D2MULTI_GameListControl)->dwSelectEnd += 1;
 				(*p_D2MULTI_GameListControl)->pChildControl->dwScrollEntries = (*p_D2MULTI_GameListControl)->dwSelectEnd > 9 ? (*p_D2MULTI_GameListControl)->dwSelectEnd - 9 : 0;
