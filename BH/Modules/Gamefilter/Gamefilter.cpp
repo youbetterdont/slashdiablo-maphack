@@ -7,6 +7,7 @@
 
 using namespace std;
 
+list<GameListEntry*> Gamefilter::gameList;
 vector<GameListEntry*> Gamefilter::filterVector;
 vector<wchar_t*> Gamefilter::gServerVector;
 Control* Gamefilter::filterBox;
