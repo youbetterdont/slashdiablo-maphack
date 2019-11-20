@@ -2,6 +2,7 @@
 #include "../Module.h"
 #include <Windows.h>
 #include <list>
+#include <vector>
 
 struct GameListEntry
 {
