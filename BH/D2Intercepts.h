@@ -8,6 +8,7 @@ void GameLoop_Interception();
 
 
 VOID GamePacketRecv_Interception();
+VOID UnitAnyItem_Interception();
 VOID ChatPacketRecv_Interception();
 VOID RealmPacketRecv_Interception();
 void GameInput_Interception(void);

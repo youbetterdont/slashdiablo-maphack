@@ -78,6 +78,38 @@ OldCode:
 	}
 }
 
+// TODO: Remove to line below. These are early bring-up tests.
+#include "Common.h"
+
+static void TestUnitAnyItem_Interception(UnitAny* item) {
+	ItemText *txt = D2COMMON_GetItemText(item->dwTxtFileNo);
+	char *szCode = txt->szCode;
+	char code[4];
+	code[0] = szCode[0];
+	code[1] = szCode[1];
+	code[2] = szCode[2];
+	code[3] = '\0';
+	PrintText(1, "TestUnitAnyItem_Interception: %s", code);
+	return;
+}
+// -------------------------------------------------------
+
+// TODO: Something useful with this function
+VOID __declspec(naked) UnitAnyItem_Interception() {
+	__asm
+	{
+		push esi;
+		call TestUnitAnyItem_Interception;
+		pop esi;
+		add esp, 0x04; // we want to return to the caller of our caller
+		pop edi; // code that i replaced
+		pop esi; // ""
+		pop ebx; // ""
+		pop ecx; // ""
+		ret;
+	}
+}
+
 VOID __declspec(naked) ChatPacketRecv_Interception()
 {
 	__asm
