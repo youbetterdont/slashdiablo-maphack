@@ -102,6 +102,7 @@ void Item::LoadConfig() {
 	BH::config->ReadToggle("Allow Unknown Items", "None", false, Toggles["Allow Unknown Items"]);
 	BH::config->ReadToggle("Suppress Invalid Stats", "None", false, Toggles["Suppress Invalid Stats"]);
 	BH::config->ReadToggle("Always Show Item Stat Ranges", "None", true, Toggles["Always Show Item Stat Ranges"]);
+	BH::config->ReadToggle("Use Classic Stat Ranges", "None", false, Toggles["Use Classic Stat Ranges"]);
 
 	ItemDisplay::UninitializeItemRules();
 
@@ -145,6 +146,10 @@ void Item::DrawSettings() {
 
 	new Checkhook(settingsTab, 4, y, &Toggles["Always Show Item Stat Ranges"].state, "Always Show Item Stat Ranges");
 	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Always Show Item Stat Ranges"].toggle, "");
+	y += 15;
+	
+	new Checkhook(settingsTab, 4, y, &Toggles["Use Classic Stat Ranges"].state, "Use Classic Stat Ranges");
+	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Use Classic Stat Ranges"].toggle, "");
 	y += 15;
 
 	new Checkhook(settingsTab, 4, y, &Toggles["Advanced Item Display"].state, "Advanced Item Display");
@@ -871,8 +876,14 @@ void __stdcall Item::OnPropertyBuild(wchar_t* wOut, int nStat, UnitAny* pItem, i
 				AutoMagicTxt* pTxt = D2COMMON_GetItemMagicalMods(i);
 				if (!pTxt)
 					break;
-				//Skip if stat level is > 99 or affix is prelod
-				if (pTxt->dwLevel > 99 || !pTxt->wVersion)
+				bool is_classic_affix = pTxt->wVersion==1;
+				bool is_expansion_affix = pTxt->wVersion!=0;
+				// skip affixes that are not valid for expansion when using expansion stat ranges
+				if (!Toggles["Use Classic Stat Ranges"].state && !is_expansion_affix) continue;
+				// skip non-classic affixes when using classic stat ranges
+				if (Toggles["Use Classic Stat Ranges"].state && !is_classic_affix) continue;
+				//Skip if stat level is > 99
+				if (pTxt->dwLevel > 99)
 					continue;
 				//Skip if stat is not spawnable
 				if (pItem->pItemData->dwQuality < ITEM_QUALITY_CRAFT && !pTxt->wSpawnable)
