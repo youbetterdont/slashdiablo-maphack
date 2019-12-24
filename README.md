@@ -590,3 +590,9 @@ Which renders as:
 * Chipped Ruby (L1) **x8**
 
 * Flawed Emerald (L1) **x7**
+
+# Building
+
+To build with CMake, first install "Visual Studio Build Tools 2017" and a version of CMake>=3.7. Visual Studio Build Tools comes with a "Developer Command Prompt" that sets up the path with the right compilers and build tools. Next, create a build directory within the project root directory and make it the current working directory. Then, run the command `cmake -G"Visual Studio 15 2017" -DCMAKE_BUILD_SHARED_LIBS=TRUE -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE ..` (save this command as a bat script if you like). This will create all necessary build files. Next, run `cmake --build . --config Release` to build the project.
+
+To enable multi-processor support when buildling, set the CXXFLAGS environment variable with `set CXXFLAGS=/MP` prior to running the cmake command above.

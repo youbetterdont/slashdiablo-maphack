@@ -80,7 +80,7 @@ void Maphack::ReadConfig() {
 		int monsterId = -1;
 		stringstream ss((*it).first);
 		if ((ss >> monsterId).fail()) {
-			++it;
+			continue;
 		} else {
 			int monsterColor = StringToNumber((*it).second);
 			automapMonsterColors[monsterId] = monsterColor;
@@ -94,7 +94,7 @@ void Maphack::ReadConfig() {
 		int monsterId = -1;
 		stringstream ss((*it).first);
 		if ((ss >> monsterId).fail()) {
-			++it;
+			continue;
 		} else {
 			int lineColor = StringToNumber((*it).second);
 			automapMonsterLines[monsterId] = lineColor;
@@ -107,7 +107,7 @@ void Maphack::ReadConfig() {
 		int monsterId = -1;
 		stringstream ss((*it).first);
 		if ((ss >> monsterId).fail()) {
-			++it;
+			continue;
 		} else {
 			automapHiddenMonsters.push_back(monsterId);
 		}
