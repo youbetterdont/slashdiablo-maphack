@@ -146,7 +146,7 @@ void Item::DrawSettings() {
 	new Checkhook(settingsTab, 4, y, &Toggles["Always Show Item Stat Ranges"].state, "Always Show Item Stat Ranges");
 	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Always Show Item Stat Ranges"].toggle, "");
 	y += 15;
-
+	
 	new Checkhook(settingsTab, 4, y, &Toggles["Advanced Item Display"].state, "Advanced Item Display");
 	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Advanced Item Display"].toggle, "");
 	y += 15;
@@ -865,14 +865,22 @@ void __stdcall Item::OnPropertyBuild(wchar_t* wOut, int nStat, UnitAny* pItem, i
 			int nAffixes = *p_D2COMMON_AutoMagicTxt - D2COMMON_GetItemMagicalMods(1); // Number of affixes without Automagic
 			int min = 0, max = 0;
 			int type = D2COMMON_GetItemType(pItem);
+			BnetData* pData = (*p_D2LAUNCH_BnData);
+			int is_expansion = pData->nCharFlags & PLAYER_TYPE_EXPANSION;
 			for (int i = 1;; ++i) {
 				if (!pItem->pItemData->wAutoPrefix && i > nAffixes) // Don't include Automagic.txt affixes if item doesn't use them
 					break;
 				AutoMagicTxt* pTxt = D2COMMON_GetItemMagicalMods(i);
 				if (!pTxt)
 					break;
-				//Skip if stat level is > 99 or affix is prelod
-				if (pTxt->dwLevel > 99 || !pTxt->wVersion)
+				bool is_classic_affix = pTxt->wVersion==1;
+				bool is_expansion_affix = pTxt->wVersion!=0;
+				// skip affixes that are not valid for expansion when using expansion stat ranges
+				if (is_expansion && !is_expansion_affix) continue;
+				// skip non-classic affixes when using classic stat ranges
+				if (!is_expansion && !is_classic_affix) continue;
+				//Skip if stat level is > 99
+				if (pTxt->dwLevel > 99)
 					continue;
 				//Skip if stat is not spawnable
 				if (pItem->pItemData->dwQuality < ITEM_QUALITY_CRAFT && !pTxt->wSpawnable)
