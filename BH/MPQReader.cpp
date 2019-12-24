@@ -5,6 +5,7 @@ std::map<std::string, MPQData*> MpqDataMap;
 std::string MpqVersion;
 
 #define SFILE_INVALID_SIZE 0xFFFFFFFF
+#define STREAM_FLAG_READ_ONLY 0x00000100  // Stream is read only
 
 MPQOpenArchive SFileOpenArchive;
 MPQCloseArchive SFileCloseArchive;
@@ -14,7 +15,7 @@ MPQReadFile SFileReadFile;
 MPQCloseFile SFileCloseFile;
 
 MPQArchive::MPQArchive(const char *filename) : name(filename), error(ERROR_SUCCESS) {
-	if (!SFileOpenArchive(filename, 0, 0, &hMpq)) {
+	if (!SFileOpenArchive(filename, 0, STREAM_FLAG_READ_ONLY, &hMpq)) {
 		error = GetLastError();
 	}
 }
@@ -105,20 +106,7 @@ bool ReadMPQFiles(std::string fileName) {
 			INFINITE);  // no time-out interval
 
 		if (SFileOpenArchive && SFileCloseArchive && SFileOpenFileEx && SFileCloseFile && SFileGetFileSize && SFileReadFile) {
-			// Copy the MPQ file to avoid sharing access violations
-			std::string copyFileName(fileName);
-			size_t start_pos = copyFileName.find("Patch_D2.mpq");
-			if (start_pos != std::string::npos) {
-				copyFileName.replace(start_pos, 12, "Patch_D2.copy.mpq");
-			}
-
-			std::ifstream src(fileName.c_str(), std::ios::binary);
-			std::ofstream dst(copyFileName.c_str(), std::ios::binary);
-			dst << src.rdbuf();
-			dst.close();
-			src.close();
-
-			MPQArchive archive(copyFileName.c_str());
+			MPQArchive archive(fileName.c_str());
 
 			const int NUM_MPQS = 16;
 			std::string mpqFiles[NUM_MPQS] = {
