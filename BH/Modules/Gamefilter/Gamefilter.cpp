@@ -59,8 +59,23 @@ void Gamefilter::OnGameExit() {
 }
 
 void Gamefilter::OnRealmPacketRecv(BYTE* pPacket, bool* blockPacket) {
+	//S>C 0x17 MCP_CHARLIST
+	//S>C 0x19 MCP_CHARLIST2
+	if (pPacket[0] == 0x19 || pPacket[0] == 0x17) {
+		unsigned int nChars = *reinterpret_cast<int*>(pPacket + 3);
+		for (Control* pControl = *p_D2WIN_FirstControl; pControl; pControl = pControl->pNext)
+		{
+			if (pControl->dwType == 4 && pControl->pChildControl && pControl->pChildControl->dwType == 5) {
+				pControl->dwSelectEnd = nChars;
+				pControl->dwSelectStart = 0;
+
+				pControl->pChildControl->dwScrollPosition = 0;
+				pControl->pChildControl->dwScrollEntries = nChars > 8 ? (unsigned int)(ceil((nChars - 8) / 2.0)) : 0;
+			}
+		}
+	}
 	if(pPacket[0] == 0x05 && filterBox)
-	{
+	{		
 		wstring wFilter(filterBox->wText);
 		string sFilter(wFilter.begin(), wFilter.end());
 
