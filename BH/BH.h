@@ -31,6 +31,7 @@ namespace BH {
 	extern map<string, Toggle>* MiscToggles;
 	extern map<string, Toggle>* MiscToggles2;
 	extern map<string, bool>* BnetBools;
+	extern map<string, bool>* GamefilterBools;
 	extern bool cGuardLoaded;
 	extern bool initialized;
 	extern Patch* oogDraw;

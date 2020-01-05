@@ -8,6 +8,8 @@
 using namespace std;
 
 list<GameListEntry*> Gamefilter::gameList;
+vector<GameListEntry*> Gamefilter::filterVector;
+vector<wchar_t*> Gamefilter::gServerVector;
 Control* Gamefilter::filterBox;
 int Gamefilter::refreshTime;
 
@@ -23,6 +25,19 @@ void Gamefilter::OnLoad() {
 	}
 	refreshTime = 1500;
 	BH::config->ReadInt("GameListRefresh", refreshTime);
+
+	showDiff = &bools["Show Difficulty"];
+	*showDiff = true;
+
+	showGs = &bools["Show Gameserver"];
+	*showGs = true;
+
+	LoadConfig();
+}
+
+void Gamefilter::LoadConfig() {
+	BH::config->ReadBoolean("Show Difficulty", *showDiff);
+	BH::config->ReadBoolean("Show Gameserver", *showGs);
 }
 
 void Gamefilter::OnUnload() {
@@ -126,8 +141,35 @@ void Gamefilter::OnRealmPacketRecv(BYTE* pPacket, bool* blockPacket) {
 				(*p_D2MULTI_GameListControl)->pSelectedText = pText;
 			}
 
-			(*p_D2MULTI_GameListControl)->dwSelectEnd+=1;
-			(*p_D2MULTI_GameListControl)->pChildControl->dwScrollEntries = (*p_D2MULTI_GameListControl)->dwSelectEnd > 10 ? (*p_D2MULTI_GameListControl)->dwSelectEnd - 10 : 0;			
+			(*p_D2MULTI_GameListControl)->dwSelectEnd += 1;
+			(*p_D2MULTI_GameListControl)->pChildControl->dwScrollEntries = (*p_D2MULTI_GameListControl)->dwSelectEnd > 9 ? (*p_D2MULTI_GameListControl)->dwSelectEnd - 9 : 0;
+			filterVector.push_back(pEntry);
+
+			if(::toupper(pEntry->sGameDesc[0]) == 'G' && ::toupper(pEntry->sGameDesc[1]) == 'S')
+			{
+				switch (pEntry->sGameDesc[2])
+				{
+				case '1':
+					gServerVector.push_back(L"gs1");
+					break;
+				case '2':
+					gServerVector.push_back(L"gs2");
+					break;
+				case '3':
+					gServerVector.push_back(L"gs3");
+					break;
+				case '4':
+					gServerVector.push_back(L"gs4");
+					break;
+				default:
+					gServerVector.push_back(L"gs1");
+					break;
+				}
+			}
+			else
+			{
+				gServerVector.push_back(L"gs1");
+			}
 		}
 
 		gameList.push_back(pEntry);
@@ -169,6 +211,9 @@ VOID Gamefilter::CreateGamelist(VOID)
 			delete (*ListEntry);
 
 		gameList.clear();
+		filterVector.clear();
+		gServerVector.clear();
+
 	}
 
 	filterBox = D2WIN_CreateEditBox(599, 185, 145, 41, 7, NULL, NULL, Gamefilter::Filterbox_ReturnHandler, NULL, NULL, (ControlPreferences*)p_D2MULTI_EditboxPreferences);
@@ -190,6 +235,8 @@ VOID __stdcall Gamefilter::DestroyGamelist(Control* pControl)
 					delete (*ListEntry);
 
 				gameList.clear();
+				filterVector.clear();
+				gServerVector.clear();
 			}
 
 			D2WIN_DestroyEditBox(filterBox);
@@ -197,7 +244,7 @@ VOID __stdcall Gamefilter::DestroyGamelist(Control* pControl)
 			filterBox = NULL;
 		}
 	}
-	
+
 	D2WIN_DestroyControl(pControl);
 }
 
@@ -219,6 +266,30 @@ void Gamefilter::OnOOGDraw() {
 		DWORD dwOldSize = D2WIN_SetTextSize(1);
 		D2WIN_DrawText(L"Filter", 549, 170, 4, -1);
 		D2WIN_DrawText(wFilterString.c_str(), 424, 190, 4, -1);
+
+		if(*showDiff || *showGs) {
+			D2WIN_SetTextSize(6);
+			DWORD dwListStart = (*p_D2MULTI_GameListControl)->dwSelectStart;
+			DWORD dwListEnd = filterVector.size() > 9 ? dwListStart + 9 : filterVector.size();
+			for (unsigned int i = dwListStart; i < dwListEnd; i++)
+			{
+				unsigned int uiYPos = 235 + (i - dwListStart) * 19;
+				if(*showDiff) {					
+					if((filterVector.at(i)->dwStatus & 0x1000)) {
+						D2WIN_DrawText(L"NM", 547, uiYPos, Blue, -1);
+					}
+					else if ((filterVector.at(i)->dwStatus & 0x2000)) {
+						D2WIN_DrawText(L"H", 547, uiYPos, Red, -1);
+					}
+					else {
+						D2WIN_DrawText(L"N", 547, uiYPos, White, -1);
+					}
+				}
+				if(*showGs) {
+					D2WIN_DrawText(gServerVector.at(i), 528, uiYPos, Grey, -1);
+				}
+			}
+		}
 		D2WIN_SetTextSize(dwOldSize);
 	}
 }
@@ -227,6 +298,8 @@ void Gamefilter::BuildGameList(string sFilter)
 {
 	if(!gameList.empty() && (*p_D2MULTI_GameListControl))
 	{
+		filterVector.clear();
+		gServerVector.clear();
 		ControlText* pText = (*p_D2MULTI_GameListControl)->pFirstText;
 
 		(*p_D2MULTI_GameListControl)->pFirstText = NULL;
@@ -243,7 +316,7 @@ void Gamefilter::BuildGameList(string sFilter)
 		while(pText)
 		{
 			ControlText* pNext = pText->pNext;
-			
+
 			delete[] pText->wText;
 			delete[] pText->wText2;
 			delete pText;
@@ -281,13 +354,42 @@ void Gamefilter::BuildGameList(string sFilter)
 					(*p_D2MULTI_GameListControl)->pLastText->pNext = pText;
 					(*p_D2MULTI_GameListControl)->pLastText = pText;
 				} else {
-					(*p_D2MULTI_GameListControl)->pFirstText = pText;	
+					(*p_D2MULTI_GameListControl)->pFirstText = pText;
 					(*p_D2MULTI_GameListControl)->pLastText = pText;
 					(*p_D2MULTI_GameListControl)->pSelectedText = pText;
 				}
+				
 
-				(*p_D2MULTI_GameListControl)->dwSelectEnd+=1;
-				(*p_D2MULTI_GameListControl)->pChildControl->dwScrollEntries = (*p_D2MULTI_GameListControl)->dwSelectEnd > 10 ? (*p_D2MULTI_GameListControl)->dwSelectEnd - 10 : 0;
+				(*p_D2MULTI_GameListControl)->dwSelectEnd += 1;
+				(*p_D2MULTI_GameListControl)->pChildControl->dwScrollEntries = (*p_D2MULTI_GameListControl)->dwSelectEnd > 9 ? (*p_D2MULTI_GameListControl)->dwSelectEnd - 9 : 0;
+				filterVector.push_back(*ListEntry);
+
+				if (::toupper((*ListEntry)->sGameDesc[0]) == 'G' && ::toupper((*ListEntry)->sGameDesc[1]) == 'S')
+				{
+					switch ((*ListEntry)->sGameDesc[2])
+					{
+					case '1':
+						gServerVector.push_back(L"gs1");
+						break;
+					case '2':
+						gServerVector.push_back(L"gs2");
+						break;
+					case '3':
+						gServerVector.push_back(L"gs3");
+						break;
+					case '4':
+						gServerVector.push_back(L"gs4");
+						break;
+					default:
+						gServerVector.push_back(L"gs1");
+						break;
+					}
+				}
+				else
+				{
+					gServerVector.push_back(L"gs1");
+				}
+
 			}
 		}
 	}
