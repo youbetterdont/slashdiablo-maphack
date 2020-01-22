@@ -63,6 +63,13 @@ Mustache[header]: {{>header-unique}}{{>header-magic}}{{>header-else}}{{#count}} 
 Mustache[item]: {{>header}}{{>stats}}{{^isRuneword}}{{#socketed}}\n\n  * {{>>item}}{{/socketed}}{{/isRuneword}}\n
 Mustache[stash]: {{#this}}* {{>item}}\n\n{{/this}}
 ```
+
+# Release Notes for 1.9.7
+* Add scrollbar when there are more than 8 characters on a realm account
+* Support displaying classic stat ranges
+* Open mpq in readonly mode instead of making a copy (faster load time)
+* Add option to see game difficulty and server in game list
+
 # Release Notes for 1.9.6
 * Fix cpu-overutilization toggle issue
 
