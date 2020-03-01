@@ -312,6 +312,17 @@ private:
 	bool EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2);
 };
 
+class QualityLevelCondition : public Condition
+{
+public:
+	QualityLevelCondition(BYTE op, BYTE qlvl) : qualityLevel(qlvl), operation(op) { conditionType = CT_Operand; };
+private:
+	BYTE operation;
+	BYTE qualityLevel;
+	bool EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2);
+	bool EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2);
+};
+
 class AffixLevelCondition : public Condition
 {
 public:

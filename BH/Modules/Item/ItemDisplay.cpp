@@ -599,6 +599,8 @@ void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 		Condition::AddOperand(conditions, new FlagsCondition(ITEM_IDENTIFIED));
 	} else if (key.compare(0, 4, "ILVL") == 0) {
 		Condition::AddOperand(conditions, new ItemLevelCondition(operation, value));
+	} else if (key.compare(0, 4, "QLVL") == 0) {
+		Condition::AddOperand(conditions, new QualityLevelCondition(operation, value));
 	} else if (key.compare(0, 4, "ALVL") == 0) {
 		Condition::AddOperand(conditions, new AffixLevelCondition(operation, value));
 	} else if (key.compare(0, 4, "CLVL") == 0) {
@@ -1045,6 +1047,15 @@ bool ItemLevelCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, 
 }
 bool ItemLevelCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2) {
 	return IntegerCompare(info->level, operation, itemLevel);
+}
+
+bool QualityLevelCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
+	BYTE qlvl = uInfo->attrs->qualityLevel;
+	return IntegerCompare(qlvl, operation, qualityLevel);
+}
+bool QualityLevelCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2) {
+	int qlvl = info->attrs->qualityLevel;
+	return IntegerCompare(qlvl, operation, qualityLevel);
 }
 
 bool AffixLevelCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
