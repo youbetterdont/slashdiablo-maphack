@@ -585,34 +585,35 @@ void __stdcall Item::OnProperties(wchar_t * wTxt)
 	if (D2COMMON_IsMatchingType(pItem, ITEM_TYPE_ALLARMOR)) {
 		int aLen = 0;
 		bool ebugged = false;
-		bool max_plus_one = false;
+		bool spawned_with_ed = false;
 		aLen = wcslen(wTxt);
 		ItemsTxt* armorTxt = GetArmorText(pItem);
-		DWORD base = D2COMMON_GetBaseStatSigned(pItem, STAT_DEFENSE, 0);
-		DWORD min = armorTxt->dwminac;
-		DWORD max = armorTxt->dwmaxac;
-		if (pItem->pItemData->dwFlags & ITEM_ETHEREAL) {
+		DWORD base = D2COMMON_GetBaseStatSigned(pItem, STAT_DEFENSE, 0); // includes eth bonus if applicable
+		DWORD min = armorTxt->dwminac; // min of non-eth base
+		DWORD max_no_ed = armorTxt->dwmaxac; // max of non-eth base
+		bool is_eth = pItem->pItemData->dwFlags & ITEM_ETHEREAL;
+		if (((base == max_no_ed + 1) && !is_eth) || ((base == 3*(max_no_ed+1)/2) && is_eth)) { // means item spawned with ED
+			spawned_with_ed = true;
+		}
+		if (is_eth) {
 			min = (DWORD)(min * 1.50);
-			max = (DWORD)(max * 1.50);
-			if (base > max + 1) { // assume this is ebugged
+			max_no_ed = (DWORD)(max_no_ed * 1.50);
+			if (base > max_no_ed && !spawned_with_ed) { // must be ebugged
 				min = (DWORD)(min * 1.50);
-				max = (DWORD)(max * 1.50);
+				max_no_ed = (DWORD)(max_no_ed * 1.50);
 				ebugged = true;
 			}
 		}
 
-		if (base == max + 1) {
-			max_plus_one = true;
-		}
 		// Items with enhanced def mod will spawn with base def as max +1.
 		// Don't show range if item spawned with edef and hasn't been upgraded.
-		if (!max_plus_one) {
+		if (!spawned_with_ed) {
 			swprintf_s(wTxt + aLen, 1024 - aLen,
 					L"%sBase Defense: %d %s[%d - %d]%s%s\n",
 					GetColorCode(TextColor::White).c_str(),
 					base,
 					GetColorCode(TextColor::DarkGreen).c_str(),
-					min, max,
+					min, max_no_ed,
 					ebugged ? L"\377c5 Ebug" : L"",
 					GetColorCode(TextColor::White).c_str()
 					);
