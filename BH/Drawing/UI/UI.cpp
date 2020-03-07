@@ -174,16 +174,20 @@ void UI::OnDraw() {
 	}
 }
 
-void UI::SetDragged(bool state) { 
+void UI::SetDragged(bool state, bool write_file) {
 	Lock(); 
 	dragged = state; 
-	if (!state) {
+	if (!state && write_file) {
 		WritePrivateProfileString(name.c_str(), "X", to_string<unsigned int>(GetX()).c_str(), string(BH::path + "UI.ini").c_str());
 		WritePrivateProfileString(name.c_str(), "Y", to_string<unsigned int>(GetY()).c_str(), string(BH::path + "UI.ini").c_str());
 		WritePrivateProfileString(name.c_str(), "minimizedX", to_string<unsigned int>(GetMinimizedX()).c_str(), string(BH::path + "UI.ini").c_str());
 		WritePrivateProfileString(name.c_str(), "minimizedY", to_string<unsigned int>(GetMinimizedY()).c_str(), string(BH::path + "UI.ini").c_str());
 	}
 	Unlock(); 
+}
+
+void UI::SetDragged(bool state) {
+    SetDragged(state, false);
 }
 
 void UI::SetMinimized(bool newState) { 
@@ -228,7 +232,7 @@ bool UI::OnLeftClick(bool up, unsigned int mouseX, unsigned int mouseY) {
 			}
 			else
 			{
-				SetDragged(false);
+				SetDragged(false, true);
 				if(!up) {
 					PrintText(7, "CTRL-click to open settings" );
 					PrintText(7, "Shift-drag to move" );
@@ -248,7 +252,7 @@ bool UI::OnLeftClick(bool up, unsigned int mouseX, unsigned int mouseY) {
 		} 
 		else
 		{
-			SetDragged(false);
+			SetDragged(false, true);
 			if( startX == mouseX && startY == mouseY && GetAsyncKeyState(VK_CONTROL) )
 			{
 				PrintText(135, "Right Click to Close" );
@@ -271,7 +275,7 @@ bool UI::OnLeftClick(bool up, unsigned int mouseX, unsigned int mouseY) {
 		return true;
 	}
 	SetActive(false);
-	SetDragged(false);
+	SetDragged(false, false);
 	return false;
 }
 
