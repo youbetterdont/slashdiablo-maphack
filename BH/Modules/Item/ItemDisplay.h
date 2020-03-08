@@ -6,6 +6,7 @@
 #include "../../BH.h"
 #include <cstdlib>
 #include <regex>
+#include "lrucache.hpp"
 
 #define EXCEPTION_INVALID_STAT			1
 #define EXCEPTION_INVALID_OPERATION		2
@@ -580,6 +581,9 @@ extern vector<Rule*> RuleList;
 extern vector<Rule*> MapRuleList;
 extern vector<Rule*> IgnoreRuleList;
 extern vector<pair<string, string>> rules;
+// TODO: This should probably be encapsulated somehow to protect access, but
+//       I don't want to mess with the architecture too much.
+extern unique_ptr<cache::lru_cache<DWORD, pair<string,string>>> item_name_cache;
 
 namespace ItemDisplay {
 	void InitializeItemRules();

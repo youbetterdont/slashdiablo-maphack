@@ -50,6 +50,7 @@
 #include "../../D2Stubs.h"
 #include "ItemDisplay.h"
 #include "../../MPQInit.h"
+#include "lrucache.hpp"
 
 ItemsTxtStat* GetAllStatModifier(ItemsTxtStat* pStats, int nStats, int nStat, ItemsTxtStat* pOrigin);
 ItemsTxtStat* GetItemsTxtStatByMod(ItemsTxtStat* pStats, int nStats, int nStat, int nStatParam);
@@ -84,6 +85,14 @@ void Item::OnLoad() {
 		itemNamePatch->Install();
 
 	DrawSettings();
+}
+
+void Item::OnGameJoin() {
+	// reset the item name cache upon joining games
+	//if (!item_name_cache) { // for reproducing the incorrect caching bug (GUIDs not unique across games)
+		PrintText(1, "Reseting item name LRU cache.");
+		item_name_cache.reset(new cache::lru_cache<DWORD, pair<string,string>>(50));
+	//}
 }
 
 void Item::LoadConfig() {
