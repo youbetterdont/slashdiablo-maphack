@@ -90,8 +90,8 @@ void Item::OnLoad() {
 void Item::OnGameJoin() {
 	// reset the item name cache upon joining games
 	//if (!item_name_cache) { // for reproducing the incorrect caching bug (GUIDs not unique across games)
-		PrintText(1, "Reseting item name LRU cache.");
-		item_name_cache.reset(new cache::lru_cache<DWORD, pair<string,string>>(50));
+		//PrintText(1, "Reseting item name LRU cache.");
+		item_name_cache.ResetCache();
 	//}
 }
 

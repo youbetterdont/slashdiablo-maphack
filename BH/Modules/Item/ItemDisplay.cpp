@@ -151,57 +151,26 @@ BYTE RuneNumberFromItemCode(char *code){
 	return (BYTE)(((code[1] - '0') * 10) + code[2] - '0');
 }
 
+// Find the item name. This code is called only when there's a cache miss
+string ItemNameLookupCache::make_cached_T(UnitItemInfo *uInfo, const string &name) {
+	string new_name(name);
+	for (vector<Rule*>::const_iterator it = RuleList.begin(); it != RuleList.end(); it++) {
+		if ((*it)->Evaluate(uInfo, NULL)) {
+			SubstituteNameVariables(uInfo, new_name, &(*it)->action);
+			if ((*it)->action.stopProcessing) {
+				break;
+			}
+		}
+	}
+	return new_name;
+}
+
 // least recently used cache for storing a limited number of item names
-unique_ptr<cache::lru_cache<DWORD, pair<string, string>>> item_name_cache;
+ItemNameLookupCache item_name_cache(RuleList);
 
 void GetItemName(UnitItemInfo *uInfo, string &name) {
-	// set to true to print when mismatch occurs (will never use cached name in this case)
-	constexpr bool item_name_cache_debug = false;
-	static DWORD last_printed_guid = 0; // to prevent excessive printing
-	// TODO: report error if item_name_cache never initialized (should be done in onGameJoin)
-	DWORD guid = uInfo->item->dwUnitId; // global unique identifier
-	const string name_cpy(name); // used to store the original item name which is edited in place
-	string orig_cached_name; // the cached unmodified item name
-	string cached_name; // the cached item name after rules applied
-	bool cache_hit = false;
-	// First check if the name exists in the cache
-	if (item_name_cache && item_name_cache->exists(guid)) {
-		orig_cached_name.assign(item_name_cache->get(guid).first);
-		if (orig_cached_name == name) {
-			cached_name.assign(item_name_cache->get(guid).second);
-			cache_hit = true; // needed because empty string is also a valid item name
-		} else {
-			// This print can tell you if a GUID ever changes for an item. Problem is that it will also
-			// print whenever you ID an item, make a runeword, personalize an item, etc.
-			// I suggest we leave it on for awhile to make sure GUIDs are never changing on us. -ybd
-			PrintText(1, "Detected change in unmodified item name. Cached: %s Actual: %s", orig_cached_name.c_str(), name.c_str());
-		}
-		// cache_hit is false if the unmodified item name has changed from cached version
-	}
-	if (!cache_hit || item_name_cache_debug) {
-		for (vector<Rule*>::iterator it = RuleList.begin(); it != RuleList.end(); it++) {
-			if ((*it)->Evaluate(uInfo, NULL)) {
-				SubstituteNameVariables(uInfo, name, &(*it)->action);
-				if ((*it)->action.stopProcessing) {
-					break;
-				}
-			}
-		}
-		if (item_name_cache && !cache_hit) {
-			pair<string, string> pair_to_cache(name_cpy, name);
-			item_name_cache->put(guid, pair_to_cache);
-			//PrintText(1, "Adding key value pair %u, %s to cache.", guid, name.c_str());
-		}
-		else if (cached_name != name) {
-			// only runs if item_name_debug is on
-			if (guid != last_printed_guid) {
-				PrintText(1, "Mismatch in modified item name! Cached: %s Actual: %s", cached_name.c_str(), name.c_str());
-				last_printed_guid = guid;
-			}
-		}
-	} else {
-		name.assign(cached_name);
-	}
+	string new_name = item_name_cache.Get(uInfo, name);
+	name.assign(new_name);
 }
 
 void SubstituteNameVariables(UnitItemInfo *uInfo, string &name, Action *action) {
