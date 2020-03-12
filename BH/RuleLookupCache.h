@@ -38,7 +38,10 @@ class RuleLookupCache {
 		constexpr bool cache_debug = false;
 		static DWORD last_printed_guid = 0; // to prevent excessive printing
 		DWORD guid = uInfo->item->dwUnitId; // global unique identifier
-		// TODO: should we also use fingerprint or seed?
+		// TODO: should we also use fingerprint or seed? Currently we trigger cache updates based
+		// on item flag changes. This should cover everything that I can think of, including IDing
+		// items, crafting items, making runewords, etc. Still would be nice to get some reassurance
+		// that GUIDs aren't reused in some unexpected way. Having a cache that is wrong is no bueno.
 		DWORD flags = uInfo->item->pItemData->dwFlags;
 		DWORD orig_cached_flags; // the cached flags
 		T cached_T; // the cached T after rules applied
@@ -52,9 +55,9 @@ class RuleLookupCache {
 			} else {
 				// This print can give a hint if the GUID of an item ever changes. Problem is that it will also
 				// print whenever you ID an item, make a runeword, personalize an item, etc.
-				// I suggest we leave it on for awhile to make sure GUIDs are never changing on us. -ybd
-				PrintText(1, "Detected change in item flags. Cached: %x Actual: %x", orig_cached_flags, flags);
-				PrintText(1, "    Cached name str: %s", to_str(cache->get(guid).second).c_str());
+				// Even seems to change when items get 'old'.
+				//PrintText(1, "Detected change in item flags. Cached: %x Actual: %x", orig_cached_flags, flags);
+				//PrintText(1, "    Cached name str: %s", to_str(cache->get(guid).second).c_str());
 			}
 			// cache_hit is false if the unmodified item name has changed from cached version
 		}
