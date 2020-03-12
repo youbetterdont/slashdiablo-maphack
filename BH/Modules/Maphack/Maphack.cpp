@@ -512,32 +512,31 @@ void Maphack::OnAutomapDraw() {
 					uInfo.itemCode[3] = 0;
 					if (ItemAttributeMap.find(uInfo.itemCode) != ItemAttributeMap.end()) {
 						uInfo.attrs = ItemAttributeMap[uInfo.itemCode];
-						for (vector<Rule*>::iterator it = MapRuleList.begin(); it != MapRuleList.end(); it++) {
-							if ((*it)->Evaluate(&uInfo, NULL)) {
-								auto color = (*it)->action.colorOnMap;
-								auto borderColor = (*it)->action.borderColor;
-								auto dotColor = (*it)->action.dotColor;
-								auto pxColor = (*it)->action.pxColor;
-								auto lineColor = (*it)->action.lineColor;
-								xPos = unit->pItemPath->dwPosX;
-								yPos = unit->pItemPath->dwPosY;
-								automapBuffer.push_top_layer(
-										[color, unit, xPos, yPos, MyPos, borderColor, dotColor, pxColor, lineColor]()->void{
-									POINT automapLoc;
-									Drawing::Hook::ScreenToAutomap(&automapLoc, xPos, yPos);
-									if (borderColor != UNDEFINED_COLOR)
-										Drawing::Boxhook::Draw(automapLoc.x - 4, automapLoc.y - 4, 8, 8, borderColor, Drawing::BTHighlight);
-									if (color != UNDEFINED_COLOR)
-										Drawing::Boxhook::Draw(automapLoc.x - 3, automapLoc.y - 3, 6, 6, color, Drawing::BTHighlight);
-									if (dotColor != UNDEFINED_COLOR)
-										Drawing::Boxhook::Draw(automapLoc.x - 2, automapLoc.y - 2, 4, 4, dotColor, Drawing::BTHighlight);
-									if (pxColor != UNDEFINED_COLOR)
-										Drawing::Boxhook::Draw(automapLoc.x - 1, automapLoc.y - 1, 2, 2, pxColor, Drawing::BTHighlight);
-									if (lineColor != UNDEFINED_COLOR) {
-										Drawing::Linehook::Draw(MyPos.x, MyPos.y, automapLoc.x, automapLoc.y, lineColor);
-									}
-								});
-							}
+						const vector<Action> actions = map_action_cache.Get(&uInfo);
+						for (auto &action : actions) {
+							auto color = action.colorOnMap;
+							auto borderColor = action.borderColor;
+							auto dotColor = action.dotColor;
+							auto pxColor = action.pxColor;
+							auto lineColor = action.lineColor;
+							xPos = unit->pItemPath->dwPosX;
+							yPos = unit->pItemPath->dwPosY;
+							automapBuffer.push_top_layer(
+									[color, unit, xPos, yPos, MyPos, borderColor, dotColor, pxColor, lineColor]()->void{
+								POINT automapLoc;
+								Drawing::Hook::ScreenToAutomap(&automapLoc, xPos, yPos);
+								if (borderColor != UNDEFINED_COLOR)
+									Drawing::Boxhook::Draw(automapLoc.x - 4, automapLoc.y - 4, 8, 8, borderColor, Drawing::BTHighlight);
+								if (color != UNDEFINED_COLOR)
+									Drawing::Boxhook::Draw(automapLoc.x - 3, automapLoc.y - 3, 6, 6, color, Drawing::BTHighlight);
+								if (dotColor != UNDEFINED_COLOR)
+									Drawing::Boxhook::Draw(automapLoc.x - 2, automapLoc.y - 2, 4, 4, dotColor, Drawing::BTHighlight);
+								if (pxColor != UNDEFINED_COLOR)
+									Drawing::Boxhook::Draw(automapLoc.x - 1, automapLoc.y - 1, 2, 2, pxColor, Drawing::BTHighlight);
+								if (lineColor != UNDEFINED_COLOR) {
+									Drawing::Linehook::Draw(MyPos.x, MyPos.y, automapLoc.x, automapLoc.y, lineColor);
+								}
+							});
 						}
 					}
 					else {

@@ -175,8 +175,27 @@ string ItemNameLookupCache::to_str(const string &name) {
 	return itemName;
 }
 
+vector<Action> MapActionLookupCache::make_cached_T(UnitItemInfo *uInfo) {
+	vector<Action> actions;
+	for (vector<Rule*>::const_iterator it = RuleList.begin(); it != RuleList.end(); it++) {
+		if ((*it)->Evaluate(uInfo, NULL)) {
+			actions.push_back((*it)->action);
+		}
+	}
+	return actions;
+}
+
+string MapActionLookupCache::to_str(const vector<Action> &actions) {
+	string name;
+	for (auto &action : actions) {
+		name += action.name + " ";
+	}
+	return name;
+}
+
 // least recently used cache for storing a limited number of item names
 ItemNameLookupCache item_name_cache(RuleList);
+MapActionLookupCache map_action_cache(MapRuleList);
 
 void GetItemName(UnitItemInfo *uInfo, string &name) {
 	string new_name = item_name_cache.Get(uInfo, name);
@@ -355,6 +374,7 @@ namespace ItemDisplay {
 		item_display_initialized = true;
 		rules.clear();
 		item_name_cache.ResetCache();
+		map_action_cache.ResetCache();
 		BH::config->ReadMapList("ItemDisplay", rules);
 		for (unsigned int i = 0; i < rules.size(); i++) {
 			string buf;
@@ -388,6 +408,7 @@ namespace ItemDisplay {
 	void UninitializeItemRules() {
 		item_display_initialized = false;
 		item_name_cache.ResetCache();
+		map_action_cache.ResetCache();
 		RuleList.clear();
 		MapRuleList.clear();
 		IgnoreRuleList.clear();

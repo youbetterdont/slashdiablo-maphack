@@ -28,6 +28,7 @@ class RuleLookupCache {
 		: RuleList(rule_list), cache(new cache::lru_cache<DWORD, std::pair<DWORD, T>>(50)) {}
 
 	void ResetCache() {
+		//PrintText(1, "Reseting LRU cache.");
 		cache.reset(new cache::lru_cache<DWORD, std::pair<DWORD, T>>(50));
 	}
 	
@@ -53,6 +54,7 @@ class RuleLookupCache {
 				// print whenever you ID an item, make a runeword, personalize an item, etc.
 				// I suggest we leave it on for awhile to make sure GUIDs are never changing on us. -ybd
 				PrintText(1, "Detected change in item flags. Cached: %x Actual: %x", orig_cached_flags, flags);
+				PrintText(1, "    Cached name str: %s", to_str(cache->get(guid).second).c_str());
 			}
 			// cache_hit is false if the unmodified item name has changed from cached version
 		}
