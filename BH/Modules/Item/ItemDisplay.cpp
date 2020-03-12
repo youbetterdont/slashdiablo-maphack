@@ -344,6 +344,7 @@ namespace ItemDisplay {
 
 		item_display_initialized = true;
 		rules.clear();
+		item_name_cache.ResetCache();
 		BH::config->ReadMapList("ItemDisplay", rules);
 		for (unsigned int i = 0; i < rules.size(); i++) {
 			string buf;
@@ -376,6 +377,7 @@ namespace ItemDisplay {
 
 	void UninitializeItemRules() {
 		item_display_initialized = false;
+		item_name_cache.ResetCache();
 		RuleList.clear();
 		MapRuleList.clear();
 		IgnoreRuleList.clear();

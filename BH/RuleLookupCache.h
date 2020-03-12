@@ -54,21 +54,13 @@ class RuleLookupCache {
 			// cache_hit is false if the unmodified item name has changed from cached version
 		}
 		if (!cache_hit || cache_debug) {
-			//for (vector<Rule*>::const_iterator it = RuleList.begin(); it != RuleList.end(); it++) {
-			//	if ((*it)->Evaluate(uInfo, NULL)) {
-					cached_T = make_cached_T(uInfo, name);
-					//SubstituteNameVariables(uInfo, name, &(*it)->action);
-					//if ((*it)->action.stopProcessing) {
-					//	break;
-					//}
-					// make cached_T
-			//	}
-			//}
+			cached_T = make_cached_T(uInfo, name);
 			if (cache && !cache_hit) {
 				std::pair<std::string, T> pair_to_cache(name, cached_T);
 				cache->put(guid, pair_to_cache);
 				//PrintText(1, "Adding key value pair %u, %s to cache.", guid, name.c_str());
 			}
+			// Debug stuff below doesn't work if T is not a string.
 			//else if (cached_name != name) {
 				// only runs if item_name_debug is on
 			//	if (guid != last_printed_guid) {
@@ -77,7 +69,6 @@ class RuleLookupCache {
 			//	}
 			//}
 		} else {
-			//name.assign(cached_name);
 			return cached_T;
 		}
 			
