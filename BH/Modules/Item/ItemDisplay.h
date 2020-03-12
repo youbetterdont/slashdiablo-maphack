@@ -577,10 +577,11 @@ struct Rule {
 	}
 };
 
-class ItemNameLookupCache : public RuleLookupCache<string> {
-    string make_cached_T(UnitItemInfo *uInfo, const string &name) override;
+class ItemNameLookupCache : public RuleLookupCache<string, const string &> {
+	string make_cached_T(UnitItemInfo *uInfo, const string &name) override;
+	string to_str(const string &name) override;
 
-    using RuleLookupCache::RuleLookupCache;
+	using RuleLookupCache::RuleLookupCache;
 };
 
 extern vector<Rule*> RuleList;

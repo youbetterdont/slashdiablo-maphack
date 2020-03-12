@@ -165,6 +165,16 @@ string ItemNameLookupCache::make_cached_T(UnitItemInfo *uInfo, const string &nam
 	return new_name;
 }
 
+string ItemNameLookupCache::to_str(const string &name) {
+	size_t start_pos = 0;
+	std::string itemName(name);
+	while ((start_pos = itemName.find('\n', start_pos)) != std::string::npos) {
+		itemName.replace(start_pos, 1, " - ");
+		start_pos += 3;
+	}
+	return itemName;
+}
+
 // least recently used cache for storing a limited number of item names
 ItemNameLookupCache item_name_cache(RuleList);
 
