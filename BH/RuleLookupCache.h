@@ -25,11 +25,11 @@ class RuleLookupCache {
 
 	public:
 	RuleLookupCache(const std::vector<Rule*> &rule_list) 
-		: RuleList(rule_list), cache(new cache::lru_cache<DWORD, std::pair<DWORD, T>>(50)) {}
+		: RuleList(rule_list), cache(new cache::lru_cache<DWORD, std::pair<DWORD, T>>(100)) {}
 
 	void ResetCache() {
 		//PrintText(1, "Reseting LRU cache.");
-		cache.reset(new cache::lru_cache<DWORD, std::pair<DWORD, T>>(50));
+		cache.reset(new cache::lru_cache<DWORD, std::pair<DWORD, T>>(100));
 	}
 	
 	// TODO: UnitItemInfo should probably be const, but call to Evaluate needs non-const
