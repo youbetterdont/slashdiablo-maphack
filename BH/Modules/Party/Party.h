@@ -14,11 +14,14 @@ class Party : public Module {
 		map<std::string, bool> LootingPermission;
 		void CheckParty();
 		int c;
+		WORD min_party_id;
+		bool min_party_id_valid;
 	public:
-		Party() : Module("Party") {};
+		Party() : Module("Party"), min_party_id(0xFFFF), min_party_id_valid(false) {};
 		void OnLoad();
 		void OnUnload();
 		void OnLoop();
 		void OnKey(bool up, BYTE key, LPARAM lParam, bool* block);
 		void OnGameExit();
+		void OnGameJoin();
 };
