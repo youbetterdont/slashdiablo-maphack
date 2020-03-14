@@ -98,28 +98,28 @@ void Party::CheckParty() {
 				if (Party->wPartyId == min_party_id) master_party_exists = true;
 			}
 			if ((Party->wPartyId == INVALID_PARTY_ID || Party->wPartyId != MyRoster->wPartyId) && Toggles["Enabled"].state) {
-				PrintText(1, "Party->wPartyID=%hu, MyRoster->wPartyId=%hu, min_party_id=%hu, min_party_id_valid=%hu", 
-						Party->wPartyId, MyRoster->wPartyId, min_party_id, (WORD)(min_party_id_valid));
+				//PrintText(1, "Party->wPartyID=%hu, MyRoster->wPartyId=%hu, min_party_id=%hu, min_party_id_valid=%hu", 
+						//Party->wPartyId, MyRoster->wPartyId, min_party_id, (WORD)(min_party_id_valid));
 				if(Party->dwPartyFlags & PARTY_INVITED_YOU) {
 					if (min_party_id_valid) {
 						if (Party->wPartyId == min_party_id) {
-							PrintText(1, "Found the right party");
+							//PrintText(1, "Found the right party");
 							D2CLIENT_ClickParty(Party, 2);
 						}
 					} else {
-						PrintText(1, "PARTY_INVITED_YOU, clicking party");
+						//PrintText(1, "PARTY_INVITED_YOU, clicking party");
 						D2CLIENT_ClickParty(Party, 2);
 					}
 					c++;
 					return;
 				}
 				if(Party->wPartyId == INVALID_PARTY_ID) {
-					PrintText(1, "INVALID_PARTY_ID");
+					//PrintText(1, "INVALID_PARTY_ID");
 					if(Party->dwPartyFlags & PARTY_INVITED_BY_YOU) {
-						PrintText(1, "PARTY_INVITED_BY_YOU");
+						//PrintText(1, "PARTY_INVITED_BY_YOU");
 						continue;
 					}
-					PrintText(1, "Clicking Party");
+					//PrintText(1, "Clicking Party");
 					D2CLIENT_ClickParty(Party, 2);
 					c++;
 					return;
@@ -135,8 +135,8 @@ void Party::CheckParty() {
 		}
 		min_party_id_valid = local_min_party_id_valid;
 		if (Toggles["Enabled"].state && min_party_id_valid && MyRoster->wPartyId != min_party_id) {
-			PrintText(1, "Not in the right party!");
-			PrintText(1, "min_party_id=%hu, MyRoster->wPartyId=%hu", min_party_id, MyRoster->wPartyId);
+			//PrintText(1, "Not in the right party!");
+			//PrintText(1, "min_party_id=%hu, MyRoster->wPartyId=%hu", min_party_id, MyRoster->wPartyId);
 			D2CLIENT_LeaveParty();
 			c++;
 			return;
