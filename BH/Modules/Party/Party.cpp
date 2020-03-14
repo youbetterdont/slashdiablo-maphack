@@ -127,7 +127,7 @@ void Party::CheckParty() {
 			}
 		}
 		if (min_party_id_valid && !master_party_exists) {
-			PrintText(1, "Master party disbanded. Resetting min_party_id.");
+			//PrintText(1, "Master party disbanded. Resetting min_party_id.");
 			min_party_id_valid = false;
 			min_party_id = 0xFFFF;
 			c++;
