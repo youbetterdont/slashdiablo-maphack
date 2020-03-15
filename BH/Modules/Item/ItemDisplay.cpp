@@ -366,6 +366,16 @@ namespace ItemDisplay {
 	}
 
 	void UninitializeItemRules() {
+		// RuleList contains every created rule. MapRuleList and IgnoreRuleList have a subset of rules.
+		// Deleting objects in RuleList is sufficient.
+		if (item_display_initialized) {
+			for (Rule *r : RuleList) {
+				for (Condition *condition : r->conditions) {
+					delete condition;
+				}
+				delete r;
+			}
+		}
 		item_display_initialized = false;
 		RuleList.clear();
 		MapRuleList.clear();
