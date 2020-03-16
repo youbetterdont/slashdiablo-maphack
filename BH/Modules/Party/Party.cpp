@@ -63,7 +63,7 @@ void Party::CheckParty() {
 			if(!_stricmp(Party->szName, MyRoster->szName))
 				continue;
 			if(!Party->wLevel) {
-				PrintText(1, "!Party->wLevel");
+				//PrintText(1, "!Party->wLevel");
 				c++;
 				return;
 			}
@@ -93,7 +93,7 @@ void Party::CheckParty() {
 				if (Toggles["LootEnabled"].state) {
 					string s(Party->szName);
 					if (LootingPermission.find(s) == LootingPermission.end()) {
-						PrintText(1, "Enabling loot for %s.", s.c_str());
+						//PrintText(1, "Enabling loot for %s.", s.c_str());
 						BYTE PacketData[7] = {0x5d,1,1,0,0,0,0};
 						*reinterpret_cast<int*>(PacketData + 3) = Party->dwUnitId;
 						D2NET_SendPacket(7, 1, PacketData);
@@ -107,13 +107,13 @@ void Party::CheckParty() {
 				if(Party->dwPartyFlags & PARTY_INVITED_YOU) {
 					if (current_min_party_id != INVALID_PARTY_ID) {
 						if (Party->wPartyId == current_min_party_id) {
-							PrintText(1, "Found the right party");
+							//PrintText(1, "Found the right party");
 							D2CLIENT_ClickParty(Party, 2);
 							c++;
 							return;
 						}
 					} else {
-						PrintText(1, "PARTY_INVITED_YOU, clicking party");
+						//PrintText(1, "PARTY_INVITED_YOU, clicking party");
 						D2CLIENT_ClickParty(Party, 2);
 						c++;
 						return;
@@ -127,13 +127,13 @@ void Party::CheckParty() {
 					}
 					if (current_min_party_id != INVALID_PARTY_ID) {
 						if (MyRoster->wPartyId == current_min_party_id) {
-							PrintText(1, "I'm in the right party, inviting another.");
+							//PrintText(1, "I'm in the right party, inviting another.");
 							D2CLIENT_ClickParty(Party, 2);
 							c++;
 							return;
 						}
 					} else {
-						PrintText(1, "There's no master party, trying to form one.");
+						//PrintText(1, "There's no master party, trying to form one.");
 						D2CLIENT_ClickParty(Party, 2);
 						c++;
 						return;
@@ -145,16 +145,16 @@ void Party::CheckParty() {
 		// Leave the party if we're in the wrong one
 		if (Toggles["Enabled"].state && current_min_party_id != INVALID_PARTY_ID 
 			&& MyRoster->wPartyId != current_min_party_id && MyRoster->wPartyId != INVALID_PARTY_ID) {
-			PrintText(1, "Not in the right party!");
-			PrintText(1, "min_party_id=%hu, MyRoster->wPartyId=%hu", current_min_party_id, MyRoster->wPartyId);
+			//PrintText(1, "Not in the right party!");
+			//PrintText(1, "min_party_id=%hu, MyRoster->wPartyId=%hu", current_min_party_id, MyRoster->wPartyId);
 			D2CLIENT_LeaveParty();
 			c++;
 			return;
 		}
-		// Remove looting permissions for players no longer in the game??
+		// Remove looting permissions for players no longer in the game
 		for (auto it = LootingPermission.cbegin(); it != LootingPermission.cend(); ) {
 			if (CurrentParty.find((*it).first) == CurrentParty.end()) {
-				PrintText(1, "Removing %s from looting map.", ((*it).first).c_str());
+				//PrintText(1, "Removing %s from looting map.", ((*it).first).c_str());
 				LootingPermission.erase(it++);
 			} else {
 				++it;
