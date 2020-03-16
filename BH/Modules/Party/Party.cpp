@@ -21,8 +21,6 @@ void Party::OnLoad() {
 }
 
 void Party::OnGameJoin() {
-	min_party_id = 0xFFFF;
-	min_party_id_valid = false;
 }
 
 void Party::OnUnload() {
@@ -56,9 +54,6 @@ void Party::CheckParty() {
 		UnitAny* Me = *p_D2CLIENT_PlayerUnit;
 		RosterUnit* MyRoster = FindPlayerRoster(Me->dwUnitId);
 		BnetData* pData = (*p_D2LAUNCH_BnData);
-
-		//bool local_min_party_id_valid = true;
-		//bool master_party_exists = false;
 
 		WORD current_min_party_id = 0xFFFF;
 
@@ -98,6 +93,7 @@ void Party::CheckParty() {
 				if (Toggles["LootEnabled"].state) {
 					string s(Party->szName);
 					if (LootingPermission.find(s) == LootingPermission.end()) {
+						PrintText(1, "Enabling loot for %s.", s.c_str());
 						BYTE PacketData[7] = {0x5d,1,1,0,0,0,0};
 						*reinterpret_cast<int*>(PacketData + 3) = Party->dwUnitId;
 						D2NET_SendPacket(7, 1, PacketData);
@@ -158,6 +154,7 @@ void Party::CheckParty() {
 		// Remove looting permissions for players no longer in the game??
 		for (auto it = LootingPermission.cbegin(); it != LootingPermission.cend(); ) {
 			if (CurrentParty.find((*it).first) == CurrentParty.end()) {
+				PrintText(1, "Removing %s from looting map.", ((*it).first).c_str());
 				LootingPermission.erase(it++);
 			} else {
 				++it;
