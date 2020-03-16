@@ -52,18 +52,23 @@ void Party::OnLoop() {
 
 void Party::CheckParty() {
 	if(c == 0) {
-		bool valid = true;
 		std::map<std::string, bool> CurrentParty;
 		UnitAny* Me = *p_D2CLIENT_PlayerUnit;
 		RosterUnit* MyRoster = FindPlayerRoster(Me->dwUnitId);
 		BnetData* pData = (*p_D2LAUNCH_BnData);
 
-		bool local_min_party_id_valid = true;
-		bool master_party_exists = false;
-		for(RosterUnit* Party = (*p_D2CLIENT_PlayerUnitList);Party;Party = Party->pNext) {
+		//bool local_min_party_id_valid = true;
+		//bool master_party_exists = false;
+
+		WORD current_min_party_id = 0xFFFF;
+
+		// first pass: check that the data is sane
+		RosterUnit *Party = *p_D2CLIENT_PlayerUnitList; if (!Party) return;
+		do {
 			if(!_stricmp(Party->szName, MyRoster->szName))
 				continue;
-			if(!Party->wLevel || !Party) {
+			if(!Party->wLevel) {
+				PrintText(1, "!Party->wLevel");
 				c++;
 				return;
 			}
@@ -71,9 +76,23 @@ void Party::CheckParty() {
 				(Party->wPartyId != INVALID_PARTY_ID && Party->dwPartyFlags & PARTY_NOT_IN_PARTY)) {
 				// Avoid crashing when multiple players in a game have auto-party enabled
 				// (there seems to be a brief window in which the party data can be invalid)
-				valid = false;
-				continue;
+				c++; return;
 			}
+		} while (Party = Party->pNext);
+		
+		// second pass: gather some info
+		Party = *p_D2CLIENT_PlayerUnitList; if (!Party) return;
+		do {
+			if(!_stricmp(Party->szName, MyRoster->szName))
+				continue;
+			current_min_party_id = min(Party->wPartyId, current_min_party_id);
+		} while (Party=Party->pNext);
+
+		// third pass: do stuff
+		Party = *p_D2CLIENT_PlayerUnitList; if (!Party) return;
+		do {
+			if(!_stricmp(Party->szName, MyRoster->szName))
+				continue;
 			if (pData && pData->nCharFlags & PLAYER_TYPE_HARDCORE) {
 				CurrentParty[Party->szName] = true;
 				if (Toggles["LootEnabled"].state) {
@@ -86,32 +105,23 @@ void Party::CheckParty() {
 					}
 				}
 			}
-			if (!min_party_id_valid) {
-				if (Party->wPartyId != INVALID_PARTY_ID) {
-					min_party_id = min(Party->wPartyId, min_party_id); // track the minimum party id
-				} else {
-					local_min_party_id_valid = false; // if any are invalid, don't try to fix anything yet
-				}
-			}
-			else { // if (Party->wPartyId != INVALID_PARTY_ID && Party->wPartyId < min_party_id) { 
-				// the original party must have disbanded
-				if (Party->wPartyId == min_party_id) master_party_exists = true;
-			}
 			if ((Party->wPartyId == INVALID_PARTY_ID || Party->wPartyId != MyRoster->wPartyId) && Toggles["Enabled"].state) {
-				//PrintText(1, "Party->wPartyID=%hu, MyRoster->wPartyId=%hu, min_party_id=%hu, min_party_id_valid=%hu", 
-						//Party->wPartyId, MyRoster->wPartyId, min_party_id, (WORD)(min_party_id_valid));
+				//PrintText(1, "Party->wPartyID=%hu, MyRoster->wPartyId=%hu, min_party_id=%hu", 
+				//		Party->wPartyId, MyRoster->wPartyId, current_min_party_id);
 				if(Party->dwPartyFlags & PARTY_INVITED_YOU) {
-					if (min_party_id_valid) {
-						if (Party->wPartyId == min_party_id) {
-							//PrintText(1, "Found the right party");
+					if (current_min_party_id != INVALID_PARTY_ID) {
+						if (Party->wPartyId == current_min_party_id) {
+							PrintText(1, "Found the right party");
 							D2CLIENT_ClickParty(Party, 2);
+							c++;
+							return;
 						}
 					} else {
-						//PrintText(1, "PARTY_INVITED_YOU, clicking party");
+						PrintText(1, "PARTY_INVITED_YOU, clicking party");
 						D2CLIENT_ClickParty(Party, 2);
+						c++;
+						return;
 					}
-					c++;
-					return;
 				}
 				if(Party->wPartyId == INVALID_PARTY_ID) {
 					//PrintText(1, "INVALID_PARTY_ID");
@@ -119,35 +129,38 @@ void Party::CheckParty() {
 						//PrintText(1, "PARTY_INVITED_BY_YOU");
 						continue;
 					}
-					//PrintText(1, "Clicking Party");
-					D2CLIENT_ClickParty(Party, 2);
-					c++;
-					return;
+					if (current_min_party_id != INVALID_PARTY_ID) {
+						if (MyRoster->wPartyId == current_min_party_id) {
+							PrintText(1, "I'm in the right party, inviting another.");
+							D2CLIENT_ClickParty(Party, 2);
+							c++;
+							return;
+						}
+					} else {
+						PrintText(1, "There's no master party, trying to form one.");
+						D2CLIENT_ClickParty(Party, 2);
+						c++;
+						return;
+					}
 				}
 			}
-		}
-		if (min_party_id_valid && !master_party_exists) {
-			//PrintText(1, "Master party disbanded. Resetting min_party_id.");
-			min_party_id_valid = false;
-			min_party_id = 0xFFFF;
-			c++;
-			return;
-		}
-		min_party_id_valid = local_min_party_id_valid;
-		if (Toggles["Enabled"].state && min_party_id_valid && MyRoster->wPartyId != min_party_id) {
-			//PrintText(1, "Not in the right party!");
-			//PrintText(1, "min_party_id=%hu, MyRoster->wPartyId=%hu", min_party_id, MyRoster->wPartyId);
+
+		} while (Party = Party->pNext);
+		// Leave the party if we're in the wrong one
+		if (Toggles["Enabled"].state && current_min_party_id != INVALID_PARTY_ID 
+			&& MyRoster->wPartyId != current_min_party_id && MyRoster->wPartyId != INVALID_PARTY_ID) {
+			PrintText(1, "Not in the right party!");
+			PrintText(1, "min_party_id=%hu, MyRoster->wPartyId=%hu", current_min_party_id, MyRoster->wPartyId);
 			D2CLIENT_LeaveParty();
 			c++;
 			return;
 		}
-		if (valid) {
-			for (auto it = LootingPermission.cbegin(); it != LootingPermission.cend(); ) {
-				if (CurrentParty.find((*it).first) == CurrentParty.end()) {
-					LootingPermission.erase(it++);
-				} else {
-					++it;
-				}
+		// Remove looting permissions for players no longer in the game??
+		for (auto it = LootingPermission.cbegin(); it != LootingPermission.cend(); ) {
+			if (CurrentParty.find((*it).first) == CurrentParty.end()) {
+				LootingPermission.erase(it++);
+			} else {
+				++it;
 			}
 		}
 	}
