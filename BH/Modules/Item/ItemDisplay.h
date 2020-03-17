@@ -6,6 +6,7 @@
 #include "../../BH.h"
 #include <cstdlib>
 #include <regex>
+#include "../../RuleLookupCache.h"
 
 #define EXCEPTION_INVALID_STAT			1
 #define EXCEPTION_INVALID_OPERATION		2
@@ -576,10 +577,26 @@ struct Rule {
 	}
 };
 
+class ItemNameLookupCache : public RuleLookupCache<string, const string &> {
+	string make_cached_T(UnitItemInfo *uInfo, const string &name) override;
+	string to_str(const string &name) override;
+
+	using RuleLookupCache::RuleLookupCache;
+};
+
+class MapActionLookupCache : public RuleLookupCache<vector<Action>> {
+	vector<Action> make_cached_T(UnitItemInfo *uInfo) override;
+	string to_str(const vector<Action> &actions);
+
+	using RuleLookupCache::RuleLookupCache;
+};
+
 extern vector<Rule*> RuleList;
 extern vector<Rule*> MapRuleList;
 extern vector<Rule*> IgnoreRuleList;
 extern vector<pair<string, string>> rules;
+extern ItemNameLookupCache item_name_cache;
+extern MapActionLookupCache map_action_cache;
 
 namespace ItemDisplay {
 	void InitializeItemRules();

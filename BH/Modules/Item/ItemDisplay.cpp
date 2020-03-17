@@ -151,15 +151,55 @@ BYTE RuneNumberFromItemCode(char *code){
 	return (BYTE)(((code[1] - '0') * 10) + code[2] - '0');
 }
 
-void GetItemName(UnitItemInfo *uInfo, string &name) {
-	for (vector<Rule*>::iterator it = RuleList.begin(); it != RuleList.end(); it++) {
+// Find the item name. This code is called only when there's a cache miss
+string ItemNameLookupCache::make_cached_T(UnitItemInfo *uInfo, const string &name) {
+	string new_name(name);
+	for (vector<Rule*>::const_iterator it = RuleList.begin(); it != RuleList.end(); it++) {
 		if ((*it)->Evaluate(uInfo, NULL)) {
-			SubstituteNameVariables(uInfo, name, &(*it)->action);
+			SubstituteNameVariables(uInfo, new_name, &(*it)->action);
 			if ((*it)->action.stopProcessing) {
 				break;
 			}
 		}
 	}
+	return new_name;
+}
+
+string ItemNameLookupCache::to_str(const string &name) {
+	size_t start_pos = 0;
+	std::string itemName(name);
+	while ((start_pos = itemName.find('\n', start_pos)) != std::string::npos) {
+		itemName.replace(start_pos, 1, " - ");
+		start_pos += 3;
+	}
+	return itemName;
+}
+
+vector<Action> MapActionLookupCache::make_cached_T(UnitItemInfo *uInfo) {
+	vector<Action> actions;
+	for (vector<Rule*>::const_iterator it = RuleList.begin(); it != RuleList.end(); it++) {
+		if ((*it)->Evaluate(uInfo, NULL)) {
+			actions.push_back((*it)->action);
+		}
+	}
+	return actions;
+}
+
+string MapActionLookupCache::to_str(const vector<Action> &actions) {
+	string name;
+	for (auto &action : actions) {
+		name += action.name + " ";
+	}
+	return name;
+}
+
+// least recently used cache for storing a limited number of item names
+ItemNameLookupCache item_name_cache(RuleList);
+MapActionLookupCache map_action_cache(MapRuleList);
+
+void GetItemName(UnitItemInfo *uInfo, string &name) {
+	string new_name = item_name_cache.Get(uInfo, name);
+	name.assign(new_name);
 }
 
 void SubstituteNameVariables(UnitItemInfo *uInfo, string &name, Action *action) {
@@ -333,6 +373,8 @@ namespace ItemDisplay {
 
 		item_display_initialized = true;
 		rules.clear();
+		item_name_cache.ResetCache();
+		map_action_cache.ResetCache();
 		BH::config->ReadMapList("ItemDisplay", rules);
 		for (unsigned int i = 0; i < rules.size(); i++) {
 			string buf;
@@ -365,6 +407,8 @@ namespace ItemDisplay {
 
 	void UninitializeItemRules() {
 		item_display_initialized = false;
+		item_name_cache.ResetCache();
+		map_action_cache.ResetCache();
 		RuleList.clear();
 		MapRuleList.clear();
 		IgnoreRuleList.clear();

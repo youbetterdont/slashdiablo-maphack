@@ -50,6 +50,7 @@
 #include "../../D2Stubs.h"
 #include "ItemDisplay.h"
 #include "../../MPQInit.h"
+#include "lrucache.hpp"
 
 ItemsTxtStat* GetAllStatModifier(ItemsTxtStat* pStats, int nStats, int nStat, ItemsTxtStat* pOrigin);
 ItemsTxtStat* GetItemsTxtStatByMod(ItemsTxtStat* pStats, int nStats, int nStat, int nStatParam);
@@ -84,6 +85,13 @@ void Item::OnLoad() {
 		itemNamePatch->Install();
 
 	DrawSettings();
+}
+
+void Item::OnGameJoin() {
+	// reset the item name cache upon joining games
+	// (GUIDs not unique across games)
+	item_name_cache.ResetCache();
+	map_action_cache.ResetCache();
 }
 
 void Item::LoadConfig() {
