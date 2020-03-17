@@ -629,6 +629,8 @@ void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 		Condition::AddOperand(conditions, new QualityCondition(ITEM_QUALITY_RARE));
 	} else if (key.compare(0, 3, "UNI") == 0) {
 		Condition::AddOperand(conditions, new QualityCondition(ITEM_QUALITY_UNIQUE));
+	} else if (key.compare(0, 5, "CRAFT") == 0) {
+		Condition::AddOperand(conditions, new QualityCondition(ITEM_QUALITY_CRAFT));
 	} else if (key.compare(0, 2, "RW") == 0) {
 		Condition::AddOperand(conditions, new FlagsCondition(ITEM_RUNEWORD));
 	} else if (key.compare(0, 4, "NMAG") == 0) {
