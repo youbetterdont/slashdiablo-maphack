@@ -343,13 +343,11 @@ namespace ItemDisplay {
 			}
 
 			LastConditionType = CT_None;
-			Rule *r = new Rule();
 			vector<Condition*> RawConditions;
 			for (vector<string>::iterator tok = tokens.begin(); tok < tokens.end(); tok++) {
 				Condition::BuildConditions(RawConditions, (*tok));
 			}
-			Condition::ProcessConditions(RawConditions, r->conditions);
-			BuildAction(&(rules[i].second), &(r->action));
+			Rule *r = new Rule(RawConditions, &(rules[i].second));
 
 			RuleList.push_back(r);
 			if (r->action.colorOnMap != UNDEFINED_COLOR ||
@@ -371,6 +369,12 @@ namespace ItemDisplay {
 		MapRuleList.clear();
 		IgnoreRuleList.clear();
 	}
+}
+
+Rule::Rule(vector<Condition*> &inputConditions, string *str) {
+	Condition::ProcessConditions(inputConditions, conditions);
+	BuildAction(str, &action);
+	conditionStack.reserve(conditions.size()); // TODO: too large?
 }
 
 void BuildAction(string *str, Action *act) {

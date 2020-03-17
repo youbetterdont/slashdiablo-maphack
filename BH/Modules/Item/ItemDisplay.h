@@ -520,7 +520,11 @@ struct Action {
 struct Rule {
 	vector<Condition*> conditions;
 	Action action;
+	vector<Condition*> conditionStack;
 
+	Rule(vector<Condition*> &inputConditions, string *str);
+
+	// TODO: Should this really be defined in the header? This will force it to be inlined AFAIK. -ybd
 	// Evaluate conditions which are in Reverse Polish Notation
 	bool Evaluate(UnitItemInfo *uInfo, ItemInfo *info) {
 		if (conditions.size() == 0) {
@@ -529,7 +533,12 @@ struct Rule {
 
 		bool retval;
 		try {
-			vector<Condition*> conditionStack;
+			// conditionStack was previously declared on the stack within this function. This caused
+			// excessive allocaiton calls and was limiting the speed of the item display (causing
+			// frame rate drops with complex item displays while ALT was held down). Moving this vector
+			// to the object level, preallocating size, and using the resize(0) method to clear avoids
+			// excessive reallocation.
+			conditionStack.resize(0); 
 			for (unsigned int i = 0; i < conditions.size(); i++) {
 				Condition *input = conditions[i];
 				if (input->conditionType == CT_Operand) {
