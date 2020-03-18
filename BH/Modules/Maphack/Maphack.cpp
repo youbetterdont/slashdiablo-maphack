@@ -61,18 +61,18 @@ void Maphack::ReadConfig() {
 	BH::config->ReadAssoc("Missile Color", missileColors);
 	BH::config->ReadAssoc("Monster Color", monsterColors);
 
-	TextColorMap["ÿc0"] = 0x20;  // white
-	TextColorMap["ÿc1"] = 0x0A;  // red
-	TextColorMap["ÿc2"] = 0x84;  // green
-	TextColorMap["ÿc3"] = 0x97;  // blue
-	TextColorMap["ÿc4"] = 0x0D;  // gold
-	TextColorMap["ÿc5"] = 0xD0;  // gray
-	TextColorMap["ÿc6"] = 0x00;  // black
-	TextColorMap["ÿc7"] = 0x5A;  // tan
-	TextColorMap["ÿc8"] = 0x60;  // orange
-	TextColorMap["ÿc9"] = 0x0C;  // yellow
-	TextColorMap["ÿc;"] = 0x9B;  // purple
-	TextColorMap["ÿc:"] = 0x76;  // dark green
+	TextColorMap["\377c0"] = 0x20;  // white
+	TextColorMap["\377c1"] = 0x0A;  // red
+	TextColorMap["\377c2"] = 0x84;  // green
+	TextColorMap["\377c3"] = 0x97;  // blue
+	TextColorMap["\377c4"] = 0x0D;  // gold
+	TextColorMap["\377c5"] = 0xD0;  // gray
+	TextColorMap["\377c6"] = 0x00;  // black
+	TextColorMap["\377c7"] = 0x5A;  // tan
+	TextColorMap["\377c8"] = 0x60;  // orange
+	TextColorMap["\377c9"] = 0x0C;  // yellow
+	TextColorMap["\377c;"] = 0x9B;  // purple
+	TextColorMap["\377c:"] = 0x76;  // dark green
 
 	BH::config->ReadAssoc("Monster Color", MonsterColors);
 	for (auto it = MonsterColors.cbegin(); it != MonsterColors.cend(); it++) {
@@ -418,8 +418,8 @@ void Maphack::OnAutomapDraw() {
 					}
 
 					//Determine immunities
-					string szImmunities[] = { "ÿc7i", "ÿc8i", "ÿc1i", "ÿc9i", "ÿc3i", "ÿc2i" };
-					string szResistances[] = { "ÿc7r", "ÿc8r", "ÿc1r", "ÿc9r", "ÿc3r", "ÿc2r" };
+					string szImmunities[] = { "\377c7i", "\377c8i", "\377c1i", "\377c9i", "\377c3i", "\377c2i" };
+					string szResistances[] = { "\377c7r", "\377c8r", "\377c1r", "\377c9r", "\377c3r", "\377c2r" };
 					DWORD dwImmunities[] = {
 						STAT_DMGREDUCTIONPCT,
 						STAT_MAGICDMGREDUCTIONPCT,
@@ -442,7 +442,7 @@ void Maphack::OnAutomapDraw() {
 					//Determine Enchantments
 					string enchantText;
 					if (Toggles["Monster Enchantments"].state) {
-						string szEnchantments[] = {"ÿc3m", "ÿc1e", "ÿc9e", "ÿc3e"};						
+						string szEnchantments[] = {"\377c3m", "\377c1e", "\377c9e", "\377c3e"};						
 						
 						for (int n = 0; n < 9; n++) {
 							if (unit->pMonsterData->fBoss) {
@@ -576,7 +576,7 @@ void Maphack::OnAutomapDraw() {
 			return;
 		for (list<LevelList*>::iterator it = automapLevels.begin(); it != automapLevels.end(); it++) {
 			if (player->pAct->dwAct == (*it)->act) {
-				string tombStar = ((*it)->levelId == player->pAct->pMisc->dwStaffTombLevel) ? "ÿc2*" : "ÿc4";
+				string tombStar = ((*it)->levelId == player->pAct->pMisc->dwStaffTombLevel) ? "\377c2*" : "\377c4";
 				POINT unitLoc;
 				Hook::ScreenToAutomap(&unitLoc, (*it)->x, (*it)->y);
 				char* name = UnicodeToAnsi(D2CLIENT_GetLevelName((*it)->levelId));
@@ -660,13 +660,13 @@ void Maphack::OnGamePacketRecv(BYTE *packet, bool *block) {
 			//	if(packet[6+(packet[0]-0xa7)] == 100) {
 			//		UnitAny* pUnit = D2CLIENT_FindServerSideUnit(*(DWORD*)&packet[2], 0);
 			//		if(pUnit)
-			//			PrintText(1, "Alert: ÿc4Player ÿc2%s ÿc4drank a ÿc1Health ÿc4potion!", pUnit->pPlayerData->szName);
+			//			PrintText(1, "Alert: \377c4Player \377c2%s \377c4drank a \377c1Health \377c4potion!", pUnit->pPlayerData->szName);
 			//	} else if (packet[6+(packet[0]-0xa7)] == 105) {
 			//		UnitAny* pUnit = D2CLIENT_FindServerSideUnit(*(DWORD*)&packet[2], 0);
 			//		if(pUnit)
 			//			if(pUnit->dwTxtFileNo == 1)
 			//				if(D2COMMON_GetUnitState(pUnit, 30))
-			//					PrintText(1, "Alert: ÿc4ES Sorc ÿc2%s ÿc4drank a ÿc3Mana ÿc4Potion!", pUnit->pPlayerData->szName);
+			//					PrintText(1, "Alert: \377c4ES Sorc \377c2%s \377c4drank a \377c3Mana \377c4Potion!", pUnit->pPlayerData->szName);
 			//	} else if (packet[6+(packet[0]-0xa7)] == 102) {//remove portal delay
 			//		*block = true;
 			//	}
@@ -927,8 +927,8 @@ int HoverObjectPatch(UnitAny* pUnit, DWORD tY, DWORD unk1, DWORD unk2, DWORD tX,
 	POINT p = Texthook::GetTextSize(wTxt, 1);
 	int center = tX + (p.x / 2);
 	int y = tY - p.y;
-	Texthook::Draw(center, y - 12, Center, 6, White, L"ÿc7%d ÿc8%d ÿc1%d ÿc9%d ÿc3%d ÿc2%d", dwResistances[0], dwResistances[1], dwResistances[2], dwResistances[3], dwResistances[4], dwResistances[5]);
-	Texthook::Draw(center, y, Center, 6, White, L"ÿc%d%s", HoverMonsterColor(pUnit), wTxt);
+	Texthook::Draw(center, y - 12, Center, 6, White, L"\377c7%d \377c8%d \377c1%d \377c9%d \377c3%d \377c2%d", dwResistances[0], dwResistances[1], dwResistances[2], dwResistances[3], dwResistances[4], dwResistances[5]);
+	Texthook::Draw(center, y, Center, 6, White, L"\377c%d%s", HoverMonsterColor(pUnit), wTxt);
 	Texthook::Draw(center, y + 8, Center, 6, White, L"%.0f%%", (hp / maxhp) * 100.0);
 	return 1;
 }
