@@ -189,58 +189,60 @@ void Maphack::OnLoad() {
 
 	new Texthook(settingsTab, 80, 3, "Toggles");
 	unsigned int Y = 0;
+	int keyhook_x = 150;
+	int col2_x = 250;
 	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Auto Reveal"].state, "Auto Reveal");
-	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Auto Reveal"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, (Y + 2), &Toggles["Auto Reveal"].toggle, "");
 
 	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Show Monsters"].state, "Show Monsters");
-	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Show Monsters"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, (Y + 2), &Toggles["Show Monsters"].toggle, "");
 
 	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Monster Enchantments"].state, "  Enchantments");
-	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Monster Enchantments"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, (Y + 2), &Toggles["Monster Enchantments"].toggle, "");
 
 	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Monster Resistances"].state, "  Resistances");
-	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Monster Resistances"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, (Y + 2), &Toggles["Monster Resistances"].toggle, "");
 	
 	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Show Missiles"].state, "Show Missiles");
-	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Show Missiles"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, (Y + 2), &Toggles["Show Missiles"].toggle, "");
 
 	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Show Chests"].state, "Show Chests");
-	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Show Chests"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, (Y + 2), &Toggles["Show Chests"].toggle, "");
 
 	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Force Light Radius"].state, "Light Radius");
-	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Force Light Radius"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, (Y + 2), &Toggles["Force Light Radius"].toggle, "");
 
 	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Remove Weather"].state, "Remove Weather");
-	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Remove Weather"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, (Y + 2), &Toggles["Remove Weather"].toggle, "");
 
 	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Infravision"].state, "Infravision");
-	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Infravision"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, (Y + 2), &Toggles["Infravision"].toggle, "");
 
 	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Remove Shake"].state, "Remove Shake");
-	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Remove Shake"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, (Y + 2), &Toggles["Remove Shake"].toggle, "");
 
 	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Display Level Names"].state, "Level Names");
-	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Display Level Names"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, (Y + 2), &Toggles["Display Level Names"].toggle, "");
 
 	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Apply CPU Patch"].state, "CPU Patch");
-	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Apply CPU Patch"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, (Y + 2), &Toggles["Apply CPU Patch"].toggle, "");
 
-	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Apply FPS Patch"].state, "FPS Patch");
-	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Apply FPS Patch"].toggle, "");
+	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Apply FPS Patch"].state, "FPS Patch (SP Only)");
+	new Keyhook(settingsTab, keyhook_x, (Y + 2), &Toggles["Apply FPS Patch"].toggle, "");
 
-	new Texthook(settingsTab, 215, 3, "Missile Colors");
+	new Texthook(settingsTab, col2_x + 5, 3, "Missile Colors");
 
-	new Colorhook(settingsTab, 210, 17, &missileColors["Player"], "Player");
-	new Colorhook(settingsTab, 210, 32, &missileColors["Neutral"], "Neutral");
-	new Colorhook(settingsTab, 210, 47, &missileColors["Party"], "Party");
-	new Colorhook(settingsTab, 210, 62, &missileColors["Hostile"], "Hostile");
+	new Colorhook(settingsTab, col2_x, 17, &missileColors["Player"], "Player");
+	new Colorhook(settingsTab, col2_x, 32, &missileColors["Neutral"], "Neutral");
+	new Colorhook(settingsTab, col2_x, 47, &missileColors["Party"], "Party");
+	new Colorhook(settingsTab, col2_x, 62, &missileColors["Hostile"], "Hostile");
 
-	new Texthook(settingsTab, 215, 77, "Monster Colors");
+	new Texthook(settingsTab, col2_x + 5, 77, "Monster Colors");
 
-	new Colorhook(settingsTab, 210, 92, &monsterColors["Normal"], "Normal");
-	new Colorhook(settingsTab, 210, 107, &monsterColors["Minion"], "Minion");
-	new Colorhook(settingsTab, 210, 122, &monsterColors["Champion"], "Champion");
-	new Colorhook(settingsTab, 210, 137, &monsterColors["Boss"], "Boss");
+	new Colorhook(settingsTab, col2_x, 92, &monsterColors["Normal"], "Normal");
+	new Colorhook(settingsTab, col2_x, 107, &monsterColors["Minion"], "Minion");
+	new Colorhook(settingsTab, col2_x, 122, &monsterColors["Champion"], "Champion");
+	new Colorhook(settingsTab, col2_x, 137, &monsterColors["Boss"], "Boss");
 
 	new Texthook(settingsTab, 6, (Y += 15), "Reveal Type:");
 
