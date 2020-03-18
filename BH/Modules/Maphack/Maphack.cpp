@@ -20,6 +20,7 @@ Patch* infraPatch = new Patch(Call, D2CLIENT, { 0x66623, 0xB4A23 }, (int)Infravi
 Patch* shakePatch = new Patch(Call, D2CLIENT, { 0x442A2, 0x452F2 }, (int)Shake_Interception, 5);
 Patch* monsterNamePatch = new Patch(Call, D2WIN, { 0x13550, 0x140E0 }, (int)HoverObject_Interception, 5);
 Patch* cpuPatch = new Patch(NOP, D2CLIENT, { 0x3CB7C, 0x2770C }, 0, 9);
+Patch* fpsPatch = new Patch(NOP, D2CLIENT, { 0x44E51, 0x45EA1 }, 0, 8);
 
 DrawDirective automapDraw(true, 5);
 
@@ -125,6 +126,7 @@ void Maphack::ReadConfig() {
 	BH::config->ReadToggle("Monster Resistances", "None", true, Toggles["Monster Resistances"]);
 	BH::config->ReadToggle("Monster Enchantments", "None", true, Toggles["Monster Enchantments"]);
 	BH::config->ReadToggle("Apply CPU Patch", "None", true, Toggles["Apply CPU Patch"]);
+	BH::config->ReadToggle("Apply FPS Patch", "None", true, Toggles["Apply FPS Patch"]);
 
 	BH::config->ReadInt("Minimap Max Ghost", automapDraw.maxGhost);
 }
@@ -171,6 +173,11 @@ void Maphack::ResetPatches() {
 		cpuPatch->Install();
 	else
 		cpuPatch->Remove();
+
+	if (Toggles["Apply FPS Patch"].state)
+		fpsPatch->Install();
+	else
+		fpsPatch->Remove();
 }
 
 void Maphack::OnLoad() {
@@ -217,6 +224,9 @@ void Maphack::OnLoad() {
 
 	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Apply CPU Patch"].state, "CPU Patch");
 	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Apply CPU Patch"].toggle, "");
+
+	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Apply FPS Patch"].state, "FPS Patch");
+	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Apply FPS Patch"].toggle, "");
 
 	new Texthook(settingsTab, 215, 3, "Missile Colors");
 
