@@ -21,4 +21,5 @@ class Party : public Module {
 		void OnLoop();
 		void OnKey(bool up, BYTE key, LPARAM lParam, bool* block);
 		void OnGameExit();
+		void OnGameJoin();
 };
