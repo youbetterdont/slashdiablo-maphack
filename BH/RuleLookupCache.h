@@ -75,10 +75,8 @@ class RuleLookupCache {
 			//		last_printed_guid = guid;
 			//	}
 			//}
-		} else {
-			return cached_T;
 		}
-			
+			return cached_T;
 		}
 };
 
