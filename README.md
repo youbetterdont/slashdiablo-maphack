@@ -64,8 +64,24 @@ Mustache[item]: {{>header}}{{>stats}}{{^isRuneword}}{{#socketed}}\n\n  * {{>>ite
 Mustache[stash]: {{#this}}* {{>item}}\n\n{{/this}}
 ```
 # Release Notes for 1.9.8
+## Bug fixes
+* `BOW` and `SCEPTER` item groups now work correctly
+* `UI.ini` file frequent file write issue fixed
+* Fixed an issue where the ebug tag was applied to eth items that spawned with ED.
+* Fixed issue where multiple parties were formed upon game creation. [more info](https://github.com/planqi/slashdiablo-maphack/pull/44)
+* Require `%CONTINUE%` to be used to continue processing map commands from different lines. This makes the map commands behave identically to the name commands. Before, all matching `%MAP%` commands were applied regardless of `%CONTINUE%`, so the last matching one would be shown (last one drawn). [more info](https://github.com/planqi/slashdiablo-maphack/pull/42)
+
+## Optimization
+* Item name lookup code efficiency improved.
+* Item names are cached, so that the lookup code does not need to constantly execute.
+* Item map box colors are cached, ditto ^^
+
+## New features
+* Added support for filtering on charged skills. Use the `CHSK` keyword. For example, to find level 2 lower resist wands, use `WAND MAG CHSK91>1` as the filter criteria. The skill index is the same as that used for individual skill bonuses. [more info](https://github.com/planqi/slashdiablo-maphack/pull/33)
+* Add support for filters based on item quality level. Use the `QLVL` keyword. For example, `SIN QLVL>40` would select all katars capable of spawning staffmods.
+* Added `CRAFT` keyword for selecting crafted items. This works similar to `UNI`, `SET`, etc.
 * Add option to remove FPS limit in single player
-* Add support to display gs5 game server
+* Add support for 'gs5' display in game list
 
 # Release Notes for 1.9.7
 * Add scrollbar when there are more than 8 characters on a realm account
