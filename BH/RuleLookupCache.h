@@ -3,8 +3,8 @@
 #ifndef RULE_LOOKUP_CACHE_H_
 #define RULE_LOOKUP_CACHE_H_
 
-extern struct UnitItemInfo;
-extern struct Rule;
+struct UnitItemInfo;
+struct Rule;
 
 #include <memory>
 #include <vector>
@@ -35,7 +35,6 @@ class RuleLookupCache {
 	// TODO: UnitItemInfo should probably be const, but call to Evaluate needs non-const
 	T Get(UnitItemInfo *uInfo, Args&&... pack) {
 		// leave this false. doesn't work 
-		constexpr bool cache_debug = false;
 		static DWORD last_printed_guid = 0; // to prevent excessive printing
 		DWORD guid = uInfo->item->dwUnitId; // global unique identifier
 		// TODO: should we also use fingerprint or seed? Currently we trigger cache updates based
@@ -61,7 +60,7 @@ class RuleLookupCache {
 			}
 			// cache_hit is false if the unmodified item name has changed from cached version
 		}
-		if (!cache_hit || cache_debug) {
+		if (!cache_hit) {
 			cached_T = make_cached_T(uInfo, pack...);
 			if (cache && !cache_hit) {
 				std::pair<DWORD, T> pair_to_cache(flags, cached_T);

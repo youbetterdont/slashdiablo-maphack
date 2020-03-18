@@ -581,14 +581,18 @@ class ItemNameLookupCache : public RuleLookupCache<string, const string &> {
 	string make_cached_T(UnitItemInfo *uInfo, const string &name) override;
 	string to_str(const string &name) override;
 
-	using RuleLookupCache::RuleLookupCache;
+		public:
+		ItemNameLookupCache(const std::vector<Rule*> &RuleList) :
+			RuleLookupCache<string, const string&>(RuleList) {}
 };
 
 class MapActionLookupCache : public RuleLookupCache<vector<Action>> {
 	vector<Action> make_cached_T(UnitItemInfo *uInfo) override;
 	string to_str(const vector<Action> &actions);
 
-	using RuleLookupCache::RuleLookupCache;
+		public:
+		MapActionLookupCache(const std::vector<Rule*> &RuleList) :
+			RuleLookupCache<vector<Action>>(RuleList) {}
 };
 
 extern vector<Rule*> RuleList;
