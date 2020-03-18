@@ -781,14 +781,14 @@ void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 	} else if (key.compare(0, 7, "POLEARM") == 0) {
 		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_POLEARM));
 	} else if (key.compare(0, 3, "BOW") == 0) {
-		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_BOOTS));
+		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_BOW));
 	} else if (key.compare(0, 4, "XBOW") == 0) {
 		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_CROSSBOW));
 	} else if (key.compare(0, 5, "STAFF") == 0) {
 		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_STAFF));
 	} else if (key.compare(0, 4, "WAND") == 0) {
 		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_WAND));
-	} else if (key.compare(0, 5, "SCEPTER") == 0) {
+	} else if (key.compare(0, 7, "SCEPTER") == 0) {
 		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_SCEPTER));
 	} else if (key.compare(0, 2, "EQ") == 0 && keylen == 3) {
 		if (key[2] == '1') {
