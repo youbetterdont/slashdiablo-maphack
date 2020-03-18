@@ -65,6 +65,7 @@ Mustache[stash]: {{#this}}* {{>item}}\n\n{{/this}}
 ```
 # Release Notes for 1.9.8
 * Add option to remove FPS limit in single player
+* Add support to display gs5 game server
 
 # Release Notes for 1.9.7
 * Add scrollbar when there are more than 8 characters on a realm account
