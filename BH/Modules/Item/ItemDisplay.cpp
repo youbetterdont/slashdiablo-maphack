@@ -873,6 +873,13 @@ void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 			return;
 		}
 		Condition::AddOperand(conditions, new ItemStatCondition(STAT_NONCLASSSKILL, num, operation, value));
+	} else if (key.compare(0, 4, "CHSK") == 0) { // skills granted by charges
+		int num = -1;
+		stringstream ss(key.substr(4));
+		if ((ss >> num).fail() || num < 0 || num > (int)SKILL_MAX) {
+			return;
+		}
+		Condition::AddOperand(conditions, new ChargedCondition(operation, num, value));
 	} else if (key.compare(0, 4, "CLSK") == 0) {
 		int num = -1;
 		stringstream ss(key.substr(4));
@@ -1204,6 +1211,34 @@ bool DurabilityCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *
 		}
 	}
 	return IntegerCompare(value, operation, targetDurability);
+}
+
+bool ChargedCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
+	DWORD value = 0;
+	Stat aStatList[256] = { NULL };
+	StatList* pStatList = D2COMMON_GetStatList(uInfo->item, NULL, 0x40);
+	if (pStatList) {
+		DWORD dwStats = D2COMMON_CopyStatList(pStatList, (Stat*)aStatList, 256);
+		for (UINT i = 0; i < dwStats; i++) {
+			//if (aStatList[i].wStatIndex == STAT_CHARGED)
+			//	PrintText(1, "ChargedCondition::EvaluateInternal: Index=%hx, SubIndex=%hx, Value=%x", aStatList[i].wStatIndex, aStatList[i].wSubIndex, aStatList[i].dwStatValue);
+			if (aStatList[i].wStatIndex == STAT_CHARGED && (aStatList[i].wSubIndex>>6) == skill) { // 10 MSBs of subindex is the skill ID
+				unsigned int level = aStatList[i].wSubIndex & 0x3F; // 6 LSBs are the skill level
+				value = (level > value) ? level : value; // use highest level
+			}
+		}
+	}
+	return IntegerCompare(value, operation, targetLevel);
+}
+bool ChargedCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2) {
+	DWORD num = 0;
+	for (vector<ItemProperty>::iterator prop = info->properties.begin(); prop < info->properties.end(); prop++) {
+		if (prop->stat == STAT_CHARGED && prop->skill == skill) {
+			num = (prop->level > num) ? prop->level : num; // use the highest level charges for the comparison
+			//PrintText(1, "Found charged skill. skill=%u level=%u", prop->skill, prop->level);
+		}
+	}
+	return IntegerCompare(num, operation, targetLevel);
 }
 
 bool FoolsCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
