@@ -27,7 +27,11 @@
 	{"ORANGE", "ÿc8"},		\
 	{"YELLOW", "ÿc9"},		\
 	{"PURPLE", "ÿc;"},		\
-	{"DARK_GREEN", "ÿc:"}
+	{"DARK_GREEN", "ÿc:"},	\
+	{"CORAL", "\xFF" "c\x06"},		\
+	{"SAGE", "\xFF" "c\x07"},		\
+	{"TEAL", "\xFF" "c\x09"},		\
+	{"LIGHT_GRAY", "\xFF" "c\x0C"}
 
 #define MAP_COLOR_WHITE     0x20
 
@@ -43,7 +47,11 @@
 	{"ORANGE", 0x60},		\
 	{"YELLOW", 0x0C},		\
 	{"PURPLE", 0x9B},		\
-	{"DARK_GREEN", 0x76}
+	{"DARK_GREEN", 0x76},	\
+	{"CORAL", 0x66},		\
+	{"SAGE", 0x82},			\
+	{"TEAL", 0xCB},			\
+	{"LIGHT_GRAY", 0xD6}
 
 enum Operation {
 	EQUAL,
