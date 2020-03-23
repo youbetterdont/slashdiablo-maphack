@@ -604,15 +604,15 @@ void __stdcall Item::OnProperties(wchar_t * wTxt)
 	}
 
 	// Add description
-	//{
-	//	int aLen = wcslen(wTxt);
-	//	swprintf_s(wTxt + aLen, MAXLEN - aLen,
-	//			L"%sLen: %d The %squick %sbrown fox jumps over the lazy dog.\n",
-	//			GetColorCode(TextColor::White).c_str(),
-	//			aLen,
-	//			GetColorCode(TextColor::Orange).c_str(),
-	//			GetColorCode(TextColor::White).c_str());
-	//}
+	{
+		int aLen = wcslen(wTxt);
+		string desc = item_desc_cache.Get(&uInfo);
+		std::wstring wDesc = std::wstring(desc.begin(), desc.end());
+		swprintf_s(wTxt + aLen, MAXLEN - aLen,
+				L"%s%s\n",
+				wDesc.c_str(),
+				GetColorCode(TextColor::White).c_str());
+	}
 
 	//Any Armor ItemTypes.txt
 	if (D2COMMON_IsMatchingType(pItem, ITEM_TYPE_ALLARMOR)) {

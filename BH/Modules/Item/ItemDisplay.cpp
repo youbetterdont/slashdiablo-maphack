@@ -151,12 +151,36 @@ BYTE RuneNumberFromItemCode(char *code){
 	return (BYTE)(((code[1] - '0') * 10) + code[2] - '0');
 }
 
+// Find the item description. This code is called only when there's a cache miss
+string ItemDescLookupCache::make_cached_T(UnitItemInfo *uInfo) {
+	string new_name;
+	for (vector<Rule*>::const_iterator it = RuleList.begin(); it != RuleList.end(); it++) {
+		if ((*it)->Evaluate(uInfo, NULL)) {
+			SubstituteNameVariables(uInfo, new_name, (*it)->action.description);
+			if ((*it)->action.stopProcessing) {
+				break;
+			}
+		}
+	}
+	return new_name;
+}
+
+string ItemDescLookupCache::to_str(const string &name) {
+	size_t start_pos = 0;
+	std::string itemName(name);
+	while ((start_pos = itemName.find('\n', start_pos)) != std::string::npos) {
+		itemName.replace(start_pos, 1, " - ");
+		start_pos += 3;
+	}
+	return itemName;
+}
+
 // Find the item name. This code is called only when there's a cache miss
 string ItemNameLookupCache::make_cached_T(UnitItemInfo *uInfo, const string &name) {
 	string new_name(name);
 	for (vector<Rule*>::const_iterator it = RuleList.begin(); it != RuleList.end(); it++) {
 		if ((*it)->Evaluate(uInfo, NULL)) {
-			SubstituteNameVariables(uInfo, new_name, &(*it)->action);
+			SubstituteNameVariables(uInfo, new_name, (*it)->action.name);
 			if ((*it)->action.stopProcessing) {
 				break;
 			}
@@ -194,6 +218,7 @@ string MapActionLookupCache::to_str(const vector<Action> &actions) {
 }
 
 // least recently used cache for storing a limited number of item names
+ItemDescLookupCache item_desc_cache(RuleList);
 ItemNameLookupCache item_name_cache(RuleList);
 MapActionLookupCache map_action_cache(MapRuleList);
 
@@ -202,7 +227,7 @@ void GetItemName(UnitItemInfo *uInfo, string &name) {
 	name.assign(new_name);
 }
 
-void SubstituteNameVariables(UnitItemInfo *uInfo, string &name, Action *action) {
+void SubstituteNameVariables(UnitItemInfo *uInfo, string &name, const string &action_name) {
 	char origName[128], sockets[4], code[4], ilvl[4], alvl[4], runename[16] = "", runenum[4] = "0";
 	char gemtype[16] = "", gemlevel[16] = "", sellValue[16] = "", statVal[16] = "";
 	char lvlreq[4], wpnspd[4], rangeadder[4];
@@ -252,7 +277,7 @@ void SubstituteNameVariables(UnitItemInfo *uInfo, string &name, Action *action) 
 		{"PRICE", sellValue},
 		COLOR_REPLACEMENTS
 	};
-	name.assign(action->name);
+	name.assign(action_name);
 	for (int n = 0; n < sizeof(replacements) / sizeof(replacements[0]); n++) {
 		while (name.find("%" + replacements[n].key + "%") != string::npos) {
 			name.replace(name.find("%" + replacements[n].key + "%"), replacements[n].key.length() + 2, replacements[n].value);
@@ -373,6 +398,7 @@ namespace ItemDisplay {
 
 		item_display_initialized = true;
 		rules.clear();
+		item_desc_cache.ResetCache();
 		item_name_cache.ResetCache();
 		map_action_cache.ResetCache();
 		BH::config->ReadMapList("ItemDisplay", rules);
@@ -417,6 +443,7 @@ namespace ItemDisplay {
 			}
 		}
 		item_display_initialized = false;
+		item_desc_cache.ResetCache();
 		item_name_cache.ResetCache();
 		map_action_cache.ResetCache();
 		RuleList.clear();

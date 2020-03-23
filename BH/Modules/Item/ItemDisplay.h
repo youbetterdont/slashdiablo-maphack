@@ -602,6 +602,15 @@ struct Rule {
 	}
 };
 
+class ItemDescLookupCache : public RuleLookupCache<string> {
+	string make_cached_T(UnitItemInfo *uInfo) override;
+	string to_str(const string &name) override;
+
+		public:
+		ItemDescLookupCache(const std::vector<Rule*> &RuleList) :
+			RuleLookupCache<string>(RuleList) {}
+};
+
 class ItemNameLookupCache : public RuleLookupCache<string, const string &> {
 	string make_cached_T(UnitItemInfo *uInfo, const string &name) override;
 	string to_str(const string &name) override;
@@ -624,6 +633,7 @@ extern vector<Rule*> RuleList;
 extern vector<Rule*> MapRuleList;
 extern vector<Rule*> IgnoreRuleList;
 extern vector<pair<string, string>> rules;
+extern ItemDescLookupCache item_desc_cache;
 extern ItemNameLookupCache item_name_cache;
 extern MapActionLookupCache map_action_cache;
 
@@ -639,7 +649,7 @@ void HandleUnknownItemCode(char *code, char *tag);
 BYTE GetOperation(string *op);
 inline bool IntegerCompare(unsigned int Lvalue, int operation, unsigned int Rvalue);
 void GetItemName(UnitItemInfo *uInfo, string &name);
-void SubstituteNameVariables(UnitItemInfo *uInfo, string &name, Action *action);
+void SubstituteNameVariables(UnitItemInfo *uInfo, string &name, const string &action_name);
 int GetDefense(ItemInfo *item);
 BYTE GetAffixLevel(BYTE ilvl, BYTE qlvl, BYTE mlvl);
 BYTE GetRequiredLevel(UnitAny* item);
