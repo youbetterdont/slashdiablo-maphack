@@ -590,6 +590,7 @@ static ItemsTxt* GetArmorText(UnitAny* pItem) {
 void __stdcall Item::OnProperties(wchar_t * wTxt)
 {
 	const int MAXLEN = 1024;
+	static wchar_t wDesc[MAXLEN];// a buffer for converting the description
 	UnitAny* pItem = *p_D2CLIENT_SelectedInvItem;
 	UnitItemInfo uInfo;
 	if (CreateUnitItemInfo(&uInfo, pItem)) {
@@ -607,11 +608,14 @@ void __stdcall Item::OnProperties(wchar_t * wTxt)
 	{
 		int aLen = wcslen(wTxt);
 		string desc = item_desc_cache.Get(&uInfo);
-		std::wstring wDesc = std::wstring(desc.begin(), desc.end());
-		swprintf_s(wTxt + aLen, MAXLEN - aLen,
+		if (desc != "") {
+			MultiByteToWideChar(CODE_PAGE, MB_PRECOMPOSED, desc.c_str(), desc.length(), wDesc, desc.length());
+			wDesc[desc.length()] = 0;  // null-terminate the string since MultiByteToWideChar doesn't
+			swprintf_s(wTxt + aLen, MAXLEN - aLen,
 				L"%s%s\n",
-				wDesc.c_str(),
+				wDesc,
 				GetColorCode(TextColor::White).c_str());
+		}
 	}
 
 	//Any Armor ItemTypes.txt

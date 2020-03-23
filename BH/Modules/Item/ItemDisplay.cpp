@@ -522,7 +522,7 @@ string ParseDescription(Action *act) {
 	size_t start_idx = l_idx + 1;
 	size_t len = r_idx - start_idx;
 	string desc_string = act->name.substr(start_idx, len);
-	act->name.replace(start_idx, len, "");
+	act->name.replace(l_idx, len+2, "");
 	return desc_string;
 }
 
