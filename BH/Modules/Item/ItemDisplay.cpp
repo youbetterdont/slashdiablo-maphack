@@ -457,6 +457,7 @@ void BuildAction(string *str, Action *act) {
 	act->pxColor = ParseMapColor(act, "PX");
 	act->lineColor = ParseMapColor(act, "LINE");
 	act->notifyColor = ParseMapColor(act, "NOTIFY");
+	act->description = ParseDescription(act);
 
 	// legacy support:
 	size_t map = act->name.find("%MAP%");
@@ -485,6 +486,17 @@ void BuildAction(string *str, Action *act) {
 		act->name.replace(done, 10, "");
 		act->stopProcessing = false;
 	}
+}
+
+string ParseDescription(Action *act) {
+	size_t l_idx = act->name.find("{");
+	size_t r_idx = act->name.find("}");
+	if (l_idx == string::npos || r_idx == string::npos || l_idx > r_idx) return "";
+	size_t start_idx = l_idx + 1;
+	size_t len = r_idx - start_idx;
+	string desc_string = act->name.substr(start_idx, len);
+	act->name.replace(start_idx, len, "");
+	return desc_string;
 }
 
 int ParseMapColor(Action *act, const string& key_string) {
