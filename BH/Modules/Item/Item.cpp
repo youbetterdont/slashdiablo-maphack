@@ -247,6 +247,18 @@ void Item::OnLeftClick(bool up, int x, int y, bool* block) {
 		*block = true;
 }
 
+int CreateUnitItemInfo(UnitItemInfo *uInfo, UnitAny *item) {
+	char* code = D2COMMON_GetItemText(item->dwTxtFileNo)->szCode;
+	uInfo->itemCode[0] = code[0]; uInfo->itemCode[1] = code[1]; uInfo->itemCode[2] = code[2]; uInfo->itemCode[3] = 0;
+	uInfo->item = item;
+	if (ItemAttributeMap.find(uInfo->itemCode) != ItemAttributeMap.end()) {
+		uInfo->attrs = ItemAttributeMap[uInfo->itemCode];
+		return 0;
+	} else {
+		return -1;
+	}
+}
+
 void __fastcall Item::ItemNamePatch(wchar_t *name, UnitAny *item)
 {
 	char* szName = UnicodeToAnsi(name);
@@ -255,10 +267,7 @@ void __fastcall Item::ItemNamePatch(wchar_t *name, UnitAny *item)
 
 	if (Toggles["Advanced Item Display"].state) {
 		UnitItemInfo uInfo;
-		uInfo.itemCode[0] = code[0]; uInfo.itemCode[1] = code[1]; uInfo.itemCode[2] = code[2]; uInfo.itemCode[3] = 0;
-		uInfo.item = item;
-		if (ItemAttributeMap.find(uInfo.itemCode) != ItemAttributeMap.end()) {
-			uInfo.attrs = ItemAttributeMap[uInfo.itemCode];
+		if (!CreateUnitItemInfo(&uInfo, item)) {
 			GetItemName(&uInfo, itemName);
 		} else {
 			HandleUnknownItemCode(uInfo.itemCode, "name");
@@ -580,7 +589,12 @@ static ItemsTxt* GetArmorText(UnitAny* pItem) {
 
 void __stdcall Item::OnProperties(wchar_t * wTxt)
 {
+	const int MAXLEN = 1024;
 	UnitAny* pItem = *p_D2CLIENT_SelectedInvItem;
+	UnitItemInfo uInfo;
+	if (CreateUnitItemInfo(&uInfo, pItem)) {
+		return; // unknown item code
+	}
 
 	if (!(Toggles["Always Show Item Stat Ranges"].state ||
 				GetKeyState(VK_CONTROL) & 0x8000) ||
@@ -588,6 +602,17 @@ void __stdcall Item::OnProperties(wchar_t * wTxt)
 			pItem->dwType != UNIT_ITEM) {
 		return;
 	}
+
+	// Add description
+	//{
+	//	int aLen = wcslen(wTxt);
+	//	swprintf_s(wTxt + aLen, MAXLEN - aLen,
+	//			L"%sLen: %d The %squick %sbrown fox jumps over the lazy dog.\n",
+	//			GetColorCode(TextColor::White).c_str(),
+	//			aLen,
+	//			GetColorCode(TextColor::Orange).c_str(),
+	//			GetColorCode(TextColor::White).c_str());
+	//}
 
 	//Any Armor ItemTypes.txt
 	if (D2COMMON_IsMatchingType(pItem, ITEM_TYPE_ALLARMOR)) {
@@ -616,7 +641,7 @@ void __stdcall Item::OnProperties(wchar_t * wTxt)
 		// Items with enhanced def mod will spawn with base def as max +1.
 		// Don't show range if item spawned with edef and hasn't been upgraded.
 		if (!spawned_with_ed) {
-			swprintf_s(wTxt + aLen, 1024 - aLen,
+			swprintf_s(wTxt + aLen, MAXLEN - aLen,
 					L"%sBase Defense: %d %s[%d - %d]%s%s\n",
 					GetColorCode(TextColor::White).c_str(),
 					base,
@@ -626,6 +651,27 @@ void __stdcall Item::OnProperties(wchar_t * wTxt)
 					GetColorCode(TextColor::White).c_str()
 					);
 		}
+	}
+
+	int ilvl = pItem->pItemData->dwItemLevel;
+	int alvl = GetAffixLevel((BYTE)pItem->pItemData->dwItemLevel, (BYTE)uInfo.attrs->qualityLevel, uInfo.attrs->magicLevel);
+	int quality = pItem->pItemData->dwQuality;
+	// Add alvl
+	if (ilvl != alvl && (quality == ITEM_QUALITY_MAGIC || quality == ITEM_QUALITY_RARE || quality == ITEM_QUALITY_CRAFT)) {
+		int aLen = wcslen(wTxt);
+		swprintf_s(wTxt + aLen, MAXLEN - aLen,
+				L"%sAffix Level: %d\n",
+				GetColorCode(TextColor::White).c_str(),
+				GetAffixLevel((BYTE)pItem->pItemData->dwItemLevel, (BYTE)uInfo.attrs->qualityLevel, uInfo.attrs->magicLevel));
+	}
+
+	// Add ilvl
+	{
+		int aLen = wcslen(wTxt);
+		swprintf_s(wTxt + aLen, MAXLEN - aLen,
+				L"%sItem Level: %d\n",
+				GetColorCode(TextColor::White).c_str(),
+				pItem->pItemData->dwItemLevel);
 	}
 }
 

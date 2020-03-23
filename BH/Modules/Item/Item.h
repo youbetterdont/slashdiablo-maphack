@@ -90,3 +90,5 @@ void GetItemPropertyString_Interception();
 void ViewInventoryPatch1_ASM();
 void ViewInventoryPatch2_ASM();
 void ViewInventoryPatch3_ASM();
+struct UnitItemInfo;
+int CreateUnitItemInfo(UnitItemInfo *uInfo, UnitAny *item);
