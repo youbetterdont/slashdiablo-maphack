@@ -63,6 +63,17 @@ Mustache[header]: {{>header-unique}}{{>header-magic}}{{>header-else}}{{#count}} 
 Mustache[item]: {{>header}}{{>stats}}{{^isRuneword}}{{#socketed}}\n\n  * {{>>item}}{{/socketed}}{{/isRuneword}}\n
 Mustache[stash]: {{#this}}* {{>item}}\n\n{{/this}}
 ```
+
+# Release Notes for 1.9.9-b1
+* Adds support for a configurable item description field. The description goes in curly braces `{}`. "Advanced Item Display" must be on for the description to show. For example, you can add a hint to ebug armors with the following.
+```ItemDisplay[!RW ETH !SUP CHEST NMAG SOCK=0]: %NAME%{%WHITE%Add sockets in cube with Tal+Thul+%YELLOW%o%WHITE%Perfect}
+```
+* The item description field supports the same keywords as the normal item name, so `%ILVL%` will work as expected, for example. 
+* The `%NAME%` keyword behaves much the same way as well, except that it will insert the previous *description*, not the item's name. This only make sense when `%CONTINUE%` is used. The result of the following is that an ebug-eligible armor with 667+ defense will display "A good EBUG base. Add sockets...". If `%NAME%` is used without a description being set on another matching `ItemDisplay` line first, it will resolve to a blank string.
+```ItemDisplay[!RW ETH !SUP CHEST NMAG SOCK=0 DEF>666]: %NAME%{%WHITE% A good EBUG base.}%CONTINUE%
+ItemDisplay[!RW ETH !SUP CHEST NMAG SOCK=0]: %NAME%{%NAME% %WHITE%Add sockets in cube with Tal+Thul+%YELLOW%O%WHITE%Perfect}```
+* The item level and affix level can now be displayed as part of the item's properties (like required level, durability, etc.). To enable this, "Advanced Item Display" and "Show iLvl" must be on.
+
 # Release Notes for 1.9.8
 ## Bug fixes
 * `BOW` and `SCEPTER` item groups now work correctly
