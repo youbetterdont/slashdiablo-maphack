@@ -594,19 +594,12 @@ void __stdcall Item::OnProperties(wchar_t * wTxt)
 	static wchar_t wDesc[DESCLEN];// a buffer for converting the description
 	UnitAny* pItem = *p_D2CLIENT_SelectedInvItem;
 	UnitItemInfo uInfo;
-	if (CreateUnitItemInfo(&uInfo, pItem)) {
+	if (!pItem || pItem->dwType != UNIT_ITEM || CreateUnitItemInfo(&uInfo, pItem)) {
 		return; // unknown item code
 	}
 
-	if (!(Toggles["Always Show Item Stat Ranges"].state ||
-				GetKeyState(VK_CONTROL) & 0x8000) ||
-			pItem == nullptr ||
-			pItem->dwType != UNIT_ITEM) {
-		return;
-	}
-
 	// Add description
-	{
+	if (Toggles["Advanced Item Display"].state) {
 		int aLen = wcslen(wTxt);
 		string desc = item_desc_cache.Get(&uInfo);
 		if (desc != "") {
@@ -618,8 +611,12 @@ void __stdcall Item::OnProperties(wchar_t * wTxt)
 		}
 	}
 
-	//Any Armor ItemTypes.txt
-	if (D2COMMON_IsMatchingType(pItem, ITEM_TYPE_ALLARMOR)) {
+	if (!(Toggles["Always Show Item Stat Ranges"].state ||
+				GetKeyState(VK_CONTROL) & 0x8000) ||
+			pItem == nullptr ||
+			pItem->dwType != UNIT_ITEM) { /* skip armor range */ }
+	else if (D2COMMON_IsMatchingType(pItem, ITEM_TYPE_ALLARMOR)) {
+		//Any Armor ItemTypes.txt
 		int aLen = 0;
 		bool ebugged = false;
 		bool spawned_with_ed = false;
@@ -661,7 +658,9 @@ void __stdcall Item::OnProperties(wchar_t * wTxt)
 	int alvl = GetAffixLevel((BYTE)pItem->pItemData->dwItemLevel, (BYTE)uInfo.attrs->qualityLevel, uInfo.attrs->magicLevel);
 	int quality = pItem->pItemData->dwQuality;
 	// Add alvl
-	if (ilvl != alvl && (quality == ITEM_QUALITY_MAGIC || quality == ITEM_QUALITY_RARE || quality == ITEM_QUALITY_CRAFT)) {
+	if (Toggles["Advanced Item Display"].state && Toggles["Show iLvl"].state
+			&& ilvl != alvl 
+			&& (quality == ITEM_QUALITY_MAGIC || quality == ITEM_QUALITY_RARE || quality == ITEM_QUALITY_CRAFT)) {
 		int aLen = wcslen(wTxt);
 		swprintf_s(wTxt + aLen, MAXLEN - aLen,
 				L"%sAffix Level: %d\n",
@@ -670,7 +669,7 @@ void __stdcall Item::OnProperties(wchar_t * wTxt)
 	}
 
 	// Add ilvl
-	{
+	if (Toggles["Advanced Item Display"].state && Toggles["Show iLvl"].state) {
 		int aLen = wcslen(wTxt);
 		swprintf_s(wTxt + aLen, MAXLEN - aLen,
 				L"%sItem Level: %d\n",
