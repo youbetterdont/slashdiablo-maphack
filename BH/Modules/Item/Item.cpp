@@ -590,7 +590,8 @@ static ItemsTxt* GetArmorText(UnitAny* pItem) {
 void __stdcall Item::OnProperties(wchar_t * wTxt)
 {
 	const int MAXLEN = 1024;
-	static wchar_t wDesc[MAXLEN];// a buffer for converting the description
+	const int DESCLEN = 128;
+	static wchar_t wDesc[DESCLEN];// a buffer for converting the description
 	UnitAny* pItem = *p_D2CLIENT_SelectedInvItem;
 	UnitItemInfo uInfo;
 	if (CreateUnitItemInfo(&uInfo, pItem)) {
@@ -609,11 +610,10 @@ void __stdcall Item::OnProperties(wchar_t * wTxt)
 		int aLen = wcslen(wTxt);
 		string desc = item_desc_cache.Get(&uInfo);
 		if (desc != "") {
-			MultiByteToWideChar(CODE_PAGE, MB_PRECOMPOSED, desc.c_str(), desc.length(), wDesc, desc.length());
-			wDesc[desc.length()] = 0;  // null-terminate the string since MultiByteToWideChar doesn't
+			auto chars_written = MultiByteToWideChar(CODE_PAGE, MB_PRECOMPOSED, desc.c_str(), -1, wDesc, DESCLEN);
 			swprintf_s(wTxt + aLen, MAXLEN - aLen,
 				L"%s%s\n",
-				wDesc,
+				(chars_written > 0) ? wDesc : L"\377c1 Descirption string too long!",
 				GetColorCode(TextColor::White).c_str());
 		}
 	}
