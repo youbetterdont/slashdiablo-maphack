@@ -629,13 +629,25 @@ class MapActionLookupCache : public RuleLookupCache<vector<Action>> {
 			RuleLookupCache<vector<Action>>(RuleList) {}
 };
 
+class IgnoreLookupCache : public RuleLookupCache<bool> {
+	bool make_cached_T(UnitItemInfo *uInfo) override;
+	string to_str(const bool &ignore);
+
+		public:
+		IgnoreLookupCache(const std::vector<Rule*> &RuleList) :
+			RuleLookupCache<bool>(RuleList) {}
+};
+
 extern vector<Rule*> RuleList;
+extern vector<Rule*> NameRuleList;
+extern vector<Rule*> DescRuleList;
 extern vector<Rule*> MapRuleList;
 extern vector<Rule*> IgnoreRuleList;
 extern vector<pair<string, string>> rules;
 extern ItemDescLookupCache item_desc_cache;
 extern ItemNameLookupCache item_name_cache;
 extern MapActionLookupCache map_action_cache;
+extern IgnoreLookupCache ignore_cache;
 
 namespace ItemDisplay {
 	void InitializeItemRules();

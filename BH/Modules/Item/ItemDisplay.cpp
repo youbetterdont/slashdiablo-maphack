@@ -59,6 +59,8 @@ SkillReplace skills[] = {
 std::map<std::string, int> UnknownItemCodes;
 vector<pair<string, string>> rules;
 vector<Rule*> RuleList;
+vector<Rule*> NameRuleList;
+vector<Rule*> DescRuleList;
 vector<Rule*> MapRuleList;
 vector<Rule*> IgnoreRuleList;
 BYTE LastConditionType;
@@ -154,7 +156,7 @@ BYTE RuneNumberFromItemCode(char *code){
 // Find the item description. This code is called only when there's a cache miss
 string ItemDescLookupCache::make_cached_T(UnitItemInfo *uInfo) {
 	string new_name;
-	for (vector<Rule*>::const_iterator it = RuleList.begin(); it != RuleList.end(); it++) {
+	for (vector<Rule*>::const_iterator it = this->RuleList.begin(); it != this->RuleList.end(); it++) {
 		if ((*it)->Evaluate(uInfo, NULL)) {
 			SubstituteNameVariables(uInfo, new_name, (*it)->action.description);
 			if ((*it)->action.stopProcessing) {
@@ -178,13 +180,31 @@ string ItemDescLookupCache::to_str(const string &name) {
 // Find the item name. This code is called only when there's a cache miss
 string ItemNameLookupCache::make_cached_T(UnitItemInfo *uInfo, const string &name) {
 	string new_name(name);
-	for (vector<Rule*>::const_iterator it = RuleList.begin(); it != RuleList.end(); it++) {
+	for (vector<Rule*>::const_iterator it = this->RuleList.begin(); it != this->RuleList.end(); it++) {
 		if ((*it)->Evaluate(uInfo, NULL)) {
 			SubstituteNameVariables(uInfo, new_name, (*it)->action.name);
 			if ((*it)->action.stopProcessing) {
 				break;
 			}
 		}
+	}
+	// if the item is on the ignore list and not the map list, warn the user that this item is normally blocked
+	bool blocked = ignore_cache.Get(uInfo);
+	vector<Action> actions = map_action_cache.Get(uInfo);
+	if (blocked) {
+		bool has_map_action = false;
+		for (auto &action : actions) {
+			if (action.colorOnMap != UNDEFINED_COLOR ||
+				action.borderColor != UNDEFINED_COLOR ||
+				action.dotColor != UNDEFINED_COLOR ||
+				action.pxColor != UNDEFINED_COLOR ||
+				action.lineColor != UNDEFINED_COLOR) {
+				has_map_action = true;
+				break;
+			}
+					
+		}
+		if (!has_map_action) return new_name + " [blocked]";
 	}
 	return new_name;
 }
@@ -201,7 +221,7 @@ string ItemNameLookupCache::to_str(const string &name) {
 
 vector<Action> MapActionLookupCache::make_cached_T(UnitItemInfo *uInfo) {
 	vector<Action> actions;
-	for (vector<Rule*>::const_iterator it = RuleList.begin(); it != RuleList.end(); it++) {
+	for (vector<Rule*>::const_iterator it = this->RuleList.begin(); it != this->RuleList.end(); it++) {
 		if ((*it)->Evaluate(uInfo, NULL)) {
 			actions.push_back((*it)->action);
 		}
@@ -217,10 +237,24 @@ string MapActionLookupCache::to_str(const vector<Action> &actions) {
 	return name;
 }
 
+bool IgnoreLookupCache::make_cached_T(UnitItemInfo *uInfo) {
+	for (vector<Rule*>::const_iterator it = this->RuleList.begin(); it != this->RuleList.end(); it++) {
+		if ((*it)->Evaluate(uInfo, NULL)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+string IgnoreLookupCache::to_str(const bool &ignore) {
+	return ignore ? "blocked" : "not blocked";
+}
+
 // least recently used cache for storing a limited number of item names
-ItemDescLookupCache item_desc_cache(RuleList);
-ItemNameLookupCache item_name_cache(RuleList);
+ItemDescLookupCache item_desc_cache(DescRuleList);
+ItemNameLookupCache item_name_cache(NameRuleList);
 MapActionLookupCache map_action_cache(MapRuleList);
+IgnoreLookupCache ignore_cache(IgnoreRuleList);
 
 void GetItemName(UnitItemInfo *uInfo, string &name) {
 	string new_name = item_name_cache.Get(uInfo, name);
@@ -386,6 +420,24 @@ bool IntegerCompare(unsigned int Lvalue, BYTE operation, unsigned int Rvalue) {
 	}
 }
 
+void removeSubstrs(string& s, const string& p) {
+	string::size_type n = p.length();
+	for (string::size_type i = s.find(p); i != string::npos; i = s.find(p))
+		s.erase(i, n);
+}
+
+std::string without_invis_chars(const std::string &name) {
+	string wo_invis_chars(name);
+	ColorReplace colors[] = {
+		MAP_COLOR_REPLACEMENTS
+	};
+	for (int n = 0; n < sizeof(colors) / sizeof(colors[0]); n++) {
+		removeSubstrs(wo_invis_chars, "%" + colors[n].key + "%");
+	}
+	removeSubstrs(wo_invis_chars, " ");
+	return wo_invis_chars;
+}
+
 namespace ItemDisplay {
 	bool item_display_initialized = false;
 	void InitializeItemRules() {
@@ -401,6 +453,7 @@ namespace ItemDisplay {
 		item_desc_cache.ResetCache();
 		item_name_cache.ResetCache();
 		map_action_cache.ResetCache();
+		ignore_cache.ResetCache();
 		BH::config->ReadMapList("ItemDisplay", rules);
 		for (unsigned int i = 0; i < rules.size(); i++) {
 			string buf;
@@ -418,14 +471,26 @@ namespace ItemDisplay {
 			Rule *r = new Rule(RawConditions, &(rules[i].second));
 
 			RuleList.push_back(r);
+			bool has_map_action = false;
+			bool has_desc = false;
+			bool has_name = false;
+			if (without_invis_chars(r->action.description).length() > 0) {
+				DescRuleList.push_back(r);
+				has_desc = true;
+			}
 			if (r->action.colorOnMap != UNDEFINED_COLOR ||
 					r->action.borderColor != UNDEFINED_COLOR ||
 					r->action.dotColor != UNDEFINED_COLOR ||
 					r->action.pxColor != UNDEFINED_COLOR ||
 					r->action.lineColor != UNDEFINED_COLOR) {
 				MapRuleList.push_back(r);
+				has_map_action = true;
 			}
-			else if (r->action.name.length() == 0) {
+			if (without_invis_chars(r->action.name).length() > 0) {
+				NameRuleList.push_back(r);
+				has_name = true;
+			}
+			if (!has_map_action && !has_name && !has_desc && r->action.stopProcessing) {
 				IgnoreRuleList.push_back(r);
 			}
 		}
@@ -446,7 +511,10 @@ namespace ItemDisplay {
 		item_desc_cache.ResetCache();
 		item_name_cache.ResetCache();
 		map_action_cache.ResetCache();
+		ignore_cache.ResetCache();
 		RuleList.clear();
+		NameRuleList.clear();
+		DescRuleList.clear();
 		MapRuleList.clear();
 		IgnoreRuleList.clear();
 	}
