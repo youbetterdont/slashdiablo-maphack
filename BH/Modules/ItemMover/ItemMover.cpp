@@ -586,11 +586,13 @@ void ItemMover::OnGamePacketRecv(BYTE* packet, bool* block) {
 
 					for (vector<Rule*>::iterator it = MapRuleList.begin(); it != MapRuleList.end(); it++) {
 						if ((*it)->Evaluate(NULL, &item)) {
-							color = (*it)->action.notifyColor;
+							auto action_color = (*it)->action.notifyColor;
+							// never overwrite color with an undefined color. never overwrite a defined color with dead color.
+							if (action_color != UNDEFINED_COLOR && (action_color != DEAD_COLOR || color == UNDEFINED_COLOR))
+								color = action_color;
 							showOnMap = true;
-							// if we leave this break here, we can't set notify colors as nicely
-							// for multiline 'building' configs
-							/* break; */
+							// break unless %CONTINUE% is used
+							if ((*it)->action.stopProcessing) break;
 						}
 					}
 					//PrintText(1, "Item on ground: %s, %s, %s, %X", item.name.c_str(), item.code, item.attrs->category.c_str(), item.attrs->flags);
