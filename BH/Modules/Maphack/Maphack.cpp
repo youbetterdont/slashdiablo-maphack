@@ -350,12 +350,17 @@ void Maphack::OnDraw() {
 				uInfo.itemCode[3] = 0;
 				if (ItemAttributeMap.find(uInfo.itemCode) != ItemAttributeMap.end()) {
 					uInfo.attrs = ItemAttributeMap[uInfo.itemCode];
-					for (vector<Rule*>::iterator it = MapRuleList.begin(); it != MapRuleList.end(); it++) {
-						if ((*it)->Evaluate(&uInfo, NULL)) {
+					vector<Action> actions = map_action_cache.Get(&uInfo);
+					for (auto &action : actions) {
+						if (action.colorOnMap != UNDEFINED_COLOR ||
+								action.borderColor != UNDEFINED_COLOR ||
+								action.dotColor != UNDEFINED_COLOR ||
+								action.pxColor != UNDEFINED_COLOR ||
+								action.lineColor != UNDEFINED_COLOR) { // has map action
 							unit->dwFlags |= UNITFLAG_REVEALED;
 							if ((*BH::MiscToggles2)["Item Detailed Notifications"].state
 							  && ((*BH::MiscToggles2)["Item Close Notifications"].state || (dwFlags & ITEMFLAG_NEW))
-							  && (*it)->action.notifyColor != DEAD_COLOR) {
+							  && action.notifyColor != DEAD_COLOR) {
 								std::string itemName = GetItemName(unit);
 								size_t start_pos = 0;
 								while ((start_pos = itemName.find('\n', start_pos)) != std::string::npos) {
@@ -366,6 +371,7 @@ void Maphack::OnDraw() {
 								//PrintText(ItemColorFromQuality(unit->pItemData->dwQuality), "%s %x", itemName.c_str(), dwFlags);
 								break;
 							}
+
 						}
 					}
 				}
