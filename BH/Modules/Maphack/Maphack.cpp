@@ -341,6 +341,7 @@ void Maphack::OnDraw() {
 	for (Room1* room1 = player->pAct->pRoom1; room1; room1 = room1->pRoomNext) {
 		for (UnitAny* unit = room1->pUnitFirst; unit; unit = unit->pListNext) {
 			if (unit->dwType == UNIT_ITEM && (unit->dwFlags & UNITFLAG_NO_EXPERIENCE) == 0x0) {
+				DWORD dwFlags = unit->pItemData->dwFlags;
 				UnitItemInfo uInfo;
 				uInfo.item = unit;
 				uInfo.itemCode[0] = D2COMMON_GetItemText(unit->dwTxtFileNo)->szCode[0];
@@ -353,6 +354,7 @@ void Maphack::OnDraw() {
 						if ((*it)->Evaluate(&uInfo, NULL)) {
 							if ((unit->dwFlags & UNITFLAG_REVEALED) == 0x0
 								 && (*BH::MiscToggles2)["Item Detailed Notifications"].state) {
+								if ((*BH::MiscToggles2)["Item Close Notifications"].state || (dwFlags & ITEMFLAG_NEW)) {
 									std::string itemName = GetItemName(unit);
 									size_t start_pos = 0;
 									while ((start_pos = itemName.find('\n', start_pos)) != std::string::npos) {
@@ -360,6 +362,8 @@ void Maphack::OnDraw() {
 										start_pos += 3;
 									}
 									PrintText(ItemColorFromQuality(unit->pItemData->dwQuality), "%s", itemName.c_str());
+									//PrintText(ItemColorFromQuality(unit->pItemData->dwQuality), "%s %x", itemName.c_str(), dwFlags);
+								}
 							}
 							unit->dwFlags |= UNITFLAG_REVEALED;
 							break;
