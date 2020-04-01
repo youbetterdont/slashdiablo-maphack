@@ -352,21 +352,20 @@ void Maphack::OnDraw() {
 					uInfo.attrs = ItemAttributeMap[uInfo.itemCode];
 					for (vector<Rule*>::iterator it = MapRuleList.begin(); it != MapRuleList.end(); it++) {
 						if ((*it)->Evaluate(&uInfo, NULL)) {
-							if ((unit->dwFlags & UNITFLAG_REVEALED) == 0x0
-								 && (*BH::MiscToggles2)["Item Detailed Notifications"].state) {
-								if ((*BH::MiscToggles2)["Item Close Notifications"].state || (dwFlags & ITEMFLAG_NEW)) {
-									std::string itemName = GetItemName(unit);
-									size_t start_pos = 0;
-									while ((start_pos = itemName.find('\n', start_pos)) != std::string::npos) {
-										itemName.replace(start_pos, 1, " - ");
-										start_pos += 3;
-									}
-									PrintText(ItemColorFromQuality(unit->pItemData->dwQuality), "%s", itemName.c_str());
-									//PrintText(ItemColorFromQuality(unit->pItemData->dwQuality), "%s %x", itemName.c_str(), dwFlags);
-								}
-							}
 							unit->dwFlags |= UNITFLAG_REVEALED;
-							break;
+							if ((*BH::MiscToggles2)["Item Detailed Notifications"].state
+							  && ((*BH::MiscToggles2)["Item Close Notifications"].state || (dwFlags & ITEMFLAG_NEW))
+							  && (*it)->action.notifyColor != DEAD_COLOR) {
+								std::string itemName = GetItemName(unit);
+								size_t start_pos = 0;
+								while ((start_pos = itemName.find('\n', start_pos)) != std::string::npos) {
+									itemName.replace(start_pos, 1, " - ");
+									start_pos += 3;
+								}
+								PrintText(ItemColorFromQuality(unit->pItemData->dwQuality), "%s", itemName.c_str());
+								//PrintText(ItemColorFromQuality(unit->pItemData->dwQuality), "%s %x", itemName.c_str(), dwFlags);
+								break;
+							}
 						}
 					}
 				}
