@@ -4044,7 +4044,7 @@ enum D2ClassicStrings : unsigned short {
 	D2STR_NOWAYPOINTS = 3991,	// No Other Waypoints Activated
 	D2STR_MAX = 3992,	// MAX
 	D2STR_MAX2 = 3993,	// MAX
-	D2STR_COLORCODE = 3994,	// ÿc
+	D2STR_COLORCODE = 3994,	// ÿc - also "\377c"
 	D2STR_SPACE = 3995,	//  
 	D2STR_DASH = 3996,	// -
 	D2STR_COLON = 3997,	// :

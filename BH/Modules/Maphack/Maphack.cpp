@@ -20,6 +20,7 @@ Patch* infraPatch = new Patch(Call, D2CLIENT, { 0x66623, 0xB4A23 }, (int)Infravi
 Patch* shakePatch = new Patch(Call, D2CLIENT, { 0x442A2, 0x452F2 }, (int)Shake_Interception, 5);
 Patch* monsterNamePatch = new Patch(Call, D2WIN, { 0x13550, 0x140E0 }, (int)HoverObject_Interception, 5);
 Patch* cpuPatch = new Patch(NOP, D2CLIENT, { 0x3CB7C, 0x2770C }, 0, 9);
+Patch* fpsPatch = new Patch(NOP, D2CLIENT, { 0x44E51, 0x45EA1 }, 0, 8);
 
 DrawDirective automapDraw(true, 5);
 
@@ -61,18 +62,18 @@ void Maphack::ReadConfig() {
 	BH::config->ReadAssoc("Missile Color", missileColors);
 	BH::config->ReadAssoc("Monster Color", monsterColors);
 
-	TextColorMap["ÿc0"] = 0x20;  // white
-	TextColorMap["ÿc1"] = 0x0A;  // red
-	TextColorMap["ÿc2"] = 0x84;  // green
-	TextColorMap["ÿc3"] = 0x97;  // blue
-	TextColorMap["ÿc4"] = 0x0D;  // gold
-	TextColorMap["ÿc5"] = 0xD0;  // gray
-	TextColorMap["ÿc6"] = 0x00;  // black
-	TextColorMap["ÿc7"] = 0x5A;  // tan
-	TextColorMap["ÿc8"] = 0x60;  // orange
-	TextColorMap["ÿc9"] = 0x0C;  // yellow
-	TextColorMap["ÿc;"] = 0x9B;  // purple
-	TextColorMap["ÿc:"] = 0x76;  // dark green
+	TextColorMap["\377c0"] = 0x20;  // white
+	TextColorMap["\377c1"] = 0x0A;  // red
+	TextColorMap["\377c2"] = 0x84;  // green
+	TextColorMap["\377c3"] = 0x97;  // blue
+	TextColorMap["\377c4"] = 0x0D;  // gold
+	TextColorMap["\377c5"] = 0xD0;  // gray
+	TextColorMap["\377c6"] = 0x00;  // black
+	TextColorMap["\377c7"] = 0x5A;  // tan
+	TextColorMap["\377c8"] = 0x60;  // orange
+	TextColorMap["\377c9"] = 0x0C;  // yellow
+	TextColorMap["\377c;"] = 0x9B;  // purple
+	TextColorMap["\377c:"] = 0x76;  // dark green
 
 	BH::config->ReadAssoc("Monster Color", MonsterColors);
 	for (auto it = MonsterColors.cbegin(); it != MonsterColors.cend(); it++) {
@@ -80,7 +81,7 @@ void Maphack::ReadConfig() {
 		int monsterId = -1;
 		stringstream ss((*it).first);
 		if ((ss >> monsterId).fail()) {
-			++it;
+			continue;
 		} else {
 			int monsterColor = StringToNumber((*it).second);
 			automapMonsterColors[monsterId] = monsterColor;
@@ -94,7 +95,7 @@ void Maphack::ReadConfig() {
 		int monsterId = -1;
 		stringstream ss((*it).first);
 		if ((ss >> monsterId).fail()) {
-			++it;
+			continue;
 		} else {
 			int lineColor = StringToNumber((*it).second);
 			automapMonsterLines[monsterId] = lineColor;
@@ -107,7 +108,7 @@ void Maphack::ReadConfig() {
 		int monsterId = -1;
 		stringstream ss((*it).first);
 		if ((ss >> monsterId).fail()) {
-			++it;
+			continue;
 		} else {
 			automapHiddenMonsters.push_back(monsterId);
 		}
@@ -125,6 +126,7 @@ void Maphack::ReadConfig() {
 	BH::config->ReadToggle("Monster Resistances", "None", true, Toggles["Monster Resistances"]);
 	BH::config->ReadToggle("Monster Enchantments", "None", true, Toggles["Monster Enchantments"]);
 	BH::config->ReadToggle("Apply CPU Patch", "None", true, Toggles["Apply CPU Patch"]);
+	BH::config->ReadToggle("Apply FPS Patch", "None", true, Toggles["Apply FPS Patch"]);
 
 	BH::config->ReadInt("Minimap Max Ghost", automapDraw.maxGhost);
 }
@@ -171,6 +173,11 @@ void Maphack::ResetPatches() {
 		cpuPatch->Install();
 	else
 		cpuPatch->Remove();
+
+	if (Toggles["Apply FPS Patch"].state)
+		fpsPatch->Install();
+	else
+		fpsPatch->Remove();
 }
 
 void Maphack::OnLoad() {
@@ -182,55 +189,60 @@ void Maphack::OnLoad() {
 
 	new Texthook(settingsTab, 80, 3, "Toggles");
 	unsigned int Y = 0;
+	int keyhook_x = 150;
+	int col2_x = 250;
 	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Auto Reveal"].state, "Auto Reveal");
-	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Auto Reveal"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, (Y + 2), &Toggles["Auto Reveal"].toggle, "");
 
 	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Show Monsters"].state, "Show Monsters");
-	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Show Monsters"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, (Y + 2), &Toggles["Show Monsters"].toggle, "");
 
 	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Monster Enchantments"].state, "  Enchantments");
-	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Monster Enchantments"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, (Y + 2), &Toggles["Monster Enchantments"].toggle, "");
 
 	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Monster Resistances"].state, "  Resistances");
-	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Monster Resistances"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, (Y + 2), &Toggles["Monster Resistances"].toggle, "");
 	
 	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Show Missiles"].state, "Show Missiles");
-	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Show Missiles"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, (Y + 2), &Toggles["Show Missiles"].toggle, "");
 
 	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Show Chests"].state, "Show Chests");
-	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Show Chests"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, (Y + 2), &Toggles["Show Chests"].toggle, "");
 
 	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Force Light Radius"].state, "Light Radius");
-	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Force Light Radius"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, (Y + 2), &Toggles["Force Light Radius"].toggle, "");
 
 	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Remove Weather"].state, "Remove Weather");
-	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Remove Weather"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, (Y + 2), &Toggles["Remove Weather"].toggle, "");
 
 	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Infravision"].state, "Infravision");
-	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Infravision"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, (Y + 2), &Toggles["Infravision"].toggle, "");
 
 	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Remove Shake"].state, "Remove Shake");
-	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Remove Shake"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, (Y + 2), &Toggles["Remove Shake"].toggle, "");
 
 	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Display Level Names"].state, "Level Names");
-	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Display Level Names"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, (Y + 2), &Toggles["Display Level Names"].toggle, "");
 
 	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Apply CPU Patch"].state, "CPU Patch");
-	new Keyhook(settingsTab, 130, (Y + 2), &Toggles["Apply CPU Patch"].toggle, "");
+	new Keyhook(settingsTab, keyhook_x, (Y + 2), &Toggles["Apply CPU Patch"].toggle, "");
 
-	new Texthook(settingsTab, 215, 3, "Missile Colors");
+	new Checkhook(settingsTab, 4, (Y += 15), &Toggles["Apply FPS Patch"].state, "FPS Patch (SP Only)");
+	new Keyhook(settingsTab, keyhook_x, (Y + 2), &Toggles["Apply FPS Patch"].toggle, "");
 
-	new Colorhook(settingsTab, 210, 17, &missileColors["Player"], "Player");
-	new Colorhook(settingsTab, 210, 32, &missileColors["Neutral"], "Neutral");
-	new Colorhook(settingsTab, 210, 47, &missileColors["Party"], "Party");
-	new Colorhook(settingsTab, 210, 62, &missileColors["Hostile"], "Hostile");
+	new Texthook(settingsTab, col2_x + 5, 3, "Missile Colors");
 
-	new Texthook(settingsTab, 215, 77, "Monster Colors");
+	new Colorhook(settingsTab, col2_x, 17, &missileColors["Player"], "Player");
+	new Colorhook(settingsTab, col2_x, 32, &missileColors["Neutral"], "Neutral");
+	new Colorhook(settingsTab, col2_x, 47, &missileColors["Party"], "Party");
+	new Colorhook(settingsTab, col2_x, 62, &missileColors["Hostile"], "Hostile");
 
-	new Colorhook(settingsTab, 210, 92, &monsterColors["Normal"], "Normal");
-	new Colorhook(settingsTab, 210, 107, &monsterColors["Minion"], "Minion");
-	new Colorhook(settingsTab, 210, 122, &monsterColors["Champion"], "Champion");
-	new Colorhook(settingsTab, 210, 137, &monsterColors["Boss"], "Boss");
+	new Texthook(settingsTab, col2_x + 5, 77, "Monster Colors");
+
+	new Colorhook(settingsTab, col2_x, 92, &monsterColors["Normal"], "Normal");
+	new Colorhook(settingsTab, col2_x, 107, &monsterColors["Minion"], "Minion");
+	new Colorhook(settingsTab, col2_x, 122, &monsterColors["Champion"], "Champion");
+	new Colorhook(settingsTab, col2_x, 137, &monsterColors["Boss"], "Boss");
 
 	new Texthook(settingsTab, 6, (Y += 15), "Reveal Type:");
 
@@ -418,8 +430,8 @@ void Maphack::OnAutomapDraw() {
 					}
 
 					//Determine immunities
-					string szImmunities[] = { "ÿc7i", "ÿc8i", "ÿc1i", "ÿc9i", "ÿc3i", "ÿc2i" };
-					string szResistances[] = { "ÿc7r", "ÿc8r", "ÿc1r", "ÿc9r", "ÿc3r", "ÿc2r" };
+					string szImmunities[] = { "\377c7i", "\377c8i", "\377c1i", "\377c9i", "\377c3i", "\377c2i" };
+					string szResistances[] = { "\377c7r", "\377c8r", "\377c1r", "\377c9r", "\377c3r", "\377c2r" };
 					DWORD dwImmunities[] = {
 						STAT_DMGREDUCTIONPCT,
 						STAT_MAGICDMGREDUCTIONPCT,
@@ -442,7 +454,7 @@ void Maphack::OnAutomapDraw() {
 					//Determine Enchantments
 					string enchantText;
 					if (Toggles["Monster Enchantments"].state) {
-						string szEnchantments[] = {"ÿc3m", "ÿc1e", "ÿc9e", "ÿc3e"};						
+						string szEnchantments[] = {"\377c3m", "\377c1e", "\377c9e", "\377c3e"};						
 						
 						for (int n = 0; n < 9; n++) {
 							if (unit->pMonsterData->fBoss) {
@@ -512,32 +524,32 @@ void Maphack::OnAutomapDraw() {
 					uInfo.itemCode[3] = 0;
 					if (ItemAttributeMap.find(uInfo.itemCode) != ItemAttributeMap.end()) {
 						uInfo.attrs = ItemAttributeMap[uInfo.itemCode];
-						for (vector<Rule*>::iterator it = MapRuleList.begin(); it != MapRuleList.end(); it++) {
-							if ((*it)->Evaluate(&uInfo, NULL)) {
-								auto color = (*it)->action.colorOnMap;
-								auto borderColor = (*it)->action.borderColor;
-								auto dotColor = (*it)->action.dotColor;
-								auto pxColor = (*it)->action.pxColor;
-								auto lineColor = (*it)->action.lineColor;
-								xPos = unit->pItemPath->dwPosX;
-								yPos = unit->pItemPath->dwPosY;
-								automapBuffer.push_top_layer(
-										[color, unit, xPos, yPos, MyPos, borderColor, dotColor, pxColor, lineColor]()->void{
-									POINT automapLoc;
-									Drawing::Hook::ScreenToAutomap(&automapLoc, xPos, yPos);
-									if (borderColor != UNDEFINED_COLOR)
-										Drawing::Boxhook::Draw(automapLoc.x - 4, automapLoc.y - 4, 8, 8, borderColor, Drawing::BTHighlight);
-									if (color != UNDEFINED_COLOR)
-										Drawing::Boxhook::Draw(automapLoc.x - 3, automapLoc.y - 3, 6, 6, color, Drawing::BTHighlight);
-									if (dotColor != UNDEFINED_COLOR)
-										Drawing::Boxhook::Draw(automapLoc.x - 2, automapLoc.y - 2, 4, 4, dotColor, Drawing::BTHighlight);
-									if (pxColor != UNDEFINED_COLOR)
-										Drawing::Boxhook::Draw(automapLoc.x - 1, automapLoc.y - 1, 2, 2, pxColor, Drawing::BTHighlight);
-									if (lineColor != UNDEFINED_COLOR) {
-										Drawing::Linehook::Draw(MyPos.x, MyPos.y, automapLoc.x, automapLoc.y, lineColor);
-									}
-								});
-							}
+						const vector<Action> actions = map_action_cache.Get(&uInfo);
+						for (auto &action : actions) {
+							auto color = action.colorOnMap;
+							auto borderColor = action.borderColor;
+							auto dotColor = action.dotColor;
+							auto pxColor = action.pxColor;
+							auto lineColor = action.lineColor;
+							xPos = unit->pItemPath->dwPosX;
+							yPos = unit->pItemPath->dwPosY;
+							automapBuffer.push_top_layer(
+									[color, unit, xPos, yPos, MyPos, borderColor, dotColor, pxColor, lineColor]()->void{
+								POINT automapLoc;
+								Drawing::Hook::ScreenToAutomap(&automapLoc, xPos, yPos);
+								if (borderColor != UNDEFINED_COLOR)
+									Drawing::Boxhook::Draw(automapLoc.x - 4, automapLoc.y - 4, 8, 8, borderColor, Drawing::BTHighlight);
+								if (color != UNDEFINED_COLOR)
+									Drawing::Boxhook::Draw(automapLoc.x - 3, automapLoc.y - 3, 6, 6, color, Drawing::BTHighlight);
+								if (dotColor != UNDEFINED_COLOR)
+									Drawing::Boxhook::Draw(automapLoc.x - 2, automapLoc.y - 2, 4, 4, dotColor, Drawing::BTHighlight);
+								if (pxColor != UNDEFINED_COLOR)
+									Drawing::Boxhook::Draw(automapLoc.x - 1, automapLoc.y - 1, 2, 2, pxColor, Drawing::BTHighlight);
+								if (lineColor != UNDEFINED_COLOR) {
+									Drawing::Linehook::Draw(MyPos.x, MyPos.y, automapLoc.x, automapLoc.y, lineColor);
+								}
+							});
+							if (action.stopProcessing) break;
 						}
 					}
 					else {
@@ -576,7 +588,7 @@ void Maphack::OnAutomapDraw() {
 			return;
 		for (list<LevelList*>::iterator it = automapLevels.begin(); it != automapLevels.end(); it++) {
 			if (player->pAct->dwAct == (*it)->act) {
-				string tombStar = ((*it)->levelId == player->pAct->pMisc->dwStaffTombLevel) ? "ÿc2*" : "ÿc4";
+				string tombStar = ((*it)->levelId == player->pAct->pMisc->dwStaffTombLevel) ? "\377c2*" : "\377c4";
 				POINT unitLoc;
 				Hook::ScreenToAutomap(&unitLoc, (*it)->x, (*it)->y);
 				char* name = UnicodeToAnsi(D2CLIENT_GetLevelName((*it)->levelId));
@@ -660,13 +672,13 @@ void Maphack::OnGamePacketRecv(BYTE *packet, bool *block) {
 			//	if(packet[6+(packet[0]-0xa7)] == 100) {
 			//		UnitAny* pUnit = D2CLIENT_FindServerSideUnit(*(DWORD*)&packet[2], 0);
 			//		if(pUnit)
-			//			PrintText(1, "Alert: ÿc4Player ÿc2%s ÿc4drank a ÿc1Health ÿc4potion!", pUnit->pPlayerData->szName);
+			//			PrintText(1, "Alert: \377c4Player \377c2%s \377c4drank a \377c1Health \377c4potion!", pUnit->pPlayerData->szName);
 			//	} else if (packet[6+(packet[0]-0xa7)] == 105) {
 			//		UnitAny* pUnit = D2CLIENT_FindServerSideUnit(*(DWORD*)&packet[2], 0);
 			//		if(pUnit)
 			//			if(pUnit->dwTxtFileNo == 1)
 			//				if(D2COMMON_GetUnitState(pUnit, 30))
-			//					PrintText(1, "Alert: ÿc4ES Sorc ÿc2%s ÿc4drank a ÿc3Mana ÿc4Potion!", pUnit->pPlayerData->szName);
+			//					PrintText(1, "Alert: \377c4ES Sorc \377c2%s \377c4drank a \377c3Mana \377c4Potion!", pUnit->pPlayerData->szName);
 			//	} else if (packet[6+(packet[0]-0xa7)] == 102) {//remove portal delay
 			//		*block = true;
 			//	}
@@ -927,8 +939,8 @@ int HoverObjectPatch(UnitAny* pUnit, DWORD tY, DWORD unk1, DWORD unk2, DWORD tX,
 	POINT p = Texthook::GetTextSize(wTxt, 1);
 	int center = tX + (p.x / 2);
 	int y = tY - p.y;
-	Texthook::Draw(center, y - 12, Center, 6, White, L"ÿc7%d ÿc8%d ÿc1%d ÿc9%d ÿc3%d ÿc2%d", dwResistances[0], dwResistances[1], dwResistances[2], dwResistances[3], dwResistances[4], dwResistances[5]);
-	Texthook::Draw(center, y, Center, 6, White, L"ÿc%d%s", HoverMonsterColor(pUnit), wTxt);
+	Texthook::Draw(center, y - 12, Center, 6, White, L"\377c7%d \377c8%d \377c1%d \377c9%d \377c3%d \377c2%d", dwResistances[0], dwResistances[1], dwResistances[2], dwResistances[3], dwResistances[4], dwResistances[5]);
+	Texthook::Draw(center, y, Center, 6, White, L"\377c%d%s", HoverMonsterColor(pUnit), wTxt);
 	Texthook::Draw(center, y + 8, Center, 6, White, L"%.0f%%", (hp / maxhp) * 100.0);
 	return 1;
 }

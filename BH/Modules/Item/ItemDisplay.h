@@ -6,6 +6,7 @@
 #include "../../BH.h"
 #include <cstdlib>
 #include <regex>
+#include "../../RuleLookupCache.h"
 
 #define EXCEPTION_INVALID_STAT			1
 #define EXCEPTION_INVALID_OPERATION		2
@@ -312,6 +313,17 @@ private:
 	bool EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2);
 };
 
+class QualityLevelCondition : public Condition
+{
+public:
+	QualityLevelCondition(BYTE op, BYTE qlvl) : qualityLevel(qlvl), operation(op) { conditionType = CT_Operand; };
+private:
+	BYTE operation;
+	BYTE qualityLevel;
+	bool EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2);
+	bool EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2);
+};
+
 class AffixLevelCondition : public Condition
 {
 public:
@@ -363,6 +375,18 @@ public:
 private:
 	BYTE operation;
 	unsigned int targetDurability;
+	bool EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2);
+	bool EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2);
+};
+
+class ChargedCondition : public Condition
+{
+public:
+	ChargedCondition(BYTE op, unsigned int sk, unsigned int target) : operation(op), skill(sk), targetLevel(target) { conditionType = CT_Operand; };
+private:
+	BYTE operation;
+	unsigned int skill;
+	unsigned int targetLevel;
 	bool EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2);
 	bool EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2);
 };
@@ -520,7 +544,11 @@ struct Action {
 struct Rule {
 	vector<Condition*> conditions;
 	Action action;
+	vector<Condition*> conditionStack;
 
+	Rule(vector<Condition*> &inputConditions, string *str);
+
+	// TODO: Should this really be defined in the header? This will force it to be inlined AFAIK. -ybd
 	// Evaluate conditions which are in Reverse Polish Notation
 	bool Evaluate(UnitItemInfo *uInfo, ItemInfo *info) {
 		if (conditions.size() == 0) {
@@ -529,7 +557,12 @@ struct Rule {
 
 		bool retval;
 		try {
-			vector<Condition*> conditionStack;
+			// conditionStack was previously declared on the stack within this function. This caused
+			// excessive allocaiton calls and was limiting the speed of the item display (causing
+			// frame rate drops with complex item displays while ALT was held down). Moving this vector
+			// to the object level, preallocating size, and using the resize(0) method to clear avoids
+			// excessive reallocation.
+			conditionStack.resize(0); 
 			for (unsigned int i = 0; i < conditions.size(); i++) {
 				Condition *input = conditions[i];
 				if (input->conditionType == CT_Operand) {
@@ -567,10 +600,30 @@ struct Rule {
 	}
 };
 
+class ItemNameLookupCache : public RuleLookupCache<string, const string &> {
+	string make_cached_T(UnitItemInfo *uInfo, const string &name) override;
+	string to_str(const string &name) override;
+
+		public:
+		ItemNameLookupCache(const std::vector<Rule*> &RuleList) :
+			RuleLookupCache<string, const string&>(RuleList) {}
+};
+
+class MapActionLookupCache : public RuleLookupCache<vector<Action>> {
+	vector<Action> make_cached_T(UnitItemInfo *uInfo) override;
+	string to_str(const vector<Action> &actions);
+
+		public:
+		MapActionLookupCache(const std::vector<Rule*> &RuleList) :
+			RuleLookupCache<vector<Action>>(RuleList) {}
+};
+
 extern vector<Rule*> RuleList;
 extern vector<Rule*> MapRuleList;
 extern vector<Rule*> IgnoreRuleList;
 extern vector<pair<string, string>> rules;
+extern ItemNameLookupCache item_name_cache;
+extern MapActionLookupCache map_action_cache;
 
 namespace ItemDisplay {
 	void InitializeItemRules();

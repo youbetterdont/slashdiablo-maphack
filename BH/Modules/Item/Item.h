@@ -67,6 +67,8 @@ class Item : public Module {
 		void LoadConfig();
 		void DrawSettings();
 
+		void OnGameJoin();
+
 		void OnLoop();
 		void OnKey(bool up, BYTE key, LPARAM lParam, bool* block);
 		void OnLeftClick(bool up, int x, int y, bool* block);

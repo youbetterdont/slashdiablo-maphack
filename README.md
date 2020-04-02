@@ -63,6 +63,32 @@ Mustache[header]: {{>header-unique}}{{>header-magic}}{{>header-else}}{{#count}} 
 Mustache[item]: {{>header}}{{>stats}}{{^isRuneword}}{{#socketed}}\n\n  * {{>>item}}{{/socketed}}{{/isRuneword}}\n
 Mustache[stash]: {{#this}}* {{>item}}\n\n{{/this}}
 ```
+# Release Notes for 1.9.8
+## Bug fixes
+* `BOW` and `SCEPTER` item groups now work correctly
+* `UI.ini` file frequent file write issue fixed
+* Fixed an issue where the ebug tag was applied to eth items that spawned with ED.
+* Fixed issue where multiple parties were formed upon game creation. [more info](https://github.com/planqi/slashdiablo-maphack/pull/44)
+* Require `%CONTINUE%` to be used to continue processing map commands from different lines. This makes the map commands behave identically to the name commands. Before, all matching `%MAP%` commands were applied regardless of `%CONTINUE%`, so the last matching one would be shown (last one drawn). [more info](https://github.com/planqi/slashdiablo-maphack/pull/42)
+
+## Optimization
+* Item name lookup code efficiency improved.
+* Item names are cached, so that the lookup code does not need to constantly execute.
+* Item map box colors are cached, ditto ^^
+
+## New features
+* Added support for filtering on charged skills. Use the `CHSK` keyword. For example, to find level 2 lower resist wands, use `WAND MAG CHSK91>1` as the filter criteria. The skill index is the same as that used for individual skill bonuses. [more info](https://github.com/planqi/slashdiablo-maphack/pull/33)
+* Add support for filters based on item quality level. Use the `QLVL` keyword. For example, `SIN QLVL>40` would select all katars capable of spawning staffmods.
+* Added `CRAFT` keyword for selecting crafted items. This works similar to `UNI`, `SET`, etc.
+* Add option to remove FPS limit in single player
+* Add support for 'gs5' display in game list
+
+# Release Notes for 1.9.7
+* Add scrollbar when there are more than 8 characters on a realm account
+* Support displaying classic stat ranges
+* Open mpq in readonly mode instead of making a copy (faster load time)
+* Add option to see game difficulty and server in game list
+
 # Release Notes for 1.9.6
 * Fix cpu-overutilization toggle issue
 
@@ -590,3 +616,9 @@ Which renders as:
 * Chipped Ruby (L1) **x8**
 
 * Flawed Emerald (L1) **x7**
+
+# Building
+
+To build with CMake, first install "Visual Studio Build Tools 2017" and a version of CMake>=3.7. Visual Studio Build Tools comes with a "Developer Command Prompt" that sets up the path with the right compilers and build tools. Next, create a build directory within the project root directory and make it the current working directory. Then, run the command `cmake -G"Visual Studio 15 2017" -DBUILD_SHARED_LIBS=TRUE -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE ..` (save this command as a bat script if you like). This will create all necessary build files. Next, run `cmake --build . --config Release` to build the project.
+
+To enable multi-processor support when buildling, set the CXXFLAGS environment variable with `set CXXFLAGS=/MP` prior to running the cmake command above.

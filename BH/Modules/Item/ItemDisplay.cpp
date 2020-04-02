@@ -151,15 +151,55 @@ BYTE RuneNumberFromItemCode(char *code){
 	return (BYTE)(((code[1] - '0') * 10) + code[2] - '0');
 }
 
-void GetItemName(UnitItemInfo *uInfo, string &name) {
-	for (vector<Rule*>::iterator it = RuleList.begin(); it != RuleList.end(); it++) {
+// Find the item name. This code is called only when there's a cache miss
+string ItemNameLookupCache::make_cached_T(UnitItemInfo *uInfo, const string &name) {
+	string new_name(name);
+	for (vector<Rule*>::const_iterator it = RuleList.begin(); it != RuleList.end(); it++) {
 		if ((*it)->Evaluate(uInfo, NULL)) {
-			SubstituteNameVariables(uInfo, name, &(*it)->action);
+			SubstituteNameVariables(uInfo, new_name, &(*it)->action);
 			if ((*it)->action.stopProcessing) {
 				break;
 			}
 		}
 	}
+	return new_name;
+}
+
+string ItemNameLookupCache::to_str(const string &name) {
+	size_t start_pos = 0;
+	std::string itemName(name);
+	while ((start_pos = itemName.find('\n', start_pos)) != std::string::npos) {
+		itemName.replace(start_pos, 1, " - ");
+		start_pos += 3;
+	}
+	return itemName;
+}
+
+vector<Action> MapActionLookupCache::make_cached_T(UnitItemInfo *uInfo) {
+	vector<Action> actions;
+	for (vector<Rule*>::const_iterator it = RuleList.begin(); it != RuleList.end(); it++) {
+		if ((*it)->Evaluate(uInfo, NULL)) {
+			actions.push_back((*it)->action);
+		}
+	}
+	return actions;
+}
+
+string MapActionLookupCache::to_str(const vector<Action> &actions) {
+	string name;
+	for (auto &action : actions) {
+		name += action.name + " ";
+	}
+	return name;
+}
+
+// least recently used cache for storing a limited number of item names
+ItemNameLookupCache item_name_cache(RuleList);
+MapActionLookupCache map_action_cache(MapRuleList);
+
+void GetItemName(UnitItemInfo *uInfo, string &name) {
+	string new_name = item_name_cache.Get(uInfo, name);
+	name.assign(new_name);
 }
 
 void SubstituteNameVariables(UnitItemInfo *uInfo, string &name, Action *action) {
@@ -333,6 +373,8 @@ namespace ItemDisplay {
 
 		item_display_initialized = true;
 		rules.clear();
+		item_name_cache.ResetCache();
+		map_action_cache.ResetCache();
 		BH::config->ReadMapList("ItemDisplay", rules);
 		for (unsigned int i = 0; i < rules.size(); i++) {
 			string buf;
@@ -343,13 +385,11 @@ namespace ItemDisplay {
 			}
 
 			LastConditionType = CT_None;
-			Rule *r = new Rule();
 			vector<Condition*> RawConditions;
 			for (vector<string>::iterator tok = tokens.begin(); tok < tokens.end(); tok++) {
 				Condition::BuildConditions(RawConditions, (*tok));
 			}
-			Condition::ProcessConditions(RawConditions, r->conditions);
-			BuildAction(&(rules[i].second), &(r->action));
+			Rule *r = new Rule(RawConditions, &(rules[i].second));
 
 			RuleList.push_back(r);
 			if (r->action.colorOnMap != UNDEFINED_COLOR ||
@@ -366,11 +406,29 @@ namespace ItemDisplay {
 	}
 
 	void UninitializeItemRules() {
+		// RuleList contains every created rule. MapRuleList and IgnoreRuleList have a subset of rules.
+		// Deleting objects in RuleList is sufficient.
+		if (item_display_initialized) {
+			for (Rule *r : RuleList) {
+				for (Condition *condition : r->conditions) {
+					delete condition;
+				}
+				delete r;
+			}
+		}
 		item_display_initialized = false;
+		item_name_cache.ResetCache();
+		map_action_cache.ResetCache();
 		RuleList.clear();
 		MapRuleList.clear();
 		IgnoreRuleList.clear();
 	}
+}
+
+Rule::Rule(vector<Condition*> &inputConditions, string *str) {
+	Condition::ProcessConditions(inputConditions, conditions);
+	BuildAction(str, &action);
+	conditionStack.reserve(conditions.size()); // TODO: too large?
 }
 
 void BuildAction(string *str, Action *act) {
@@ -581,6 +639,8 @@ void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 		Condition::AddOperand(conditions, new QualityCondition(ITEM_QUALITY_RARE));
 	} else if (key.compare(0, 3, "UNI") == 0) {
 		Condition::AddOperand(conditions, new QualityCondition(ITEM_QUALITY_UNIQUE));
+	} else if (key.compare(0, 5, "CRAFT") == 0) {
+		Condition::AddOperand(conditions, new QualityCondition(ITEM_QUALITY_CRAFT));
 	} else if (key.compare(0, 2, "RW") == 0) {
 		Condition::AddOperand(conditions, new FlagsCondition(ITEM_RUNEWORD));
 	} else if (key.compare(0, 4, "NMAG") == 0) {
@@ -599,6 +659,8 @@ void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 		Condition::AddOperand(conditions, new FlagsCondition(ITEM_IDENTIFIED));
 	} else if (key.compare(0, 4, "ILVL") == 0) {
 		Condition::AddOperand(conditions, new ItemLevelCondition(operation, value));
+	} else if (key.compare(0, 4, "QLVL") == 0) {
+		Condition::AddOperand(conditions, new QualityLevelCondition(operation, value));
 	} else if (key.compare(0, 4, "ALVL") == 0) {
 		Condition::AddOperand(conditions, new AffixLevelCondition(operation, value));
 	} else if (key.compare(0, 4, "CLVL") == 0) {
@@ -729,14 +791,14 @@ void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 	} else if (key.compare(0, 7, "POLEARM") == 0) {
 		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_POLEARM));
 	} else if (key.compare(0, 3, "BOW") == 0) {
-		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_BOOTS));
+		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_BOW));
 	} else if (key.compare(0, 4, "XBOW") == 0) {
 		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_CROSSBOW));
 	} else if (key.compare(0, 5, "STAFF") == 0) {
 		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_STAFF));
 	} else if (key.compare(0, 4, "WAND") == 0) {
 		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_WAND));
-	} else if (key.compare(0, 5, "SCEPTER") == 0) {
+	} else if (key.compare(0, 7, "SCEPTER") == 0) {
 		Condition::AddOperand(conditions, new ItemGroupCondition(ITEM_GROUP_SCEPTER));
 	} else if (key.compare(0, 2, "EQ") == 0 && keylen == 3) {
 		if (key[2] == '1') {
@@ -821,6 +883,13 @@ void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 			return;
 		}
 		Condition::AddOperand(conditions, new ItemStatCondition(STAT_NONCLASSSKILL, num, operation, value));
+	} else if (key.compare(0, 4, "CHSK") == 0) { // skills granted by charges
+		int num = -1;
+		stringstream ss(key.substr(4));
+		if ((ss >> num).fail() || num < 0 || num > (int)SKILL_MAX) {
+			return;
+		}
+		Condition::AddOperand(conditions, new ChargedCondition(operation, num, value));
 	} else if (key.compare(0, 4, "CLSK") == 0) {
 		int num = -1;
 		stringstream ss(key.substr(4));
@@ -1047,6 +1116,15 @@ bool ItemLevelCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *a
 	return IntegerCompare(info->level, operation, itemLevel);
 }
 
+bool QualityLevelCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
+	BYTE qlvl = uInfo->attrs->qualityLevel;
+	return IntegerCompare(qlvl, operation, qualityLevel);
+}
+bool QualityLevelCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2) {
+	int qlvl = info->attrs->qualityLevel;
+	return IntegerCompare(qlvl, operation, qualityLevel);
+}
+
 bool AffixLevelCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
 	BYTE qlvl = uInfo->attrs->qualityLevel;
 	BYTE alvl = GetAffixLevel((BYTE)uInfo->item->pItemData->dwItemLevel, (BYTE)uInfo->attrs->qualityLevel, uInfo->attrs->magicLevel);
@@ -1143,6 +1221,34 @@ bool DurabilityCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *
 		}
 	}
 	return IntegerCompare(value, operation, targetDurability);
+}
+
+bool ChargedCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
+	DWORD value = 0;
+	Stat aStatList[256] = { NULL };
+	StatList* pStatList = D2COMMON_GetStatList(uInfo->item, NULL, 0x40);
+	if (pStatList) {
+		DWORD dwStats = D2COMMON_CopyStatList(pStatList, (Stat*)aStatList, 256);
+		for (UINT i = 0; i < dwStats; i++) {
+			//if (aStatList[i].wStatIndex == STAT_CHARGED)
+			//	PrintText(1, "ChargedCondition::EvaluateInternal: Index=%hx, SubIndex=%hx, Value=%x", aStatList[i].wStatIndex, aStatList[i].wSubIndex, aStatList[i].dwStatValue);
+			if (aStatList[i].wStatIndex == STAT_CHARGED && (aStatList[i].wSubIndex>>6) == skill) { // 10 MSBs of subindex is the skill ID
+				unsigned int level = aStatList[i].wSubIndex & 0x3F; // 6 LSBs are the skill level
+				value = (level > value) ? level : value; // use highest level
+			}
+		}
+	}
+	return IntegerCompare(value, operation, targetLevel);
+}
+bool ChargedCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2) {
+	DWORD num = 0;
+	for (vector<ItemProperty>::iterator prop = info->properties.begin(); prop < info->properties.end(); prop++) {
+		if (prop->stat == STAT_CHARGED && prop->skill == skill) {
+			num = (prop->level > num) ? prop->level : num; // use the highest level charges for the comparison
+			//PrintText(1, "Found charged skill. skill=%u level=%u", prop->skill, prop->level);
+		}
+	}
+	return IntegerCompare(num, operation, targetLevel);
 }
 
 bool FoolsCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {

@@ -133,11 +133,13 @@ int StringToNumber(std::string str) {
 	return ret;
 }
 
+// This function prints at most 151 characters (152 including null)
+// TODO: Fix this so this limitation
 void PrintText(DWORD Color, char *szText, ...) {
 	char szBuffer[152] = {0};
 	va_list Args;
 	va_start(Args, szText);
-	vsprintf_s(szBuffer, 152, szText, Args);
+	vsnprintf_s(szBuffer, 152, _TRUNCATE, szText, Args);
 	va_end(Args); 
 	wchar_t Buffer[0x130];
 	MultiByteToWideChar(CODE_PAGE, 1, szBuffer, 152, Buffer, 304);

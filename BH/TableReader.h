@@ -64,3 +64,13 @@ public:
 
 	static bool isInitialized();
 };
+
+inline
+void Table::addEntry(JSONObject *entry){
+	data->add(entry);
+}
+
+inline
+JSONObject* Table::entryAt(int index){
+	return data->getObject(index);
+}

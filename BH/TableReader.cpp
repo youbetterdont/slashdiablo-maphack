@@ -201,11 +201,6 @@ bool TableReader::loadMPQData(std::string archiveName, Table &table)
 	return true;
 }
 
-inline
-void Table::addEntry(JSONObject *entry){
-	data->add(entry);
-}
-
 void Table::removeWhere(std::function<bool(JSONElement*)> predicate){
 	data->removeWhere(predicate);
 }
@@ -213,11 +208,6 @@ void Table::removeWhere(std::function<bool(JSONElement*)> predicate){
 Table::Table(std::string filePath) : data(new JSONArray()){
 	Table *_this = this;
 	TableReader::readTable(filePath, *_this);
-}
-
-inline
-JSONObject* Table::entryAt(int index){
-	return data->getObject(index);
 }
 
 bool Table::dump(std::string filePath){
