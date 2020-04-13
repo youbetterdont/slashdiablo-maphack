@@ -93,6 +93,7 @@ void Item::OnGameJoin() {
 	item_desc_cache.ResetCache();
 	item_name_cache.ResetCache();
 	map_action_cache.ResetCache();
+	do_not_block_cache.ResetCache();
 	ignore_cache.ResetCache();
 }
 

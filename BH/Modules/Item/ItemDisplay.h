@@ -648,6 +648,7 @@ extern vector<pair<string, string>> rules;
 extern ItemDescLookupCache item_desc_cache;
 extern ItemNameLookupCache item_name_cache;
 extern MapActionLookupCache map_action_cache;
+extern IgnoreLookupCache do_not_block_cache;
 extern IgnoreLookupCache ignore_cache;
 
 namespace ItemDisplay {

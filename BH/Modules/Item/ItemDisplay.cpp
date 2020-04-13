@@ -205,7 +205,8 @@ string ItemNameLookupCache::make_cached_T(UnitItemInfo *uInfo, const string &nam
 			}
 					
 		}
-		if (!has_map_action) return new_name + " [blocked]";
+		bool whitelisted = do_not_block_cache.Get(uInfo);
+		if (!has_map_action && !whitelisted) return new_name + " [blocked]";
 	}
 	return new_name;
 }
@@ -255,6 +256,7 @@ string IgnoreLookupCache::to_str(const bool &ignore) {
 ItemDescLookupCache item_desc_cache(DescRuleList);
 ItemNameLookupCache item_name_cache(NameRuleList);
 MapActionLookupCache map_action_cache(MapRuleList);
+IgnoreLookupCache do_not_block_cache(DoNotBlockRuleList);
 IgnoreLookupCache ignore_cache(IgnoreRuleList);
 
 void GetItemName(UnitItemInfo *uInfo, string &name) {
@@ -454,6 +456,7 @@ namespace ItemDisplay {
 		item_desc_cache.ResetCache();
 		item_name_cache.ResetCache();
 		map_action_cache.ResetCache();
+		do_not_block_cache.ResetCache();
 		ignore_cache.ResetCache();
 		BH::config->ReadMapList("ItemDisplay", rules);
 		for (unsigned int i = 0; i < rules.size(); i++) {
@@ -518,6 +521,7 @@ namespace ItemDisplay {
 		item_desc_cache.ResetCache();
 		item_name_cache.ResetCache();
 		map_action_cache.ResetCache();
+		do_not_block_cache.ResetCache();
 		ignore_cache.ResetCache();
 		RuleList.clear();
 		NameRuleList.clear();
