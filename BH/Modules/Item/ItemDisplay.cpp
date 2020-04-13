@@ -62,6 +62,7 @@ vector<Rule*> RuleList;
 vector<Rule*> NameRuleList;
 vector<Rule*> DescRuleList;
 vector<Rule*> MapRuleList;
+vector<Rule*> DoNotBlockRuleList;
 vector<Rule*> IgnoreRuleList;
 BYTE LastConditionType;
 
@@ -488,6 +489,12 @@ namespace ItemDisplay {
 			}
 			if (without_invis_chars(r->action.name).length() > 0) {
 				NameRuleList.push_back(r);
+				// this is a bit of a hack. the idea is not to block items that have a name specified. Items with a map action are
+				// already not blocked, so we make another rule list for those with a name and not a map action. Note the name must
+				// not use CONTINUE. If item display line uses continue, then the item can still be blocked by a matching ignore
+				// item display line.
+				if (r->action.stopProcessing && !has_map_action)
+					DoNotBlockRuleList.push_back(r); // if we have a non-blank name and no continue, we don't want to block
 				has_name = true;
 			}
 			if (!has_map_action && !has_name && !has_desc && r->action.stopProcessing) {
@@ -516,6 +523,7 @@ namespace ItemDisplay {
 		NameRuleList.clear();
 		DescRuleList.clear();
 		MapRuleList.clear();
+		DoNotBlockRuleList.clear();
 		IgnoreRuleList.clear();
 	}
 }

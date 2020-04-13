@@ -642,6 +642,7 @@ extern vector<Rule*> RuleList;
 extern vector<Rule*> NameRuleList;
 extern vector<Rule*> DescRuleList;
 extern vector<Rule*> MapRuleList;
+extern vector<Rule*> DoNotBlockRuleList;
 extern vector<Rule*> IgnoreRuleList;
 extern vector<pair<string, string>> rules;
 extern ItemDescLookupCache item_desc_cache;

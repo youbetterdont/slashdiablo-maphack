@@ -582,6 +582,7 @@ void ItemMover::OnGamePacketRecv(BYTE* packet, bool* block) {
 				//PrintText(1, "Item packet: %s, %s, %X, %d, %d", item.name.c_str(), item.code, item.attrs->flags, item.sockets, GetDefense(&item));
 				if ((item.action == ITEM_ACTION_NEW_GROUND || item.action == ITEM_ACTION_OLD_GROUND) && success) {
 					bool showOnMap = false;
+					bool nameWhitelisted = false;
 					auto color = UNDEFINED_COLOR;
 
 					for (vector<Rule*>::iterator it = MapRuleList.begin(); it != MapRuleList.end(); it++) {
@@ -591,6 +592,12 @@ void ItemMover::OnGamePacketRecv(BYTE* packet, bool* block) {
 							// if we leave this break here, we can't set notify colors as nicely
 							// for multiline 'building' configs
 							/* break; */
+						}
+					}
+					// Don't block items that have a white-listed name
+					for (vector<Rule*>::iterator it = DoNotBlockRuleList.begin(); it != DoNotBlockRuleList.end(); it++) {
+						if ((*it)->Evaluate(NULL, &item)) {
+							nameWhitelisted = true;
 						}
 					}
 					//PrintText(1, "Item on ground: %s, %s, %s, %X", item.name.c_str(), item.code, item.attrs->category.c_str(), item.attrs->flags);
@@ -617,7 +624,7 @@ void ItemMover::OnGamePacketRecv(BYTE* packet, bool* block) {
 									);
 						}
 					}
-					else if (!showOnMap) {
+					else if (!showOnMap && !nameWhitelisted) {
 						for (vector<Rule*>::iterator it = IgnoreRuleList.begin(); it != IgnoreRuleList.end(); it++) {
 							if ((*it)->Evaluate(NULL, &item)) {
 								*block = true;
