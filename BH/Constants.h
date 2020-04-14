@@ -1,6 +1,6 @@
 #pragma once
 
-#define BH_VERSION "BH 1.9.9-b5"
+#define BH_VERSION "BH 1.9.9-b6"
 
 #define CODE_PAGE 1252 // windows-1252	ANSI Latin 1; Western European (Windows)
 

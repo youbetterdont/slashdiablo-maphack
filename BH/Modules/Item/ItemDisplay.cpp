@@ -195,8 +195,6 @@ string ItemNameLookupCache::make_cached_T(UnitItemInfo *uInfo, const string &nam
 	if (blocked) {
 		bool has_map_action = false;
 		for (auto &action : actions) {
-			// Never set true if ping level requirement not met
-			if (action.pingLevel > Item::GetPingLevel()) continue;
 			if (action.colorOnMap != UNDEFINED_COLOR ||
 				action.borderColor != UNDEFINED_COLOR ||
 				action.dotColor != UNDEFINED_COLOR ||
