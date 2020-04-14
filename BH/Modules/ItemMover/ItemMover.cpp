@@ -591,11 +591,13 @@ void ItemMover::OnGamePacketRecv(BYTE* packet, bool* block) {
 							nameWhitelisted = true;
 							// skip map and notification if ping level requirement is not met
 							if ((*it)->action.pingLevel > Item::GetPingLevel()) continue;
-							color = (*it)->action.notifyColor;
+							auto action_color = (*it)->action.notifyColor;
+							// never overwrite color with an undefined color. never overwrite a defined color with dead color.
+							if (action_color != UNDEFINED_COLOR && (action_color != DEAD_COLOR || color == UNDEFINED_COLOR))
+								color = action_color;
 							showOnMap = true;
-							// if we leave this break here, we can't set notify colors as nicely
-							// for multiline 'building' configs
-							/* break; */
+							// break unless %CONTINUE% is used
+							if ((*it)->action.stopProcessing) break;
 						}
 					}
 					// Don't block items that have a white-listed name
