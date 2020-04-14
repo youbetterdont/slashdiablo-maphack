@@ -453,11 +453,7 @@ namespace ItemDisplay {
 
 		item_display_initialized = true;
 		rules.clear();
-		item_desc_cache.ResetCache();
-		item_name_cache.ResetCache();
-		map_action_cache.ResetCache();
-		do_not_block_cache.ResetCache();
-		ignore_cache.ResetCache();
+		ResetCaches();
 		BH::config->ReadMapList("ItemDisplay", rules);
 		for (unsigned int i = 0; i < rules.size(); i++) {
 			string buf;
@@ -518,11 +514,7 @@ namespace ItemDisplay {
 			}
 		}
 		item_display_initialized = false;
-		item_desc_cache.ResetCache();
-		item_name_cache.ResetCache();
-		map_action_cache.ResetCache();
-		do_not_block_cache.ResetCache();
-		ignore_cache.ResetCache();
+		ResetCaches();
 		RuleList.clear();
 		NameRuleList.clear();
 		DescRuleList.clear();
@@ -784,6 +776,8 @@ void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 		Condition::AddOperand(conditions, new AffixLevelCondition(operation, value));
 	} else if (key.compare(0, 4, "CLVL") == 0) {
 		Condition::AddOperand(conditions, new CharStatCondition(STAT_LEVEL, 0, operation, value));
+	} else if (key.compare(0, 7, "FILTLVL") == 0) {
+		Condition::AddOperand(conditions, new FilterLevelCondition(operation, value));
 	} else if (key.compare(0, 4, "DIFF") == 0) {
 		Condition::AddOperand(conditions, new DifficultyCondition(operation, value));
 	} else if (key.compare(0, 4, "RUNE") == 0) {
@@ -1472,6 +1466,13 @@ bool DifficultyCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1,
 }
 bool DifficultyCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2) {
 	return IntegerCompare(D2CLIENT_GetDifficulty(), operation, targetDiff);
+}
+
+bool FilterLevelCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
+	return IntegerCompare(Item::GetFilterLevel(), operation, filterLevel);
+}
+bool FilterLevelCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2) {
+	return IntegerCompare(Item::GetFilterLevel(), operation, filterLevel);
 }
 
 bool ItemStatCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {

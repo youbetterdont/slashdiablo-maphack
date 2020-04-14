@@ -57,6 +57,8 @@ ItemsTxtStat* GetItemsTxtStatByMod(ItemsTxtStat* pStats, int nStats, int nStat, 
 RunesTxt* GetRunewordTxtById(int rwId);
 
 map<std::string, Toggle> Item::Toggles;
+unsigned int Item::filterLevelSetting = 0;
+unsigned int Item::pingLevelSetting = 0;
 UnitAny* Item::viewingUnit;
 
 Patch* itemNamePatch = new Patch(Call, D2CLIENT, { 0x92366, 0x96736 }, (int)ItemName_Interception, 6);
@@ -87,14 +89,18 @@ void Item::OnLoad() {
 	DrawSettings();
 }
 
-void Item::OnGameJoin() {
-	// reset the item name cache upon joining games
-	// (GUIDs not unique across games)
+void ResetCaches() {
 	item_desc_cache.ResetCache();
 	item_name_cache.ResetCache();
 	map_action_cache.ResetCache();
 	do_not_block_cache.ResetCache();
 	ignore_cache.ResetCache();
+}
+
+void Item::OnGameJoin() {
+	// reset the item name cache upon joining games
+	// (GUIDs not unique across games)
+	ResetCaches();
 }
 
 void Item::LoadConfig() {
@@ -181,8 +187,25 @@ void Item::DrawSettings() {
 	new Checkhook(settingsTab, 4, y, &Toggles["Suppress Invalid Stats"].state, "Suppress Invalid Stats");
 	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Suppress Invalid Stats"].toggle, "");
 	y += 15;
-
+	
 	new Keyhook(settingsTab, 4, y+2, &showPlayer, "Show Player's Gear:   ");
+	y += 15;
+
+	new Texthook(settingsTab, 4, y, "Filter Level:");
+
+	vector<string> options;
+	options.push_back("None");
+	options.push_back("Moderate");
+	options.push_back("Aggressive");
+	new Combohook(settingsTab, 100, y, 70, &filterLevelSetting, options);
+
+	new Texthook(settingsTab, 204, y, "Ping Level:");
+
+	vector<string> ping_options;
+	ping_options.push_back("Liberal");
+	ping_options.push_back("Moderate");
+	ping_options.push_back("Strict");
+	new Combohook(settingsTab, 300, y, 70, &pingLevelSetting, ping_options);
 }
 
 void Item::OnUnload() {
@@ -197,6 +220,12 @@ void Item::OnUnload() {
 }
 
 void Item::OnLoop() {
+	static unsigned int localFilterLevel = 0;
+	// This is a bit of a hack to reset the cache when the user changes the item filter level
+	if (localFilterLevel != filterLevelSetting) {
+		ResetCaches();
+		localFilterLevel = filterLevelSetting;
+	}
 	if (!D2CLIENT_GetUIState(0x01))
 		viewingUnit = NULL;
 	

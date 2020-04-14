@@ -57,6 +57,8 @@ class Item : public Module {
 		unsigned int showPlayer;
 		static UnitAny* viewingUnit;
 		Drawing::UITab* settingsTab;
+		static unsigned int filterLevelSetting;
+		static unsigned int pingLevelSetting;
 	public:
 
 		Item() : Module("Item") {};
@@ -81,6 +83,10 @@ class Item : public Module {
 		static void __stdcall OnPropertyBuild(wchar_t* wOut, int nStat, UnitAny* pItem, int nStatParam);
 
 		static UnitAny* GetViewUnit();
+
+		static unsigned int GetFilterLevel() { return filterLevelSetting; }
+		static unsigned int GetPingLevel() { return pingLevelSetting; }
+
 };
 
 void ItemName_Interception();
@@ -92,3 +98,7 @@ void ViewInventoryPatch2_ASM();
 void ViewInventoryPatch3_ASM();
 struct UnitItemInfo;
 int CreateUnitItemInfo(UnitItemInfo *uInfo, UnitAny *item);
+
+// reset all rule lookup caches
+void ResetCaches();
+
