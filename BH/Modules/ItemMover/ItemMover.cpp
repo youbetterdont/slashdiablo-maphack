@@ -587,9 +587,10 @@ void ItemMover::OnGamePacketRecv(BYTE* packet, bool* block) {
 					auto color = UNDEFINED_COLOR;
 
 					for (vector<Rule*>::iterator it = MapRuleList.begin(); it != MapRuleList.end(); it++) {
-						// skip map and notification if ping level requirement is not met
-						if ((*it)->action.pingLevel > Item::GetPingLevel()) continue;
 						if ((*it)->Evaluate(NULL, &item)) {
+							nameWhitelisted = true;
+							// skip map and notification if ping level requirement is not met
+							if ((*it)->action.pingLevel > Item::GetPingLevel()) continue;
 							color = (*it)->action.notifyColor;
 							showOnMap = true;
 							// if we leave this break here, we can't set notify colors as nicely
@@ -601,6 +602,7 @@ void ItemMover::OnGamePacketRecv(BYTE* packet, bool* block) {
 					for (vector<Rule*>::iterator it = DoNotBlockRuleList.begin(); it != DoNotBlockRuleList.end(); it++) {
 						if ((*it)->Evaluate(NULL, &item)) {
 							nameWhitelisted = true;
+							break;
 						}
 					}
 					//PrintText(1, "Item on ground: %s, %s, %s, %X", item.name.c_str(), item.code, item.attrs->category.c_str(), item.attrs->flags);
