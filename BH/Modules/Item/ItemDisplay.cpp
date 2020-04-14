@@ -195,6 +195,8 @@ string ItemNameLookupCache::make_cached_T(UnitItemInfo *uInfo, const string &nam
 	if (blocked) {
 		bool has_map_action = false;
 		for (auto &action : actions) {
+			// Never set true if ping level requirement not met
+			if (action.pingLevel > Item::GetPingLevel()) continue;
 			if (action.colorOnMap != UNDEFINED_COLOR ||
 				action.borderColor != UNDEFINED_COLOR ||
 				action.dotColor != UNDEFINED_COLOR ||
@@ -556,6 +558,7 @@ void BuildAction(string *str, Action *act) {
 	act->pxColor = ParseMapColor(act, "PX");
 	act->lineColor = ParseMapColor(act, "LINE");
 	act->notifyColor = ParseMapColor(act, "NOTIFY");
+	act->pingLevel = ParsePingLevel(act, "TIER");
 	act->description = ParseDescription(act);
 
 	// legacy support:
@@ -611,6 +614,21 @@ int ParseMapColor(Action *act, const string& key_string) {
 				the_match[0].length(), "");
 	}
 	return color;
+}
+
+int ParsePingLevel(Action *act, const string& key_string) {
+	std::regex pattern("%" + key_string + "-([0-9])%",
+		std::regex_constants::ECMAScript | std::regex_constants::icase);
+	int ping_level = 0;
+	std::smatch the_match;
+
+	if (std::regex_search(act->name, the_match, pattern)) {
+		ping_level = stoi(the_match[1].str());
+		act->name.replace(
+				the_match.prefix().length(),
+				the_match[0].length(), "");
+	}
+	return ping_level;
 }
 
 const string Condition::tokenDelims = "<=>";

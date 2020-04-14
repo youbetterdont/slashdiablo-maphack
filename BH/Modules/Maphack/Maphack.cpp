@@ -9,6 +9,7 @@
 #include "../../BH.h"
 #include "../../Drawing.h"
 #include "../Item/ItemDisplay.h"
+#include "../Item/Item.h"
 #include "../../AsyncDrawBuffer.h"
 
 #pragma optimize( "", off)
@@ -350,6 +351,8 @@ void Maphack::OnDraw() {
 				if (ItemAttributeMap.find(uInfo.itemCode) != ItemAttributeMap.end()) {
 					uInfo.attrs = ItemAttributeMap[uInfo.itemCode];
 					for (vector<Rule*>::iterator it = MapRuleList.begin(); it != MapRuleList.end(); it++) {
+						// Skip notification if ping level requirement not met
+						if ((*it)->action.pingLevel > Item::GetPingLevel()) continue;
 						if ((*it)->Evaluate(&uInfo, NULL)) {
 							if ((unit->dwFlags & UNITFLAG_REVEALED) == 0x0
 								 && (*BH::MiscToggles2)["Item Detailed Notifications"].state) {
@@ -526,6 +529,8 @@ void Maphack::OnAutomapDraw() {
 						uInfo.attrs = ItemAttributeMap[uInfo.itemCode];
 						const vector<Action> actions = map_action_cache.Get(&uInfo);
 						for (auto &action : actions) {
+							// skip action if the ping level requirement isn't met
+							if (action.pingLevel > Item::GetPingLevel()) continue;
 							auto color = action.colorOnMap;
 							auto borderColor = action.borderColor;
 							auto dotColor = action.dotColor;

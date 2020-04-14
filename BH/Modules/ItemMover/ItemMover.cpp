@@ -1,4 +1,5 @@
 #include "ItemMover.h"
+#include "../Item/Item.h"
 #include "../../BH.h"
 #include "../../D2Ptrs.h"
 #include "../../D2Stubs.h"
@@ -586,6 +587,8 @@ void ItemMover::OnGamePacketRecv(BYTE* packet, bool* block) {
 					auto color = UNDEFINED_COLOR;
 
 					for (vector<Rule*>::iterator it = MapRuleList.begin(); it != MapRuleList.end(); it++) {
+						// skip map and notification if ping level requirement is not met
+						if ((*it)->action.pingLevel > Item::GetPingLevel()) continue;
 						if ((*it)->Evaluate(NULL, &item)) {
 							color = (*it)->action.notifyColor;
 							showOnMap = true;

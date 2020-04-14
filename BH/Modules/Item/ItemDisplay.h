@@ -543,6 +543,7 @@ struct Action {
 	int pxColor;
 	int lineColor;
 	int notifyColor;
+	unsigned int pingLevel;
 	Action() :
 		colorOnMap(UNDEFINED_COLOR),
 		borderColor(UNDEFINED_COLOR),
@@ -550,6 +551,7 @@ struct Action {
 		pxColor(UNDEFINED_COLOR),
 		lineColor(UNDEFINED_COLOR),
 		notifyColor(UNDEFINED_COLOR),
+		pingLevel(0),
 		stopProcessing(true),
 		name(""),
 		description("") {}
@@ -670,6 +672,7 @@ namespace ItemDisplay {
 StatProperties *GetStatProperties(unsigned int stat);
 void BuildAction(string *str, Action *act);
 string ParseDescription(Action *act);
+int ParsePingLevel(Action *act, const string& reg_string);
 int ParseMapColor(Action *act, const string& reg_string);
 void HandleUnknownItemCode(char *code, char *tag);
 BYTE GetOperation(string *op);
