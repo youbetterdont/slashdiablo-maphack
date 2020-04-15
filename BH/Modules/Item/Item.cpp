@@ -196,12 +196,13 @@ void Item::DrawSettings() {
 	new Texthook(settingsTab, 4, y, "Filter Level:");
 
 	vector<string> options;
-	options.push_back("None");
-	options.push_back("Moderate");
-	options.push_back("Aggressive");
-	new Combohook(settingsTab, 100, y, 70, &filterLevelSetting, options);
+	options.push_back("0 - None");
+	options.push_back("1 - Minimal");
+	options.push_back("2 - Moderate");
+	options.push_back("3 - Aggressive");
+	new Combohook(settingsTab, 85, y, 120, &filterLevelSetting, options);
 
-	new Texthook(settingsTab, 204, y, "Ping Tiers <=:");
+	new Texthook(settingsTab, 234, y, "Ping Tiers <=:");
 
 	vector<string> ping_options;
 	ping_options.push_back("0");
@@ -211,7 +212,7 @@ void Item::DrawSettings() {
 	ping_options.push_back("4");
 	ping_options.push_back("5");
 	ping_options.push_back("6");
-	new Combohook(settingsTab, 300, y, 70, &pingLevelSetting, ping_options);
+	new Combohook(settingsTab, 330, y, 40, &pingLevelSetting, ping_options);
 }
 
 void Item::OnUnload() {
