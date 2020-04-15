@@ -454,7 +454,7 @@ namespace ItemDisplay {
 		item_display_initialized = true;
 		rules.clear();
 		ResetCaches();
-		BH::config->ReadMapList("ItemDisplay", rules);
+		BH::itemConfig->ReadMapList("ItemDisplay", rules);
 		for (unsigned int i = 0; i < rules.size(); i++) {
 			string buf;
 			stringstream ss(rules[i].first);
@@ -1433,7 +1433,7 @@ void SkillListCondition::Init() {
 	goodTabSkills.clear();
 
 	// Build character skills list
-	BH::config->ReadAssoc("ClassSkillsList", skillList);
+	BH::itemConfig->ReadAssoc("ClassSkillsList", skillList);
 	for (auto it = skillList.cbegin(); it != skillList.cend(); it++) {
 		if (StringToBool((*it).second)) {
 			goodClassSkills.push_back(stoi((*it).first));
@@ -1441,7 +1441,7 @@ void SkillListCondition::Init() {
 	}
 
 	// Build tab skills list
-	BH::config->ReadAssoc("TabSkillsList", classSkillList);
+	BH::itemConfig->ReadAssoc("TabSkillsList", classSkillList);
 	for (auto it = classSkillList.cbegin(); it != classSkillList.cend(); it++) {
 		if (StringToBool((*it).second)) {
 			goodTabSkills.push_back(stoi((*it).first));
