@@ -119,6 +119,8 @@ void Item::LoadConfig() {
 	BH::config->ReadToggle("Allow Unknown Items", "None", false, Toggles["Allow Unknown Items"]);
 	BH::config->ReadToggle("Suppress Invalid Stats", "None", false, Toggles["Suppress Invalid Stats"]);
 	BH::config->ReadToggle("Always Show Item Stat Ranges", "None", true, Toggles["Always Show Item Stat Ranges"]);
+	BH::config->ReadInt("Filter Level", filterLevelSetting);
+	BH::config->ReadInt("Ping Level", pingLevelSetting);
 
 	ItemDisplay::UninitializeItemRules();
 
