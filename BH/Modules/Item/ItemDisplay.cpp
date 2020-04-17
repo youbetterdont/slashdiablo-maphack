@@ -265,7 +265,7 @@ void GetItemName(UnitItemInfo *uInfo, string &name) {
 }
 
 void SubstituteNameVariables(UnitItemInfo *uInfo, string &name, const string &action_name) {
-	char origName[128], sockets[4], code[4], ilvl[4], alvl[4], runename[16] = "", runenum[4] = "0";
+	char origName[128], sockets[4], code[4], ilvl[4], alvl[4], craft_alvl[4], runename[16] = "", runenum[4] = "0";
 	char gemtype[16] = "", gemlevel[16] = "", sellValue[16] = "", statVal[16] = "";
 	char lvlreq[4], wpnspd[4], rangeadder[4];
 
@@ -276,9 +276,13 @@ void SubstituteNameVariables(UnitItemInfo *uInfo, string &name, const string &ac
 	code[1] = szCode[1];
 	code[2] = szCode[2];
 	code[3] = '\0';
+	auto ilvl_int = item->pItemData->dwItemLevel;
+	auto alvl_int = GetAffixLevel((BYTE)item->pItemData->dwItemLevel, (BYTE)uInfo->attrs->qualityLevel, uInfo->attrs->magicLevel);
+	auto clvl_int = D2COMMON_GetUnitStat(D2CLIENT_GetPlayerUnit(), STAT_LEVEL, 0); 
 	sprintf_s(sockets, "%d", D2COMMON_GetUnitStat(item, STAT_SOCKETS, 0));
-	sprintf_s(ilvl, "%d", item->pItemData->dwItemLevel);
-	sprintf_s(alvl, "%d", GetAffixLevel((BYTE)item->pItemData->dwItemLevel, (BYTE)uInfo->attrs->qualityLevel, uInfo->attrs->magicLevel));
+	sprintf_s(ilvl, "%d", ilvl_int);
+	sprintf_s(alvl, "%d", alvl_int);
+	sprintf_s(craft_alvl, "%d", GetAffixLevel((BYTE)(ilvl_int/2+clvl_int/2), (BYTE)uInfo->attrs->qualityLevel, uInfo->attrs->magicLevel));
 	sprintf_s(origName, "%s", name.c_str());
 
 	sprintf_s(lvlreq, "%d", GetRequiredLevel(uInfo->item));
@@ -306,6 +310,7 @@ void SubstituteNameVariables(UnitItemInfo *uInfo, string &name, const string &ac
 		{"GEMTYPE", gemtype},
 		{"ILVL", ilvl},
 		{"ALVL", alvl},
+		{"CRAFTALVL", craft_alvl},
 		{"LVLREQ", lvlreq},
 		{"WPNSPD", wpnspd},
 		{"RANGE", rangeadder},
@@ -766,6 +771,8 @@ void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 		Condition::AddOperand(conditions, new QualityCondition(ITEM_QUALITY_RARE));
 	} else if (key.compare(0, 3, "UNI") == 0) {
 		Condition::AddOperand(conditions, new QualityCondition(ITEM_QUALITY_UNIQUE));
+	} else if (key.compare(0, 9, "CRAFTALVL") == 0) {
+		Condition::AddOperand(conditions, new CraftAffixLevelCondition(operation, value));
 	} else if (key.compare(0, 5, "CRAFT") == 0) {
 		Condition::AddOperand(conditions, new QualityCondition(ITEM_QUALITY_CRAFT));
 	} else if (key.compare(0, 2, "RW") == 0) {
@@ -1262,6 +1269,23 @@ bool AffixLevelCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1,
 bool AffixLevelCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2) {
 	int qlvl = info->attrs->qualityLevel;
 	BYTE alvl = GetAffixLevel(info->level, info->attrs->qualityLevel, info->attrs->magicLevel);
+	return IntegerCompare(alvl, operation, affixLevel);
+}
+
+bool CraftAffixLevelCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
+	BYTE qlvl = uInfo->attrs->qualityLevel;
+	auto ilvl = uInfo->item->pItemData->dwItemLevel;
+	auto clvl = D2COMMON_GetUnitStat(D2CLIENT_GetPlayerUnit(), STAT_LEVEL, 0); 
+	auto craft_ilvl = ilvl/2 + clvl/2;
+	BYTE alvl = GetAffixLevel((BYTE)craft_ilvl, (BYTE)uInfo->attrs->qualityLevel, uInfo->attrs->magicLevel);
+	return IntegerCompare(alvl, operation, affixLevel);
+}
+bool CraftAffixLevelCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2) {
+	int qlvl = info->attrs->qualityLevel;
+	auto ilvl = info->level;
+	auto clvl = D2COMMON_GetUnitStat(D2CLIENT_GetPlayerUnit(), STAT_LEVEL, 0); 
+	auto craft_ilvl = ilvl/2 + clvl/2;
+	BYTE alvl = GetAffixLevel((BYTE)craft_ilvl, info->attrs->qualityLevel, info->attrs->magicLevel);
 	return IntegerCompare(alvl, operation, affixLevel);
 }
 
