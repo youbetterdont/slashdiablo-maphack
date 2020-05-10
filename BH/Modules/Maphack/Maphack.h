@@ -30,12 +30,14 @@ class Maphack : public Module {
 		unsigned int reloadConfig;
 		bool revealedGame, revealedAct[6], revealedLevel[255];
 		std::map<string, string> MonsterColors;
+		std::map<string, string> SuperUniqueColors;
 		std::map<string, string> MonsterLines;
 		std::map<string, string> MonsterHides;
 		std::map<string, unsigned int> TextColorMap; 
 		std::map<string, unsigned int> monsterColors;
 		std::map<string, unsigned int> missileColors;
 		std::map<int, unsigned int> automapMonsterColors;
+		std::map<int, unsigned int> automapSuperUniqueColors;
 		std::map<int, unsigned int> automapMonsterLines;
 		std::list<int> automapHiddenMonsters;
 		std::list<LevelList*> automapLevels;

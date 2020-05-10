@@ -522,10 +522,13 @@ struct MonsterData {
 	struct
 	{
 		BYTE fUnk : 1;
-		BYTE fNormal : 1;
+		BYTE fSuperUniq : 1;
 		BYTE fChamp : 1;
 		BYTE fBoss : 1;
 		BYTE fMinion : 1;
+		BYTE fPossesed : 1;
+		BYTE fGhostly : 1;
+		BYTE fMultishot : 1;
 	};				//0x16
 	BYTE dwLastMode;				//0x17
 	DWORD dwDuriel;					//0x18

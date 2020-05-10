@@ -89,6 +89,20 @@ void Maphack::ReadConfig() {
 		}
 	}
 
+	BH::config->ReadAssoc("Super Unique Color", SuperUniqueColors);
+	for (auto it = SuperUniqueColors.cbegin(); it != SuperUniqueColors.cend(); it++) {
+		// If the key is a number, it means a monster we've assigned a specific color
+		int monsterId = -1;
+		stringstream ss((*it).first);
+		if ((ss >> monsterId).fail()) {
+			continue;
+		}
+		else {
+			int monsterColor = StringToNumber((*it).second);
+			automapSuperUniqueColors[monsterId] = monsterColor;
+		}
+	}
+
 	
 	BH::config->ReadAssoc("Monster Line", MonsterLines);
 	for (auto it = MonsterLines.cbegin(); it != MonsterLines.cend(); it++) {
@@ -482,6 +496,12 @@ void Maphack::OnAutomapDraw() {
 							if (unit->pMonsterData->anEnchants[n] == ENCH_MANA_BURN && mbMonColor > 0 && !unit->pMonsterData->fBoss)
 								color = mbMonColor;
 						}
+					}
+
+					// User can override colors of super unique monsters
+					if (unit->pMonsterData->fSuperUniq &&
+						automapSuperUniqueColors.find(unit->pMonsterData->wUniqueNo) != automapSuperUniqueColors.end()) {
+						color = automapSuperUniqueColors[unit->pMonsterData->wUniqueNo];
 					}
 
 					xPos = unit->pPath->xPos;

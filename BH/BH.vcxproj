@@ -54,16 +54,16 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <TargetExt>.dll</TargetExt>
-    <IncludePath>$(INCLUDE);$(IncludePath)</IncludePath>
+    <IncludePath>$(INCLUDE);$(IncludePath);..\ThirdParty\cpp-lru-cache\include</IncludePath>
     <LibraryPath>..\ThirdParty\;$(LIBPATH);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Packaging|Win32'">
     <TargetExt>.dll</TargetExt>
-    <IncludePath>E:\Program Files (x86)\Diablo II\plugins\StormLib-master-8.20\src;$(IncludePath)</IncludePath>
+    <IncludePath>$(INCLUDE);$(IncludePath);..\ThirdParty\cpp-lru-cache\include</IncludePath>
     <LibraryPath>..\ThirdParty\;$(LIBPATH);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(INCLUDE);$(IncludePath)</IncludePath>
+    <IncludePath>$(INCLUDE);$(IncludePath);..\ThirdParty\cpp-lru-cache\include</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LibraryPath>..\ThirdParty\;$(LIBPATH);$(LibraryPath)</LibraryPath>
