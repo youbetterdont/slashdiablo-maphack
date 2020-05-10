@@ -25,6 +25,7 @@ namespace BH {
 	extern HINSTANCE instance;
 	extern ModuleManager* moduleManager;
 	extern Config* config;
+	extern Config* itemConfig;
 	extern Drawing::UI* settingsUI;
 	extern Drawing::StatsDisplay* statsDisplay;
 	extern WNDPROC OldWNDPROC;

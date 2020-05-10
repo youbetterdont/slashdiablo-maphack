@@ -59,7 +59,10 @@ SkillReplace skills[] = {
 std::map<std::string, int> UnknownItemCodes;
 vector<pair<string, string>> rules;
 vector<Rule*> RuleList;
+vector<Rule*> NameRuleList;
+vector<Rule*> DescRuleList;
 vector<Rule*> MapRuleList;
+vector<Rule*> DoNotBlockRuleList;
 vector<Rule*> IgnoreRuleList;
 BYTE LastConditionType;
 
@@ -151,16 +154,59 @@ BYTE RuneNumberFromItemCode(char *code){
 	return (BYTE)(((code[1] - '0') * 10) + code[2] - '0');
 }
 
-// Find the item name. This code is called only when there's a cache miss
-string ItemNameLookupCache::make_cached_T(UnitItemInfo *uInfo, const string &name) {
-	string new_name(name);
-	for (vector<Rule*>::const_iterator it = RuleList.begin(); it != RuleList.end(); it++) {
+// Find the item description. This code is called only when there's a cache miss
+string ItemDescLookupCache::make_cached_T(UnitItemInfo *uInfo) {
+	string new_name;
+	for (vector<Rule*>::const_iterator it = this->RuleList.begin(); it != this->RuleList.end(); it++) {
 		if ((*it)->Evaluate(uInfo, NULL)) {
-			SubstituteNameVariables(uInfo, new_name, &(*it)->action);
+			SubstituteNameVariables(uInfo, new_name, (*it)->action.description);
 			if ((*it)->action.stopProcessing) {
 				break;
 			}
 		}
+	}
+	return new_name;
+}
+
+string ItemDescLookupCache::to_str(const string &name) {
+	size_t start_pos = 0;
+	std::string itemName(name);
+	while ((start_pos = itemName.find('\n', start_pos)) != std::string::npos) {
+		itemName.replace(start_pos, 1, " - ");
+		start_pos += 3;
+	}
+	return itemName;
+}
+
+// Find the item name. This code is called only when there's a cache miss
+string ItemNameLookupCache::make_cached_T(UnitItemInfo *uInfo, const string &name) {
+	string new_name(name);
+	for (vector<Rule*>::const_iterator it = this->RuleList.begin(); it != this->RuleList.end(); it++) {
+		if ((*it)->Evaluate(uInfo, NULL)) {
+			SubstituteNameVariables(uInfo, new_name, (*it)->action.name);
+			if ((*it)->action.stopProcessing) {
+				break;
+			}
+		}
+	}
+	// if the item is on the ignore list and not the map list, warn the user that this item is normally blocked
+	bool blocked = ignore_cache.Get(uInfo);
+	vector<Action> actions = map_action_cache.Get(uInfo);
+	if (blocked) {
+		bool has_map_action = false;
+		for (auto &action : actions) {
+			if (action.colorOnMap != UNDEFINED_COLOR ||
+				action.borderColor != UNDEFINED_COLOR ||
+				action.dotColor != UNDEFINED_COLOR ||
+				action.pxColor != UNDEFINED_COLOR ||
+				action.lineColor != UNDEFINED_COLOR) {
+				has_map_action = true;
+				break;
+			}
+					
+		}
+		bool whitelisted = do_not_block_cache.Get(uInfo);
+		if (!has_map_action && !whitelisted) return new_name + " [blocked]";
 	}
 	return new_name;
 }
@@ -177,7 +223,7 @@ string ItemNameLookupCache::to_str(const string &name) {
 
 vector<Action> MapActionLookupCache::make_cached_T(UnitItemInfo *uInfo) {
 	vector<Action> actions;
-	for (vector<Rule*>::const_iterator it = RuleList.begin(); it != RuleList.end(); it++) {
+	for (vector<Rule*>::const_iterator it = this->RuleList.begin(); it != this->RuleList.end(); it++) {
 		if ((*it)->Evaluate(uInfo, NULL)) {
 			actions.push_back((*it)->action);
 		}
@@ -193,17 +239,33 @@ string MapActionLookupCache::to_str(const vector<Action> &actions) {
 	return name;
 }
 
+bool IgnoreLookupCache::make_cached_T(UnitItemInfo *uInfo) {
+	for (vector<Rule*>::const_iterator it = this->RuleList.begin(); it != this->RuleList.end(); it++) {
+		if ((*it)->Evaluate(uInfo, NULL)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+string IgnoreLookupCache::to_str(const bool &ignore) {
+	return ignore ? "blocked" : "not blocked";
+}
+
 // least recently used cache for storing a limited number of item names
-ItemNameLookupCache item_name_cache(RuleList);
+ItemDescLookupCache item_desc_cache(DescRuleList);
+ItemNameLookupCache item_name_cache(NameRuleList);
 MapActionLookupCache map_action_cache(MapRuleList);
+IgnoreLookupCache do_not_block_cache(DoNotBlockRuleList);
+IgnoreLookupCache ignore_cache(IgnoreRuleList);
 
 void GetItemName(UnitItemInfo *uInfo, string &name) {
 	string new_name = item_name_cache.Get(uInfo, name);
 	name.assign(new_name);
 }
 
-void SubstituteNameVariables(UnitItemInfo *uInfo, string &name, Action *action) {
-	char origName[128], sockets[4], code[4], ilvl[4], alvl[4], runename[16] = "", runenum[4] = "0";
+void SubstituteNameVariables(UnitItemInfo *uInfo, string &name, const string &action_name) {
+	char origName[128], sockets[4], code[4], ilvl[4], alvl[4], craft_alvl[4], runename[16] = "", runenum[4] = "0";
 	char gemtype[16] = "", gemlevel[16] = "", sellValue[16] = "", statVal[16] = "";
 	char lvlreq[4], wpnspd[4], rangeadder[4];
 
@@ -214,9 +276,13 @@ void SubstituteNameVariables(UnitItemInfo *uInfo, string &name, Action *action) 
 	code[1] = szCode[1];
 	code[2] = szCode[2];
 	code[3] = '\0';
+	auto ilvl_int = item->pItemData->dwItemLevel;
+	auto alvl_int = GetAffixLevel((BYTE)item->pItemData->dwItemLevel, (BYTE)uInfo->attrs->qualityLevel, uInfo->attrs->magicLevel);
+	auto clvl_int = D2COMMON_GetUnitStat(D2CLIENT_GetPlayerUnit(), STAT_LEVEL, 0); 
 	sprintf_s(sockets, "%d", D2COMMON_GetUnitStat(item, STAT_SOCKETS, 0));
-	sprintf_s(ilvl, "%d", item->pItemData->dwItemLevel);
-	sprintf_s(alvl, "%d", GetAffixLevel((BYTE)item->pItemData->dwItemLevel, (BYTE)uInfo->attrs->qualityLevel, uInfo->attrs->magicLevel));
+	sprintf_s(ilvl, "%d", ilvl_int);
+	sprintf_s(alvl, "%d", alvl_int);
+	sprintf_s(craft_alvl, "%d", GetAffixLevel((BYTE)(ilvl_int/2+clvl_int/2), (BYTE)uInfo->attrs->qualityLevel, uInfo->attrs->magicLevel));
 	sprintf_s(origName, "%s", name.c_str());
 
 	sprintf_s(lvlreq, "%d", GetRequiredLevel(uInfo->item));
@@ -244,6 +310,7 @@ void SubstituteNameVariables(UnitItemInfo *uInfo, string &name, Action *action) 
 		{"GEMTYPE", gemtype},
 		{"ILVL", ilvl},
 		{"ALVL", alvl},
+		{"CRAFTALVL", craft_alvl},
 		{"LVLREQ", lvlreq},
 		{"WPNSPD", wpnspd},
 		{"RANGE", rangeadder},
@@ -252,7 +319,7 @@ void SubstituteNameVariables(UnitItemInfo *uInfo, string &name, Action *action) 
 		{"PRICE", sellValue},
 		COLOR_REPLACEMENTS
 	};
-	name.assign(action->name);
+	name.assign(action_name);
 	for (int n = 0; n < sizeof(replacements) / sizeof(replacements[0]); n++) {
 		while (name.find("%" + replacements[n].key + "%") != string::npos) {
 			name.replace(name.find("%" + replacements[n].key + "%"), replacements[n].key.length() + 2, replacements[n].value);
@@ -361,6 +428,24 @@ bool IntegerCompare(unsigned int Lvalue, BYTE operation, unsigned int Rvalue) {
 	}
 }
 
+void removeSubstrs(string& s, const string& p) {
+	string::size_type n = p.length();
+	for (string::size_type i = s.find(p); i != string::npos; i = s.find(p))
+		s.erase(i, n);
+}
+
+std::string without_invis_chars(const std::string &name) {
+	string wo_invis_chars(name);
+	ColorReplace colors[] = {
+		MAP_COLOR_REPLACEMENTS
+	};
+	for (int n = 0; n < sizeof(colors) / sizeof(colors[0]); n++) {
+		removeSubstrs(wo_invis_chars, "%" + colors[n].key + "%");
+	}
+	removeSubstrs(wo_invis_chars, " ");
+	return wo_invis_chars;
+}
+
 namespace ItemDisplay {
 	bool item_display_initialized = false;
 	void InitializeItemRules() {
@@ -373,9 +458,8 @@ namespace ItemDisplay {
 
 		item_display_initialized = true;
 		rules.clear();
-		item_name_cache.ResetCache();
-		map_action_cache.ResetCache();
-		BH::config->ReadMapList("ItemDisplay", rules);
+		ResetCaches();
+		BH::itemConfig->ReadMapList("ItemDisplay", rules);
 		for (unsigned int i = 0; i < rules.size(); i++) {
 			string buf;
 			stringstream ss(rules[i].first);
@@ -392,14 +476,32 @@ namespace ItemDisplay {
 			Rule *r = new Rule(RawConditions, &(rules[i].second));
 
 			RuleList.push_back(r);
+			bool has_map_action = false;
+			bool has_desc = false;
+			bool has_name = false;
+			if (without_invis_chars(r->action.description).length() > 0) {
+				DescRuleList.push_back(r);
+				has_desc = true;
+			}
 			if (r->action.colorOnMap != UNDEFINED_COLOR ||
 					r->action.borderColor != UNDEFINED_COLOR ||
 					r->action.dotColor != UNDEFINED_COLOR ||
 					r->action.pxColor != UNDEFINED_COLOR ||
 					r->action.lineColor != UNDEFINED_COLOR) {
 				MapRuleList.push_back(r);
+				has_map_action = true;
 			}
-			else if (r->action.name.length() == 0) {
+			if (without_invis_chars(r->action.name).length() > 0) {
+				NameRuleList.push_back(r);
+				// this is a bit of a hack. the idea is not to block items that have a name specified. Items with a map action are
+				// already not blocked, so we make another rule list for those with a name and not a map action. Note the name must
+				// not use CONTINUE. If item display line uses continue, then the item can still be blocked by a matching ignore
+				// item display line.
+				if (r->action.stopProcessing && !has_map_action)
+					DoNotBlockRuleList.push_back(r); // if we have a non-blank name and no continue, we don't want to block
+				has_name = true;
+			}
+			if (!has_map_action && !has_name && !has_desc && r->action.stopProcessing) {
 				IgnoreRuleList.push_back(r);
 			}
 		}
@@ -417,10 +519,12 @@ namespace ItemDisplay {
 			}
 		}
 		item_display_initialized = false;
-		item_name_cache.ResetCache();
-		map_action_cache.ResetCache();
+		ResetCaches();
 		RuleList.clear();
+		NameRuleList.clear();
+		DescRuleList.clear();
 		MapRuleList.clear();
+		DoNotBlockRuleList.clear();
 		IgnoreRuleList.clear();
 	}
 }
@@ -457,6 +561,8 @@ void BuildAction(string *str, Action *act) {
 	act->pxColor = ParseMapColor(act, "PX");
 	act->lineColor = ParseMapColor(act, "LINE");
 	act->notifyColor = ParseMapColor(act, "NOTIFY");
+	act->pingLevel = ParsePingLevel(act, "TIER");
+	act->description = ParseDescription(act);
 
 	// legacy support:
 	size_t map = act->name.find("%MAP%");
@@ -487,6 +593,17 @@ void BuildAction(string *str, Action *act) {
 	}
 }
 
+string ParseDescription(Action *act) {
+	size_t l_idx = act->name.find("{");
+	size_t r_idx = act->name.find("}");
+	if (l_idx == string::npos || r_idx == string::npos || l_idx > r_idx) return "";
+	size_t start_idx = l_idx + 1;
+	size_t len = r_idx - start_idx;
+	string desc_string = act->name.substr(start_idx, len);
+	act->name.replace(l_idx, len+2, "");
+	return desc_string;
+}
+
 int ParseMapColor(Action *act, const string& key_string) {
 	std::regex pattern("%" + key_string + "-([a-f0-9]{1,4})%",
 		std::regex_constants::ECMAScript | std::regex_constants::icase);
@@ -500,6 +617,21 @@ int ParseMapColor(Action *act, const string& key_string) {
 				the_match[0].length(), "");
 	}
 	return color;
+}
+
+int ParsePingLevel(Action *act, const string& key_string) {
+	std::regex pattern("%" + key_string + "-([0-9])%",
+		std::regex_constants::ECMAScript | std::regex_constants::icase);
+	int ping_level = 0;
+	std::smatch the_match;
+
+	if (std::regex_search(act->name, the_match, pattern)) {
+		ping_level = stoi(the_match[1].str());
+		act->name.replace(
+				the_match.prefix().length(),
+				the_match[0].length(), "");
+	}
+	return ping_level;
 }
 
 const string Condition::tokenDelims = "<=>";
@@ -639,6 +771,8 @@ void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 		Condition::AddOperand(conditions, new QualityCondition(ITEM_QUALITY_RARE));
 	} else if (key.compare(0, 3, "UNI") == 0) {
 		Condition::AddOperand(conditions, new QualityCondition(ITEM_QUALITY_UNIQUE));
+	} else if (key.compare(0, 9, "CRAFTALVL") == 0) {
+		Condition::AddOperand(conditions, new CraftAffixLevelCondition(operation, value));
 	} else if (key.compare(0, 5, "CRAFT") == 0) {
 		Condition::AddOperand(conditions, new QualityCondition(ITEM_QUALITY_CRAFT));
 	} else if (key.compare(0, 2, "RW") == 0) {
@@ -665,6 +799,8 @@ void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 		Condition::AddOperand(conditions, new AffixLevelCondition(operation, value));
 	} else if (key.compare(0, 4, "CLVL") == 0) {
 		Condition::AddOperand(conditions, new CharStatCondition(STAT_LEVEL, 0, operation, value));
+	} else if (key.compare(0, 7, "FILTLVL") == 0) {
+		Condition::AddOperand(conditions, new FilterLevelCondition(operation, value));
 	} else if (key.compare(0, 4, "DIFF") == 0) {
 		Condition::AddOperand(conditions, new DifficultyCondition(operation, value));
 	} else if (key.compare(0, 4, "RUNE") == 0) {
@@ -1136,6 +1272,23 @@ bool AffixLevelCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *
 	return IntegerCompare(alvl, operation, affixLevel);
 }
 
+bool CraftAffixLevelCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
+	BYTE qlvl = uInfo->attrs->qualityLevel;
+	auto ilvl = uInfo->item->pItemData->dwItemLevel;
+	auto clvl = D2COMMON_GetUnitStat(D2CLIENT_GetPlayerUnit(), STAT_LEVEL, 0); 
+	auto craft_ilvl = ilvl/2 + clvl/2;
+	BYTE alvl = GetAffixLevel((BYTE)craft_ilvl, (BYTE)uInfo->attrs->qualityLevel, uInfo->attrs->magicLevel);
+	return IntegerCompare(alvl, operation, affixLevel);
+}
+bool CraftAffixLevelCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2) {
+	int qlvl = info->attrs->qualityLevel;
+	auto ilvl = info->level;
+	auto clvl = D2COMMON_GetUnitStat(D2CLIENT_GetPlayerUnit(), STAT_LEVEL, 0); 
+	auto craft_ilvl = ilvl/2 + clvl/2;
+	BYTE alvl = GetAffixLevel((BYTE)craft_ilvl, info->attrs->qualityLevel, info->attrs->magicLevel);
+	return IntegerCompare(alvl, operation, affixLevel);
+}
+
 bool RequiredLevelCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
 	unsigned int rlvl = GetRequiredLevel(uInfo->item);
 
@@ -1304,7 +1457,7 @@ void SkillListCondition::Init() {
 	goodTabSkills.clear();
 
 	// Build character skills list
-	BH::config->ReadAssoc("ClassSkillsList", skillList);
+	BH::itemConfig->ReadAssoc("ClassSkillsList", skillList);
 	for (auto it = skillList.cbegin(); it != skillList.cend(); it++) {
 		if (StringToBool((*it).second)) {
 			goodClassSkills.push_back(stoi((*it).first));
@@ -1312,7 +1465,7 @@ void SkillListCondition::Init() {
 	}
 
 	// Build tab skills list
-	BH::config->ReadAssoc("TabSkillsList", classSkillList);
+	BH::itemConfig->ReadAssoc("TabSkillsList", classSkillList);
 	for (auto it = classSkillList.cbegin(); it != classSkillList.cend(); it++) {
 		if (StringToBool((*it).second)) {
 			goodTabSkills.push_back(stoi((*it).first));
@@ -1353,6 +1506,13 @@ bool DifficultyCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1,
 }
 bool DifficultyCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2) {
 	return IntegerCompare(D2CLIENT_GetDifficulty(), operation, targetDiff);
+}
+
+bool FilterLevelCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {
+	return IntegerCompare(Item::GetFilterLevel(), operation, filterLevel);
+}
+bool FilterLevelCondition::EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2) {
+	return IntegerCompare(Item::GetFilterLevel(), operation, filterLevel);
 }
 
 bool ItemStatCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2) {

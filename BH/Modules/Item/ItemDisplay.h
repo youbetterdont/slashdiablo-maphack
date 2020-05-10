@@ -335,6 +335,17 @@ private:
 	bool EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2);
 };
 
+class CraftAffixLevelCondition : public Condition
+{
+public:
+	CraftAffixLevelCondition(BYTE op, BYTE alvl) : affixLevel(alvl), operation(op) { conditionType = CT_Operand; };
+private:
+	BYTE operation;
+	BYTE affixLevel;
+	bool EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2);
+	bool EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2);
+};
+
 class RequiredLevelCondition : public Condition
 {
 public:
@@ -446,6 +457,18 @@ private:
 	bool EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2);
 };
 
+class FilterLevelCondition : public Condition
+{
+public:
+	FilterLevelCondition(BYTE op, unsigned int target)
+		: operation(op), filterLevel(target) { conditionType = CT_Operand; };
+private:
+	BYTE operation;
+	unsigned int filterLevel;
+	bool EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2);
+	bool EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2);
+};
+
 class ItemStatCondition : public Condition
 {
 public:
@@ -524,12 +547,14 @@ struct SkillReplace {
 struct Action {
 	bool stopProcessing;
 	string name;
+	string description;
 	int colorOnMap;
 	int borderColor;
 	int dotColor;
 	int pxColor;
 	int lineColor;
 	int notifyColor;
+	unsigned int pingLevel;
 	Action() :
 		colorOnMap(UNDEFINED_COLOR),
 		borderColor(UNDEFINED_COLOR),
@@ -537,8 +562,10 @@ struct Action {
 		pxColor(UNDEFINED_COLOR),
 		lineColor(UNDEFINED_COLOR),
 		notifyColor(UNDEFINED_COLOR),
+		pingLevel(0),
 		stopProcessing(true),
-		name("") {}
+		name(""),
+		description("") {}
 };
 
 struct Rule {
@@ -600,6 +627,15 @@ struct Rule {
 	}
 };
 
+class ItemDescLookupCache : public RuleLookupCache<string> {
+	string make_cached_T(UnitItemInfo *uInfo) override;
+	string to_str(const string &name) override;
+
+		public:
+		ItemDescLookupCache(const std::vector<Rule*> &RuleList) :
+			RuleLookupCache<string>(RuleList) {}
+};
+
 class ItemNameLookupCache : public RuleLookupCache<string, const string &> {
 	string make_cached_T(UnitItemInfo *uInfo, const string &name) override;
 	string to_str(const string &name) override;
@@ -618,12 +654,27 @@ class MapActionLookupCache : public RuleLookupCache<vector<Action>> {
 			RuleLookupCache<vector<Action>>(RuleList) {}
 };
 
+class IgnoreLookupCache : public RuleLookupCache<bool> {
+	bool make_cached_T(UnitItemInfo *uInfo) override;
+	string to_str(const bool &ignore);
+
+		public:
+		IgnoreLookupCache(const std::vector<Rule*> &RuleList) :
+			RuleLookupCache<bool>(RuleList) {}
+};
+
 extern vector<Rule*> RuleList;
+extern vector<Rule*> NameRuleList;
+extern vector<Rule*> DescRuleList;
 extern vector<Rule*> MapRuleList;
+extern vector<Rule*> DoNotBlockRuleList;
 extern vector<Rule*> IgnoreRuleList;
 extern vector<pair<string, string>> rules;
+extern ItemDescLookupCache item_desc_cache;
 extern ItemNameLookupCache item_name_cache;
 extern MapActionLookupCache map_action_cache;
+extern IgnoreLookupCache do_not_block_cache;
+extern IgnoreLookupCache ignore_cache;
 
 namespace ItemDisplay {
 	void InitializeItemRules();
@@ -631,12 +682,14 @@ namespace ItemDisplay {
 }
 StatProperties *GetStatProperties(unsigned int stat);
 void BuildAction(string *str, Action *act);
+string ParseDescription(Action *act);
+int ParsePingLevel(Action *act, const string& reg_string);
 int ParseMapColor(Action *act, const string& reg_string);
 void HandleUnknownItemCode(char *code, char *tag);
 BYTE GetOperation(string *op);
 inline bool IntegerCompare(unsigned int Lvalue, int operation, unsigned int Rvalue);
 void GetItemName(UnitItemInfo *uInfo, string &name);
-void SubstituteNameVariables(UnitItemInfo *uInfo, string &name, Action *action);
+void SubstituteNameVariables(UnitItemInfo *uInfo, string &name, const string &action_name);
 int GetDefense(ItemInfo *item);
 BYTE GetAffixLevel(BYTE ilvl, BYTE qlvl, BYTE mlvl);
 BYTE GetRequiredLevel(UnitAny* item);

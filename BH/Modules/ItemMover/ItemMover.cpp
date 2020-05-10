@@ -1,4 +1,5 @@
 #include "ItemMover.h"
+#include "../Item/Item.h"
 #include "../../BH.h"
 #include "../../D2Ptrs.h"
 #include "../../D2Stubs.h"
@@ -582,15 +583,28 @@ void ItemMover::OnGamePacketRecv(BYTE* packet, bool* block) {
 				//PrintText(1, "Item packet: %s, %s, %X, %d, %d", item.name.c_str(), item.code, item.attrs->flags, item.sockets, GetDefense(&item));
 				if ((item.action == ITEM_ACTION_NEW_GROUND || item.action == ITEM_ACTION_OLD_GROUND) && success) {
 					bool showOnMap = false;
+					bool nameWhitelisted = false;
 					auto color = UNDEFINED_COLOR;
 
 					for (vector<Rule*>::iterator it = MapRuleList.begin(); it != MapRuleList.end(); it++) {
 						if ((*it)->Evaluate(NULL, &item)) {
-							color = (*it)->action.notifyColor;
+							nameWhitelisted = true;
+							// skip map and notification if ping level requirement is not met
+							if ((*it)->action.pingLevel > Item::GetPingLevel()) continue;
+							auto action_color = (*it)->action.notifyColor;
+							// never overwrite color with an undefined color. never overwrite a defined color with dead color.
+							if (action_color != UNDEFINED_COLOR && (action_color != DEAD_COLOR || color == UNDEFINED_COLOR))
+								color = action_color;
 							showOnMap = true;
-							// if we leave this break here, we can't set notify colors as nicely
-							// for multiline 'building' configs
-							/* break; */
+							// break unless %CONTINUE% is used
+							if ((*it)->action.stopProcessing) break;
+						}
+					}
+					// Don't block items that have a white-listed name
+					for (vector<Rule*>::iterator it = DoNotBlockRuleList.begin(); it != DoNotBlockRuleList.end(); it++) {
+						if ((*it)->Evaluate(NULL, &item)) {
+							nameWhitelisted = true;
+							break;
 						}
 					}
 					//PrintText(1, "Item on ground: %s, %s, %s, %X", item.name.c_str(), item.code, item.attrs->category.c_str(), item.attrs->flags);
@@ -617,7 +631,7 @@ void ItemMover::OnGamePacketRecv(BYTE* packet, bool* block) {
 									);
 						}
 					}
-					else if (!showOnMap) {
+					else if (!showOnMap && !nameWhitelisted) {
 						for (vector<Rule*>::iterator it = IgnoreRuleList.begin(); it != IgnoreRuleList.end(); it++) {
 							if ((*it)->Evaluate(NULL, &item)) {
 								*block = true;

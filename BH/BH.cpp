@@ -15,6 +15,7 @@ string BH::path;
 HINSTANCE BH::instance;
 ModuleManager* BH::moduleManager;
 Config* BH::config;
+Config* BH::itemConfig;
 Drawing::UI* BH::settingsUI;
 Drawing::StatsDisplay* BH::statsDisplay;
 bool BH::initialized;
@@ -92,16 +93,18 @@ DWORD WINAPI LoadMPQData(VOID* lpvoid){
 void BH::Initialize()
 {
 	moduleManager = new ModuleManager();
-	config = new Config("BH.cfg");
+	config = new Config("BH_settings.cfg");
 	if(!config->Parse()) {
 		config->SetConfigName("BH_Default.cfg");
 		if(!config->Parse()) {
-			string msg = "Could not find BH config.\nAttempted to load " +
-				path + "BH.cfg (failed).\nAttempted to load "+
+			string msg = "Could not find BH settings.\nAttempted to load " +
+				path + "BH_settings.cfg (failed).\nAttempted to load "+
 				path + "BH_Default.cfg (failed).\n\nDefaults loaded.";
 			MessageBox(NULL, msg.c_str(), "Failed to load BH config", MB_OK);
 		}
 	}
+	itemConfig = new Config("BH.cfg");
+	itemConfig->Parse();
 
 	// Do this asynchronously because D2GFX_GetHwnd() will be null if
 	// we inject on process start
@@ -114,7 +117,7 @@ void BH::Initialize()
 		SetWindowLong(D2GFX_GetHwnd(), GWL_WNDPROC, (LONG)GameWindowEvent);
 	});
 
-	settingsUI = new Drawing::UI(BH_VERSION, 400, 262);
+	settingsUI = new Drawing::UI(BH_VERSION, 400, 277);
 
 	Task::InitializeThreadPool(2);
 
@@ -182,6 +185,7 @@ bool BH::Shutdown() {
 
 		oogDraw->Remove();
 		delete config;
+		delete itemConfig;
 	}
 	
 	return true;
@@ -191,8 +195,10 @@ bool BH::ReloadConfig() {
 	if (initialized){
 		if (D2CLIENT_GetPlayerUnit()) {
 			PrintText(0, "Reloading config: %s", config->GetConfigName().c_str());
+			PrintText(0, "Reloading Item config: %s", itemConfig->GetConfigName().c_str());
 		}
 		config->Parse();
+		itemConfig->Parse();
 		moduleManager->ReloadConfig();
 		statsDisplay->LoadConfig();
 	}

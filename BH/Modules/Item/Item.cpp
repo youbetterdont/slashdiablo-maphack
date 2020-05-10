@@ -57,6 +57,8 @@ ItemsTxtStat* GetItemsTxtStatByMod(ItemsTxtStat* pStats, int nStats, int nStat, 
 RunesTxt* GetRunewordTxtById(int rwId);
 
 map<std::string, Toggle> Item::Toggles;
+unsigned int Item::filterLevelSetting = 0;
+unsigned int Item::pingLevelSetting = 0;
 UnitAny* Item::viewingUnit;
 
 Patch* itemNamePatch = new Patch(Call, D2CLIENT, { 0x92366, 0x96736 }, (int)ItemName_Interception, 6);
@@ -87,11 +89,18 @@ void Item::OnLoad() {
 	DrawSettings();
 }
 
+void ResetCaches() {
+	item_desc_cache.ResetCache();
+	item_name_cache.ResetCache();
+	map_action_cache.ResetCache();
+	do_not_block_cache.ResetCache();
+	ignore_cache.ResetCache();
+}
+
 void Item::OnGameJoin() {
 	// reset the item name cache upon joining games
 	// (GUIDs not unique across games)
-	item_name_cache.ResetCache();
-	map_action_cache.ResetCache();
+	ResetCaches();
 }
 
 void Item::LoadConfig() {
@@ -110,6 +119,8 @@ void Item::LoadConfig() {
 	BH::config->ReadToggle("Allow Unknown Items", "None", false, Toggles["Allow Unknown Items"]);
 	BH::config->ReadToggle("Suppress Invalid Stats", "None", false, Toggles["Suppress Invalid Stats"]);
 	BH::config->ReadToggle("Always Show Item Stat Ranges", "None", true, Toggles["Always Show Item Stat Ranges"]);
+	BH::config->ReadInt("Filter Level", filterLevelSetting);
+	BH::config->ReadInt("Ping Level", pingLevelSetting);
 
 	ItemDisplay::UninitializeItemRules();
 
@@ -178,8 +189,30 @@ void Item::DrawSettings() {
 	new Checkhook(settingsTab, 4, y, &Toggles["Suppress Invalid Stats"].state, "Suppress Invalid Stats");
 	new Keyhook(settingsTab, keyhook_x, y+2, &Toggles["Suppress Invalid Stats"].toggle, "");
 	y += 15;
-
+	
 	new Keyhook(settingsTab, 4, y+2, &showPlayer, "Show Player's Gear:   ");
+	y += 15;
+
+	new Texthook(settingsTab, 4, y, "Filter Level:");
+
+	vector<string> options;
+	options.push_back("0 - None");
+	options.push_back("1 - Minimal");
+	options.push_back("2 - Moderate");
+	options.push_back("3 - Aggressive");
+	new Combohook(settingsTab, 85, y, 120, &filterLevelSetting, options);
+
+	new Texthook(settingsTab, 234, y, "Ping Tiers <=:");
+
+	vector<string> ping_options;
+	ping_options.push_back("0");
+	ping_options.push_back("1");
+	ping_options.push_back("2");
+	ping_options.push_back("3");
+	ping_options.push_back("4");
+	ping_options.push_back("5");
+	ping_options.push_back("6");
+	new Combohook(settingsTab, 330, y, 40, &pingLevelSetting, ping_options);
 }
 
 void Item::OnUnload() {
@@ -194,6 +227,17 @@ void Item::OnUnload() {
 }
 
 void Item::OnLoop() {
+	static unsigned int localFilterLevel = 0;
+	static unsigned int localPingLevel = 0;
+	// This is a bit of a hack to reset the cache when the user changes the item filter level
+	if (localFilterLevel != filterLevelSetting) {
+		ResetCaches();
+		localFilterLevel = filterLevelSetting;
+	}
+	if (localPingLevel != pingLevelSetting) {
+		ResetCaches();
+		localPingLevel = pingLevelSetting;
+	}
 	if (!D2CLIENT_GetUIState(0x01))
 		viewingUnit = NULL;
 	
@@ -247,6 +291,18 @@ void Item::OnLeftClick(bool up, int x, int y, bool* block) {
 		*block = true;
 }
 
+int CreateUnitItemInfo(UnitItemInfo *uInfo, UnitAny *item) {
+	char* code = D2COMMON_GetItemText(item->dwTxtFileNo)->szCode;
+	uInfo->itemCode[0] = code[0]; uInfo->itemCode[1] = code[1]; uInfo->itemCode[2] = code[2]; uInfo->itemCode[3] = 0;
+	uInfo->item = item;
+	if (ItemAttributeMap.find(uInfo->itemCode) != ItemAttributeMap.end()) {
+		uInfo->attrs = ItemAttributeMap[uInfo->itemCode];
+		return 0;
+	} else {
+		return -1;
+	}
+}
+
 void __fastcall Item::ItemNamePatch(wchar_t *name, UnitAny *item)
 {
 	char* szName = UnicodeToAnsi(name);
@@ -255,10 +311,7 @@ void __fastcall Item::ItemNamePatch(wchar_t *name, UnitAny *item)
 
 	if (Toggles["Advanced Item Display"].state) {
 		UnitItemInfo uInfo;
-		uInfo.itemCode[0] = code[0]; uInfo.itemCode[1] = code[1]; uInfo.itemCode[2] = code[2]; uInfo.itemCode[3] = 0;
-		uInfo.item = item;
-		if (ItemAttributeMap.find(uInfo.itemCode) != ItemAttributeMap.end()) {
-			uInfo.attrs = ItemAttributeMap[uInfo.itemCode];
+		if (!CreateUnitItemInfo(&uInfo, item)) {
 			GetItemName(&uInfo, itemName);
 		} else {
 			HandleUnknownItemCode(uInfo.itemCode, "name");
@@ -580,17 +633,33 @@ static ItemsTxt* GetArmorText(UnitAny* pItem) {
 
 void __stdcall Item::OnProperties(wchar_t * wTxt)
 {
+	const int MAXLEN = 1024;
+	static wchar_t wDesc[128];// a buffer for converting the description
 	UnitAny* pItem = *p_D2CLIENT_SelectedInvItem;
+	UnitItemInfo uInfo;
+	if (!pItem || pItem->dwType != UNIT_ITEM || CreateUnitItemInfo(&uInfo, pItem)) {
+		return; // unknown item code
+	}
+
+	// Add description
+	if (Toggles["Advanced Item Display"].state) {
+		int aLen = wcslen(wTxt);
+		string desc = item_desc_cache.Get(&uInfo);
+		if (desc != "") {
+			auto chars_written = MultiByteToWideChar(CODE_PAGE, MB_PRECOMPOSED, desc.c_str(), -1, wDesc, 128);
+			swprintf_s(wTxt + aLen, MAXLEN - aLen,
+				L"%s%s\n",
+				(chars_written > 0) ? wDesc : L"\377c1 Descirption string too long!",
+				GetColorCode(TextColor::White).c_str());
+		}
+	}
 
 	if (!(Toggles["Always Show Item Stat Ranges"].state ||
 				GetKeyState(VK_CONTROL) & 0x8000) ||
 			pItem == nullptr ||
-			pItem->dwType != UNIT_ITEM) {
-		return;
-	}
-
-	//Any Armor ItemTypes.txt
-	if (D2COMMON_IsMatchingType(pItem, ITEM_TYPE_ALLARMOR)) {
+			pItem->dwType != UNIT_ITEM) { /* skip armor range */ }
+	else if (D2COMMON_IsMatchingType(pItem, ITEM_TYPE_ALLARMOR)) {
+		//Any Armor ItemTypes.txt
 		int aLen = 0;
 		bool ebugged = false;
 		bool spawned_with_ed = false;
@@ -616,7 +685,7 @@ void __stdcall Item::OnProperties(wchar_t * wTxt)
 		// Items with enhanced def mod will spawn with base def as max +1.
 		// Don't show range if item spawned with edef and hasn't been upgraded.
 		if (!spawned_with_ed) {
-			swprintf_s(wTxt + aLen, 1024 - aLen,
+			swprintf_s(wTxt + aLen, MAXLEN - aLen,
 					L"%sBase Defense: %d %s[%d - %d]%s%s\n",
 					GetColorCode(TextColor::White).c_str(),
 					base,
@@ -626,6 +695,29 @@ void __stdcall Item::OnProperties(wchar_t * wTxt)
 					GetColorCode(TextColor::White).c_str()
 					);
 		}
+	}
+
+	int ilvl = pItem->pItemData->dwItemLevel;
+	int alvl = GetAffixLevel((BYTE)pItem->pItemData->dwItemLevel, (BYTE)uInfo.attrs->qualityLevel, uInfo.attrs->magicLevel);
+	int quality = pItem->pItemData->dwQuality;
+	// Add alvl
+	if (Toggles["Advanced Item Display"].state && Toggles["Show iLvl"].state
+			&& ilvl != alvl 
+			&& (quality == ITEM_QUALITY_MAGIC || quality == ITEM_QUALITY_RARE || quality == ITEM_QUALITY_CRAFT)) {
+		int aLen = wcslen(wTxt);
+		swprintf_s(wTxt + aLen, MAXLEN - aLen,
+				L"%sAffix Level: %d\n",
+				GetColorCode(TextColor::White).c_str(),
+				GetAffixLevel((BYTE)pItem->pItemData->dwItemLevel, (BYTE)uInfo.attrs->qualityLevel, uInfo.attrs->magicLevel));
+	}
+
+	// Add ilvl
+	if (Toggles["Advanced Item Display"].state && Toggles["Show iLvl"].state) {
+		int aLen = wcslen(wTxt);
+		swprintf_s(wTxt + aLen, MAXLEN - aLen,
+				L"%sItem Level: %d\n",
+				GetColorCode(TextColor::White).c_str(),
+				pItem->pItemData->dwItemLevel);
 	}
 }
 

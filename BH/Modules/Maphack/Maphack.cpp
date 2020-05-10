@@ -9,6 +9,7 @@
 #include "../../BH.h"
 #include "../../Drawing.h"
 #include "../Item/ItemDisplay.h"
+#include "../Item/Item.h"
 #include "../../AsyncDrawBuffer.h"
 
 #pragma optimize( "", off)
@@ -341,6 +342,7 @@ void Maphack::OnDraw() {
 	for (Room1* room1 = player->pAct->pRoom1; room1; room1 = room1->pRoomNext) {
 		for (UnitAny* unit = room1->pUnitFirst; unit; unit = unit->pListNext) {
 			if (unit->dwType == UNIT_ITEM && (unit->dwFlags & UNITFLAG_NO_EXPERIENCE) == 0x0) {
+				DWORD dwFlags = unit->pItemData->dwFlags;
 				UnitItemInfo uInfo;
 				uInfo.item = unit;
 				uInfo.itemCode[0] = D2COMMON_GetItemText(unit->dwTxtFileNo)->szCode[0];
@@ -349,20 +351,30 @@ void Maphack::OnDraw() {
 				uInfo.itemCode[3] = 0;
 				if (ItemAttributeMap.find(uInfo.itemCode) != ItemAttributeMap.end()) {
 					uInfo.attrs = ItemAttributeMap[uInfo.itemCode];
-					for (vector<Rule*>::iterator it = MapRuleList.begin(); it != MapRuleList.end(); it++) {
-						if ((*it)->Evaluate(&uInfo, NULL)) {
-							if ((unit->dwFlags & UNITFLAG_REVEALED) == 0x0
-								 && (*BH::MiscToggles2)["Item Detailed Notifications"].state) {
-									std::string itemName = GetItemName(unit);
-									size_t start_pos = 0;
-									while ((start_pos = itemName.find('\n', start_pos)) != std::string::npos) {
-										itemName.replace(start_pos, 1, " - ");
-										start_pos += 3;
-									}
-									PrintText(ItemColorFromQuality(unit->pItemData->dwQuality), "%s", itemName.c_str());
-							}
+					vector<Action> actions = map_action_cache.Get(&uInfo);
+					for (auto &action : actions) {
+						if (action.colorOnMap != UNDEFINED_COLOR ||
+								action.borderColor != UNDEFINED_COLOR ||
+								action.dotColor != UNDEFINED_COLOR ||
+								action.pxColor != UNDEFINED_COLOR ||
+								action.lineColor != UNDEFINED_COLOR) { // has map action
+							// Skip notification if ping level requirement not met
+							if (action.pingLevel > Item::GetPingLevel()) continue;
 							unit->dwFlags |= UNITFLAG_REVEALED;
-							break;
+							if ((*BH::MiscToggles2)["Item Detailed Notifications"].state
+							  && ((*BH::MiscToggles2)["Item Close Notifications"].state || (dwFlags & ITEMFLAG_NEW))
+							  && action.notifyColor != DEAD_COLOR) {
+								std::string itemName = GetItemName(unit);
+								size_t start_pos = 0;
+								while ((start_pos = itemName.find('\n', start_pos)) != std::string::npos) {
+									itemName.replace(start_pos, 1, " - ");
+									start_pos += 3;
+								}
+								PrintText(ItemColorFromQuality(unit->pItemData->dwQuality), "%s", itemName.c_str());
+								//PrintText(ItemColorFromQuality(unit->pItemData->dwQuality), "%s %x", itemName.c_str(), dwFlags);
+								break;
+							}
+
 						}
 					}
 				}
@@ -526,6 +538,8 @@ void Maphack::OnAutomapDraw() {
 						uInfo.attrs = ItemAttributeMap[uInfo.itemCode];
 						const vector<Action> actions = map_action_cache.Get(&uInfo);
 						for (auto &action : actions) {
+							// skip action if the ping level requirement isn't met
+							if (action.pingLevel > Item::GetPingLevel()) continue;
 							auto color = action.colorOnMap;
 							auto borderColor = action.borderColor;
 							auto dotColor = action.dotColor;
