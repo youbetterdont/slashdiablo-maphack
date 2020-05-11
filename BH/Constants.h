@@ -1150,3 +1150,17 @@ enum UNITFLAGEX
 #define CLASS_TAB_SKILLS				1
 
 #define ITEM_TYPE_ALLARMOR 50
+
+///////////////////////////////////////////////////
+// Video Mode
+///////////////////////////////////////////////////
+// This applies to Diablo II since version 1.00
+enum D2_VideoMode {
+  VIDEO_MODE_GDI = 1,
+  VIDEO_MODE_SOFTWARE,
+  VIDEO_MODE_DIRECT_DRAW,
+  VIDEO_MODE_GLIDE,
+  VIDEO_MODE_OPENGL,
+  VIDEO_MODE_DIRECT3D,
+  VIDEO_MODE_RAVE
+};

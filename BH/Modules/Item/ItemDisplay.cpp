@@ -329,6 +329,20 @@ void SubstituteNameVariables(UnitItemInfo *uInfo, string &name, const string &ac
 	};
 	name.assign(action_name);
 	for (int n = 0; n < sizeof(replacements) / sizeof(replacements[0]); n++) {
+
+		// Revert to non-glide colors here
+		if (*p_D2GFX_VideoMode != VIDEO_MODE_GLIDE) {
+			if (replacements[n].key == "CORAL") {
+				replacements[n].value = "\377c1"; // red
+			} else if (replacements[n].key == "SAGE") {
+				replacements[n].value = "\377c2"; // green
+			} else if (replacements[n].key == "TEAL") {
+				replacements[n].value = "\377c3"; // blue
+			} else if (replacements[n].key == "LIGHT_GRAY") {
+				replacements[n].value = "\377c5"; // gray
+			}
+		}
+		
 		while (name.find("%" + replacements[n].key + "%") != string::npos) {
 			name.replace(name.find("%" + replacements[n].key + "%"), replacements[n].key.length() + 2, replacements[n].value);
 		}
