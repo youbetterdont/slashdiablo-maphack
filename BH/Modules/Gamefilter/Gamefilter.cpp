@@ -164,6 +164,18 @@ void Gamefilter::OnRealmPacketRecv(BYTE* pPacket, bool* blockPacket) {
 				case '5':
 					gServerVector.push_back(L"gs5");
 					break;
+				case '6':
+					gServerVector.push_back(L"gs6");
+					break;
+				case '7':
+					gServerVector.push_back(L"gs7");
+					break;
+				case '8':
+					gServerVector.push_back(L"gs8");
+					break;
+				case '9':
+					gServerVector.push_back(L"gs9");
+					break;
 				default:
 					gServerVector.push_back(L"gs1");
 					break;
@@ -385,6 +397,18 @@ void Gamefilter::BuildGameList(string sFilter)
 						break;
 					case '5':
 						gServerVector.push_back(L"gs5");
+						break;
+					case '6':
+						gServerVector.push_back(L"gs6");
+						break;
+					case '7':
+						gServerVector.push_back(L"gs7");
+						break;
+					case '8':
+						gServerVector.push_back(L"gs8");
+						break;
+					case '9':
+						gServerVector.push_back(L"gs9");
 						break;
 					default:
 						gServerVector.push_back(L"gs1");
