@@ -66,7 +66,8 @@ Mustache[stash]: {{#this}}* {{>item}}\n\n{{/this}}
 
 # Release Notes for 1.9.9
 * Split BH config into settings (`BH_settings.cfg`) and advanced item display (`BH.cfg`)
-* Color super uniques a specific color much like what already exists for `Monster Color[733]` e.g. `Super Unique Color[3]:     0x0A` to color Rakanishu red on map.
+* Color super uniques a specific color much like what already exists for `Monster Color[733]`
+  * e.g. `Super Unique Color[3]:     0x0A` to color Rakanishu red on map.
 * Adds support for a configurable item description field. This field is shown in game along with the item properties (like required level, durability, etc.). It's useful for information you want to display with the item that doesn't need to be part of the item's name. The description goes in curly braces `{}`. "Advanced Item Display" must be on for the description to show. For example, you can add a hint to ebug armors with the following. [more info](https://github.com/planqi/slashdiablo-maphack/pull/46)
 ```
 ItemDisplay[!RW ETH !SUP CHEST NMAG SOCK=0]: %NAME%{%WHITE%Add sockets in cube with Tal+Thul+%YELLOW%o%WHITE%Perfect}
