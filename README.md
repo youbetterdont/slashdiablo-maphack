@@ -65,6 +65,8 @@ Mustache[stash]: {{#this}}* {{>item}}\n\n{{/this}}
 ```
 
 # Release Notes for 1.9.9
+* Add new text replacement colors for glide (with default non-glide colors)
+  * coral (red), sage (green), teal (blue), light_gray (gray)
 * Split BH config into settings (`BH_settings.cfg`) and advanced item display (`BH.cfg`)
 * Color super uniques a specific color much like what already exists for `Monster Color[733]`
   * e.g. `Super Unique Color[3]:     0x0A` to color Rakanishu red on map.
