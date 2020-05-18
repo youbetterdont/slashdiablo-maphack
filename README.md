@@ -82,7 +82,7 @@ ItemDisplay[!RW ETH !SUP CHEST NMAG SOCK=0]: %NAME%{%NAME% %WHITE%Add sockets in
 ```
 * The item level and affix level can now be displayed as part of the item's properties (like required level, durability, etc.). To enable this, "Advanced Item Display" and "Show iLvl" must be on.
 * Add support for up to 'gs9' display in game list
-* Add filter and ping levels [more_info](https://github.com/planqi/slashdiablo-maphack/wiki/Advanced-Item-Display#in-game-item-filter-modes-as-of-bh-199)
+* Add filter and ping levels [more info](https://github.com/planqi/slashdiablo-maphack/wiki/Advanced-Item-Display#in-game-item-filter-modes-as-of-bh-199)
 
 # Release Notes for 1.9.8
 ## Bug fixes
