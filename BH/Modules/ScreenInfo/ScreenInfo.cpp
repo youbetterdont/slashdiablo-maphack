@@ -28,6 +28,7 @@ void ScreenInfo::OnLoad() {
 		cGuardText->SetAlignment(Right);
 	}
 	gameTimer = GetTickCount();
+	gamesToLevel = std::numeric_limits<double>::infinity();
 }
 
 void ScreenInfo::LoadConfig() {
@@ -215,6 +216,10 @@ void ScreenInfo::OnDraw() {
 		}
 	}
 
+	UnitAny* pUnit = D2CLIENT_GetPlayerUnit();
+	currentExperience = (int)D2COMMON_GetUnitStat(pUnit, STAT_EXP, 0);
+	currentLevel = (int)D2COMMON_GetUnitStat(pUnit, STAT_LEVEL, 0);
+
 	if (Toggles["Experience Meter"].state) {
 		drawExperienceInfo();
 	}
@@ -223,20 +228,16 @@ void ScreenInfo::OnDraw() {
 void ScreenInfo::drawExperienceInfo(){
 	UnitAny* pUnit = D2CLIENT_GetPlayerUnit();
 	int nTime = ((GetTickCount() - gameTimer) / 1000);
-	DWORD cExp = (DWORD)D2COMMON_GetUnitStat(pUnit, STAT_EXP, 0);
-	if (startExperience == 0){ startExperience = cExp; }
-
-	int cLevel = (int)D2COMMON_GetUnitStat(pUnit, STAT_LEVEL, 0);
-	if (startLevel == 0) { startLevel = cLevel; }
+	if (startLevel == 0) { startLevel = currentLevel; }
 
 	char sExp[255] = { 0 };
 	double oldPctExp = ((double)startExperience - ExpByLevel[startLevel - 1]) / (ExpByLevel[startLevel] - ExpByLevel[startLevel - 1]) * 100.0;
-	double pExp = ((double)cExp - ExpByLevel[cLevel - 1]) / (ExpByLevel[cLevel] - ExpByLevel[cLevel - 1]) * 100.0;
+	double pExp = ((double)currentExperience - ExpByLevel[currentLevel - 1]) / (ExpByLevel[currentLevel] - ExpByLevel[currentLevel - 1]) * 100.0;
 	double expGainPct = pExp - oldPctExp;
-	if (cLevel > startLevel){
-		expGainPct = (100 - oldPctExp) + pExp + ((cLevel - startLevel) - 1) * 100;
+	if (currentLevel > startLevel){
+		expGainPct = (100 - oldPctExp) + pExp + ((currentLevel - startLevel) - 1) * 100;
 	}
-	double expPerSecond = nTime > 0 ? (cExp - startExperience) / (double)nTime : 0;
+	double expPerSecond = nTime > 0 ? (currentExperience - startExperience) / (double)nTime : 0;
 	char* unit = "";
 	if (expPerSecond > 1E9){
 		expPerSecond /= 1E9;
@@ -286,6 +287,9 @@ void ScreenInfo::OnAutomapDraw() {
 	CHAR szPing[10] = "";
 	sprintf_s(szPing, sizeof(szPing), "%d", *p_D2CLIENT_Ping);
 
+	CHAR szGamesToLevel[128] = "";
+	sprintf_s(szGamesToLevel, sizeof(szGamesToLevel), "%.2f", gamesToLevel);
+	
 	AutomapReplace automap[] = {
 		{"GAMENAME", pData->szGameName},
 		{"GAMEPASS", pData->szGamePass},
@@ -296,7 +300,8 @@ void ScreenInfo::OnAutomapDraw() {
 		{"LEVEL", level},
 		{"PING", szPing},
 		{"GAMETIME", gameTime},
-		{"REALTIME", szTime}
+		{"REALTIME", szTime},
+		{"GAMESTOLVL", szGamesToLevel}
 	};
 
 	for (vector<string>::iterator it = automapInfo.begin(); it < automapInfo.end(); it++) {
@@ -392,6 +397,9 @@ void ScreenInfo::OnGamePacketRecv(BYTE* packet, bool* block) {
 }
 
 void ScreenInfo::OnGameExit() {
+	DWORD xpGained = (currentExperience - startExperience);
+	gamesToLevel = (ExpByLevel[currentLevel] - currentExperience) / (1.0 * xpGained);
+
 	MephistoBlocked = false;
 	DiabloBlocked = false;
 	BaalBlocked = false;

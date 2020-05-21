@@ -42,6 +42,9 @@ class ScreenInfo : public Module {
 		bool ReceivedQuestPacket;
 		DWORD startExperience;
 		int startLevel;
+		DWORD currentExperience;
+		int currentLevel;
+		double gamesToLevel;
 
 		void ScreenInfo::drawExperienceInfo();
 	public:
