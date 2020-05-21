@@ -46,6 +46,12 @@ class ScreenInfo : public Module {
 		DWORD currentExperience;
 		int currentLevel;
 		double gamesToLevel;
+		double currentExpGainPct;
+		double currentExpPerSecond;
+		char* currentExpPerSecondUnit;
+		double lastExpGainPct;
+		double lastExpPerSecond;
+		char* lastExpPerSecondUnit;
 
 		void ScreenInfo::drawExperienceInfo();
 	public:
