@@ -42,6 +42,7 @@ class ScreenInfo : public Module {
 		bool ReceivedQuestPacket;
 		DWORD startExperience;
 		int startLevel;
+		string currentPlayer;
 		DWORD currentExperience;
 		int currentLevel;
 		double gamesToLevel;

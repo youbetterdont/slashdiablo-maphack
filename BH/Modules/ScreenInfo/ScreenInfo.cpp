@@ -72,6 +72,10 @@ void ScreenInfo::OnGameJoin() {
 	gameTimer = GetTickCount();
 	UnitAny* pUnit = D2CLIENT_GetPlayerUnit();
 	startExperience = (int)D2COMMON_GetUnitStat(pUnit, STAT_EXP, 0);
+	if (currentPlayer.compare(0, 16, pUnit->pPlayerData->szName) != 0) {
+		gamesToLevel = std::numeric_limits<double>::infinity();
+	}
+	currentPlayer = string(pUnit->pPlayerData->szName);
 	startLevel = (int)D2COMMON_GetUnitStat(pUnit, STAT_LEVEL, 0);
 }
 
