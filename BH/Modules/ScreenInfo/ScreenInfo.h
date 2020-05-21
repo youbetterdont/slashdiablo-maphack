@@ -52,6 +52,7 @@ class ScreenInfo : public Module {
 		double lastExpGainPct;
 		double lastExpPerSecond;
 		char* lastExpPerSecondUnit;
+		ULONGLONG lastGameLength;
 
 		void ScreenInfo::drawExperienceInfo();
 	public:

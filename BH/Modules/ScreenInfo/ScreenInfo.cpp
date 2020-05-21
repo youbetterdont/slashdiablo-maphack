@@ -32,6 +32,7 @@ void ScreenInfo::OnLoad() {
 	lastExpPerSecond = 0.0;
 	lastExpGainPct = 0.0;
 	lastExpPerSecondUnit = "";
+	lastGameLength = 0;
 }
 
 void ScreenInfo::LoadConfig() {
@@ -80,6 +81,7 @@ void ScreenInfo::OnGameJoin() {
 		lastExpPerSecond = 0.0;
 		lastExpGainPct = 0.0;
 		lastExpPerSecondUnit = "";
+		lastGameLength = 0;
 	}
 	currentPlayer = string(pUnit->pPlayerData->szName);
 	startLevel = (int)D2COMMON_GetUnitStat(pUnit, STAT_LEVEL, 0);
@@ -292,14 +294,18 @@ void ScreenInfo::OnAutomapDraw() {
 	CHAR szPing[10] = "";
 	sprintf_s(szPing, sizeof(szPing), "%d", *p_D2CLIENT_Ping);
 
-	CHAR szGamesToLevel[128] = "";
+	CHAR szGamesToLevel[32] = "";
 	sprintf_s(szGamesToLevel, sizeof(szGamesToLevel), "%.2f", gamesToLevel);
 	
-	CHAR szLastXpGainPer[128] = "";
+	CHAR szLastXpGainPer[32] = "";
 	sprintf_s(szLastXpGainPer, sizeof(szLastXpGainPer), "%s%00.2f%%", lastExpGainPct >= 0 ? "+" : "", lastExpGainPct);
 
-	CHAR szLastXpPerSec[128] = "";
+	CHAR szLastXpPerSec[32] = "";
 	sprintf_s(szLastXpPerSec, sizeof(szLastXpPerSec), "%s%.2f%s/s", lastExpPerSecond >= 0 ? "+" : "", lastExpPerSecond, lastExpPerSecondUnit);
+
+	char lastGameTime[20];
+	nTime = (lastGameLength/ 1000);
+	sprintf_s(lastGameTime, 20, "%.2d:%.2d:%.2d", nTime / 3600, (nTime / 60) % 60, nTime % 60);
 
 	AutomapReplace automap[] = {
 		{"GAMENAME", pData->szGameName},
@@ -314,7 +320,8 @@ void ScreenInfo::OnAutomapDraw() {
 		{"REALTIME", szTime},
 		{"GAMESTOLVL", szGamesToLevel},
 		{"LASTXPPERCENT", szLastXpGainPer},
-		{"LASTXPPERSEC", szLastXpPerSec}
+		{"LASTXPPERSEC", szLastXpPerSec},
+		{"LASTGAMETIME", lastGameTime}
 	};
 
 	for (vector<string>::iterator it = automapInfo.begin(); it < automapInfo.end(); it++) {
@@ -415,6 +422,7 @@ void ScreenInfo::OnGameExit() {
 	lastExpGainPct = currentExpGainPct;
 	lastExpPerSecond = currentExpPerSecond;
 	lastExpPerSecondUnit = currentExpPerSecondUnit;
+	lastGameLength = GetTickCount() - gameTimer;
 
 	MephistoBlocked = false;
 	DiabloBlocked = false;
