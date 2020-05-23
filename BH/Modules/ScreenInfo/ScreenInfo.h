@@ -46,15 +46,15 @@ class ScreenInfo : public Module {
 		DWORD currentExperience;
 		int currentLevel;
 		double gamesToLevel;
+		ULONGLONG timeToLevel;
 		double currentExpGainPct;
 		double currentExpPerSecond;
 		char* currentExpPerSecondUnit;
 		double lastExpGainPct;
 		double lastExpPerSecond;
-		char* lastExpPerSecondUnit;
 		ULONGLONG lastGameLength;
 
-		void ScreenInfo::drawExperienceInfo();
+		void ScreenInfo::FormattedXPPerSec(char* buffer, double xpPerSec);
 	public:
 		static map<std::string, Toggle> Toggles;
 
