@@ -45,14 +45,14 @@ class ScreenInfo : public Module {
 		string currentPlayer;
 		DWORD currentExperience;
 		int currentLevel;
-		double gamesToLevel;
-		ULONGLONG timeToLevel;
 		double currentExpGainPct;
 		double currentExpPerSecond;
 		char* currentExpPerSecondUnit;
-		double lastExpGainPct;
-		double lastExpPerSecond;
-		ULONGLONG lastGameLength;
+		string szGamesToLevel;
+		string szTimeToLevel;
+		string szLastXpGainPer;
+		string szLastXpPerSec;
+		string szLastGameTime;
 
 		void ScreenInfo::FormattedXPPerSec(char* buffer, double xpPerSec);
 	public:
