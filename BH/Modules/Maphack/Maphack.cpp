@@ -59,6 +59,7 @@ void Maphack::ReadConfig() {
 	BH::config->ReadInt("Manaburn Monster Color", mbMonColor);
 
 	BH::config->ReadKey("Reload Config", "VK_NUMPAD0", reloadConfig);
+	BH::config->ReadToggle("Show Settings", "VK_NUMPAD8", true, Toggles["Show Settings"]);
 
 	BH::config->ReadAssoc("Missile Color", missileColors);
 	BH::config->ReadAssoc("Monster Color", monsterColors);
@@ -304,6 +305,7 @@ void Maphack::OnUnload() {
 void Maphack::OnLoop() {
 	//// Remove or install patchs based on state.
 	ResetPatches();
+	BH::settingsUI->SetVisible(Toggles["Show Settings"].state);
 
 	// Get the player unit for area information.
 	UnitAny* unit = D2CLIENT_GetPlayerUnit();

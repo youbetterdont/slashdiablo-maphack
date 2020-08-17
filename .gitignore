@@ -35,5 +35,6 @@ Debug/
 Packaging/*
 BH/Release/*
 Release/*
-/.vs/BH/v15
+/.vs/*
 /BH.VC.db
+/out/*
