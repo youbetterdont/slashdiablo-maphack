@@ -483,6 +483,21 @@ private:
 	bool EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2);
 };
 
+class PartialCondition : public Condition
+{
+public:
+	PartialCondition(BYTE op, int target_count, vector<Rule> rules)
+		: operation(op), target_count(target_count), rules(rules) {
+		conditionType = CT_Operand;
+	};
+private:
+	BYTE operation;
+	const int target_count;
+	vector<Rule> rules; // TODO: should be const, but Rule::Evalate needs to be modified
+	bool EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Condition *arg2);
+	bool EvaluateInternalFromPacket(ItemInfo *info, Condition *arg1, Condition *arg2);
+};
+
 class ItemPriceCondition : public Condition
 {
 public:
