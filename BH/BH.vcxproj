@@ -80,6 +80,12 @@
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
     </Link>
+    <PostBuildEvent>
+      <Command>set "D2Path=$(D2Path)"
+if defined D2Path (
+    xcopy "$(SolutionDir)$(Configuration)" "$(D2Path)" /h /i /c /k /e /r /y
+)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -98,6 +104,12 @@
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
     </Link>
+    <PostBuildEvent>
+      <Command>set "D2Path=$(D2Path)"
+if defined D2Path (
+    xcopy "$(SolutionDir)$(Configuration)" "$(D2Path)" /h /i /c /k /e /r /y
+)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Packaging|Win32'">
     <ClCompile>
@@ -114,6 +126,12 @@
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
     </Link>
+    <PostBuildEvent>
+      <Command>set "D2Path=$(D2Path)"
+if defined D2Path (
+    xcopy "$(SolutionDir)$(Configuration)" "$(D2Path)" /h /i /c /k /e /r /y
+)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AsyncDrawBuffer.cpp" />

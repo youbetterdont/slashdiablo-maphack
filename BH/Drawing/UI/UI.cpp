@@ -111,6 +111,8 @@ void UI::SetMinimizedY(unsigned int newY) {
 }
 
 void UI::OnDraw() {
+	if (!IsVisible()) return;
+	EnsureInBounds();
 	if (IsMinimized()) {
 		int n = 0;
 		for (list<UI*>::iterator it = Minimized.begin(); it != Minimized.end(); it++, n++)
@@ -174,6 +176,37 @@ void UI::OnDraw() {
 	}
 }
 
+void UI::EnsureInBounds() {
+	if (IsMinimized()) {
+		if (GetMinimizedX() < 0) {
+			SetMinimizedX(0);
+		}
+		if (GetMinimizedX() + GetXSize() > Hook::GetScreenWidth()) {
+			SetMinimizedX(Hook::GetScreenWidth() - GetXSize());
+		}
+		if (GetMinimizedY() < 0) {
+			SetMinimizedY(0);
+		}
+		if (GetMinimizedY() + TITLE_BAR_HEIGHT > Hook::GetScreenHeight()) {
+			SetMinimizedY(Hook::GetScreenHeight() - TITLE_BAR_HEIGHT);
+		}
+	}
+	else {
+		if (GetX() < 0) {
+			SetX(0);
+		}
+		if(GetX() + GetXSize() > Hook::GetScreenWidth()) {
+			SetX(Hook::GetScreenWidth() - GetXSize());
+		}
+		if (GetY() < 0) {
+			SetY(0);
+		}
+		if (GetY() + GetYSize() > Hook::GetScreenHeight()) {
+			SetY(Hook::GetScreenHeight() - GetYSize());
+		}
+	}
+}
+
 void UI::SetDragged(bool state, bool write_file) {
 	Lock(); 
 	dragged = state; 
@@ -188,6 +221,10 @@ void UI::SetDragged(bool state, bool write_file) {
 
 void UI::SetDragged(bool state) {
     SetDragged(state, false);
+}
+
+void UI::SetVisible(bool newState) {
+	visible = newState;
 }
 
 void UI::SetMinimized(bool newState) { 
