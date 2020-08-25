@@ -716,6 +716,31 @@ void Condition::ProcessConditions(vector<Condition*> &inputConditions, vector<Co
 	}
 }
 
+// make_count_subrule calls BuildConditon, which creates new Conditions. We free these here.
+PartialCondition::~PartialCondition() {
+	for (auto rule : rules) {
+		for (Condition *condition : rule.conditions) {
+			delete condition;
+		}
+	}
+}
+
+void PartialCondition::make_count_subrule(string token) {
+	BYTE LastConditionTypeOld = LastConditionType;
+	LastConditionType = CT_None;
+	vector<Condition*> RawConditions;
+	//string token(s.substr(last, next-last));
+	//PrintText(1, "In BuildConditions. token=%s", token.c_str());
+	Condition::BuildConditions(RawConditions, token);
+	//PrintText(1, "In BuildConditions. RawConditions.size=%d", RawConditions.size());
+	for (auto condition : RawConditions) {
+		//PrintText(1, "\t condition type=%d", condition->conditionType);
+	}
+	Rule rule(RawConditions, NULL);
+	rules.push_back(rule);
+	LastConditionType = LastConditionTypeOld;
+}
+
 void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 	vector<Condition*> endConditions;
 	int i;
@@ -771,7 +796,7 @@ void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 	} else {
 		key = token;
 	}
-	if (key.compare(0, 5, "COUNT") == 0) PrintText(1, "Matched COUNT, valueStr=%s, value=%d, delim=%s", valueStr.c_str(), value, delim.c_str());
+	//if (key.compare(0, 5, "COUNT") == 0) PrintText(1, "Matched COUNT, valueStr=%s, value=%d, delim=%s", valueStr.c_str(), value, delim.c_str());
 	BYTE operation = GetOperation(&delim);
 
 	unsigned int keylen = key.length();
@@ -882,7 +907,7 @@ void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 	} else if (key.compare(0, 3, "STR") == 0) {
 		Condition::AddOperand(conditions, new ItemStatCondition(STAT_STRENGTH, 0, operation, value));
 	} else if (key.compare(0, 3, "DEX") == 0) {
-		PrintText(1, "In BuildCondition. Creating DEX condition with value=%d", value);
+		//PrintText(1, "In BuildCondition. Creating DEX condition with value=%d", value);
 		Condition::AddOperand(conditions, new ItemStatCondition(STAT_DEXTERITY, 0, operation, value));
 	} else if (key.compare(0, 3, "FRW") == 0) {
 		Condition::AddOperand(conditions, new ItemStatCondition(STAT_FASTERRUNWALK, 0, operation, value));
@@ -1098,8 +1123,7 @@ void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 		Condition::AddOperand(conditions, new ItemPriceCondition(operation, value));
 	} else if (key.compare(0, 5, "COUNT") == 0) {
 		// backup the last condition type
-		BYTE LastConditionTypeOld = LastConditionType;
-		PrintText(1, "COUNT match with valueStr=%s", valueStr.c_str());
+		//PrintText(1, "COUNT match with valueStr=%s", valueStr.c_str());
 		int i = 0; // Token index
 		string s(valueStr);
 		const string delimiter = ","; // Partial conditions are delimited by commas, e.g., COUNT=2,FRES>30,LRES>30,CRES>30
@@ -1107,6 +1131,7 @@ void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 		size_t next = 0;
 		int min_conditions = 0; // minimum number of conditions required to match
 		vector<Rule> rule_vec;
+		vector<string> tokens;
 		while ((next = s.find(delimiter, last)) != string::npos) {
 			if (i==0) {
 				stringstream ss(s.substr(last, next-last));
@@ -1116,32 +1141,14 @@ void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 				}
 				if (min_conditions != value) return; // TODO: Error handling
 			} else {
-				LastConditionType = CT_None;
-				vector<Condition*> RawConditions;
-				string token(s.substr(last, next-last));
-				PrintText(1, "In BuildConditions. token=%s", token.c_str());
-				Condition::BuildConditions(RawConditions, token);
-				PrintText(1, "In BuildConditions. RawConditions.size=%d", RawConditions.size());
-				for (auto condition : RawConditions) {
-					PrintText(1, "\t condition type=%d", condition->conditionType);
-				}
-				Rule rule(RawConditions, NULL);
-				rule_vec.push_back(rule);
+				tokens.push_back(s.substr(last, next-last));
 			}
 			last = next + 1;
 			i++;
-		} 
-		LastConditionType = CT_None;
-		vector<Condition*> RawConditions;
-		string token(s.substr(last));
-		PrintText(1, "In BuildConditions. token=%s", token.c_str());
-		Condition::BuildConditions(RawConditions, token); // the last argument	
-		PrintText(1, "In BuildConditions. RawConditions.size=%d", RawConditions.size());
-		Rule rule(RawConditions, NULL);
-		rule_vec.push_back(rule);
-		PrintText(1, "Created PartialCondition with min_conditions=%d and rules size=%d", min_conditions, rule_vec.size());
-		LastConditionType = LastConditionTypeOld;
-		Condition::AddOperand(conditions, new PartialCondition(operation, min_conditions, rule_vec));
+		}
+		tokens.push_back(s.substr(last));
+		//PrintText(1, "Created PartialCondition with min_conditions=%d and rules size=%d", min_conditions, tokens.size());
+		Condition::AddOperand(conditions, new PartialCondition(operation, min_conditions, tokens));
 	}
 	for (vector<Condition*>::iterator it = endConditions.begin(); it != endConditions.end(); it++) {
 		Condition::AddNonOperand(conditions, (*it));
@@ -1638,7 +1645,7 @@ bool PartialCondition::EvaluateInternal(UnitItemInfo *uInfo, Condition *arg1, Co
 	int match_count = 0;
 	for (auto &rule : rules) {
 		if (rule.Evaluate(uInfo, NULL)) match_count++;
-		PrintText(1, "in EvaluateInternal. rule.conditions.size=%d match_count=%d", rule.conditions.size(), match_count);
+		//PrintText(1, "in EvaluateInternal. rule.conditions.size=%d match_count=%d", rule.conditions.size(), match_count);
 	}
 	return IntegerCompare(match_count, operation, target_count);
 }
