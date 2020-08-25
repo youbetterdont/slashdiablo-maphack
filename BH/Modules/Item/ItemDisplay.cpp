@@ -725,14 +725,22 @@ PartialCondition::~PartialCondition() {
 	}
 }
 
-void PartialCondition::make_count_subrule(string token) {
+void PartialCondition::make_count_subrule(string rule_str) {
 	BYTE LastConditionTypeOld = LastConditionType;
 	LastConditionType = CT_None;
 	vector<Condition*> RawConditions;
-	//string token(s.substr(last, next-last));
-	//PrintText(1, "In BuildConditions. token=%s", token.c_str());
-	Condition::BuildConditions(RawConditions, token);
-	//PrintText(1, "In BuildConditions. RawConditions.size=%d", RawConditions.size());
+	string buf;
+	vector<string> tokens;
+	stringstream ss(rule_str);
+	while (ss >> buf) {
+		tokens.push_back(buf);
+	}
+	for (auto &token : tokens) {
+		//string token(s.substr(last, next-last));
+		//PrintText(1, "In BuildConditions. token=%s", token.c_str());
+		Condition::BuildConditions(RawConditions, token);
+		//PrintText(1, "In BuildConditions. RawConditions.size=%d", RawConditions.size());
+	}
 	for (auto condition : RawConditions) {
 		//PrintText(1, "\t condition type=%d", condition->conditionType);
 	}
@@ -1147,6 +1155,10 @@ void Condition::BuildConditions(vector<Condition*> &conditions, string token) {
 			i++;
 		}
 		tokens.push_back(s.substr(last));
+		// substitue | for a space. this is a workaround since we can't allow spaces in a single token
+		for (auto &token : tokens) {
+			replace(token.begin(), token.end(), '|', ' ');
+		}
 		//PrintText(1, "Created PartialCondition with min_conditions=%d and rules size=%d", min_conditions, tokens.size());
 		Condition::AddOperand(conditions, new PartialCondition(operation, min_conditions, tokens));
 	}
